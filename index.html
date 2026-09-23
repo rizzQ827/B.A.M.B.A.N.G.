@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BAMBANG — Demo</title>
-<meta name="description" content="BAMBANG (Bot Analisis Materi Belajar, Awam Nan Gamblang) — gudang ide dari konten sosmed. Versi demo dengan data contoh lokal.">
+<title>BAMBANG</title>
+<meta name="description" content="BAMBANG (Bot Analisis Materi Belajar, Awam Nan Gamblang) — gudang ide dari konten sosmed. Tersimpan di Supabase.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -35,7 +35,18 @@ button,input,select,textarea{font:inherit;color:inherit}
 .brand h1{font:800 30px/1 var(--f-display);letter-spacing:-.025em;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .brand h1 i{width:11px;height:11px;background:var(--accent);border-radius:2px;display:inline-block;transform:rotate(45deg);flex:none}
 .brand p{margin:7px 0 0;color:var(--muted);font-size:12.5px}
-.pill-demo{font:500 10.5px/1 var(--f-mono);background:var(--warn-soft);color:var(--warn);padding:5px 8px;border-radius:99px;letter-spacing:.03em;text-transform:uppercase}
+.top-r{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sync{font:500 12px/1 var(--f-body);padding:6px 10px;border-radius:99px;background:var(--ok-soft);color:var(--ok);display:inline-flex;gap:6px;align-items:center}
+.sync::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.sync[data-state="saving"],.sync[data-state="loading"]{background:var(--warn-soft);color:var(--warn)}
+.sync[data-state="error"]{background:var(--bad-soft);color:var(--bad)}
+.sync .link-btn{font-size:12px;color:inherit;text-decoration:underline}
+.auth{min-height:60vh;display:grid;place-items:center;padding:24px 16px 60px}
+.auth-card{width:min(380px,100%);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 20px;display:grid;gap:12px}
+.auth-card h2{margin:0;font:700 22px/1.2 var(--f-display)}
+.auth-card > p{margin:-4px 0 4px;color:var(--muted);font-size:13px}
+.auth-msg{margin:0;color:var(--bad);font-size:13px;min-height:1em}
+.auth-card .btn{justify-content:center}
 
 /* nav */
 .nav{position:sticky;top:0;z-index:20;background:rgba(243,241,236,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
@@ -322,13 +333,28 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <h1><i aria-hidden="true"></i>BAMBANG <span class="pill-demo">Demo · data contoh</span></h1>
+      <h1><i aria-hidden="true"></i>BAMBANG</h1>
       <p>Bot Analisis Materi Belajar, Awam Nan Gamblang — gudang ide dari konten sosmed</p>
+    </div>
+    <div class="top-r app-only" hidden>
+      <span class="sync" id="syncPill" data-state="loading" role="status">Memuat…</span>
+      <button class="btn ghost sm" id="reloadBtn" title="Ambil ulang data terbaru dari cloud">Muat ulang</button>
     </div>
   </header>
 </div>
 
-<nav class="nav" aria-label="Menu utama">
+<section class="auth" id="authScreen" hidden>
+  <form class="auth-card" id="authForm">
+    <h2>Masuk ke BAMBANG</h2>
+    <p>Pakai email &amp; password user yang dibuat di Supabase (Authentication → Users).</p>
+    <label class="f"><span>Email</span><input id="authEmail" type="email" autocomplete="username" required></label>
+    <label class="f"><span>Password</span><input id="authPass" type="password" autocomplete="current-password" required></label>
+    <p class="auth-msg" id="authMsg" role="alert"></p>
+    <button class="btn pri" id="authBtn" type="submit">Masuk</button>
+  </form>
+</section>
+
+<nav class="nav app-only" aria-label="Menu utama" hidden>
   <div class="wrap">
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" data-view="katalog">Katalog</button>
@@ -345,31 +371,31 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
   </div>
 </nav>
 
-<main class="wrap" id="view" tabindex="-1"></main>
+<main class="wrap app-only" id="view" tabindex="-1" hidden></main>
 
-<footer>
+<footer class="app-only" hidden>
   <div class="wrap">
-    <span>Versi demo — data tersimpan di browser ini saja, belum terhubung Supabase.</span>
-    <span><button class="link-btn" id="resetBtn">Reset data demo</button> · v0.2-demo</span>
+    <span>Masuk sebagai <b id="userEmail"></b> · <button class="link-btn" id="logoutBtn">Keluar</button></span>
+    <span>Tersambung ke Supabase · v0.3</span>
   </div>
 </footer>
 
 <dialog id="dlg"></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
 <script>
 /* =========================================================
-   BAMBANG v0.2 — demo lokal (tanpa login, tanpa Supabase)
-   Data disimpan di localStorage browser, kunci: bambang-demo-v2
+   BAMBANG v0.3 — tersambung ke Supabase
+   Data tersimpan di database cloud, dilindungi login + RLS
    ========================================================= */
-const KEY = 'bambang-demo-v2';
 const PLATFORMS = ['Instagram','TikTok','YouTube','Threads','X','LinkedIn'];
 const PMETA = {Instagram:['IG','#c92a6b'],TikTok:['TT','#161616'],YouTube:['YT','#d62a2a'],Threads:['TH','#3d434a'],X:['X','#26292d'],LinkedIn:['IN','#1864ab']};
 const GEM_NAME = 'Pembaca Konten BAMBANG';
 
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
-const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4);
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c === 'x' ? r : (r&3|8)).toString(16); }));
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const slugify = s => String(s||'').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/^@/,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
 const fsafe = s => String(s||'').replace(/[\\/:*?"<>|#^\[\]]/g,'-').replace(/\s+/g,' ').trim() || 'tanpa-nama';
@@ -382,130 +408,7 @@ const dur = (a,b) => { const m = Math.max(0, Math.round((new Date(b) - new Date(
 const norm = u => String(u||'').replace(/[?#].*$/,'').replace(/\/+$/,'').toLowerCase();
 const lc = s => String(s||'').trim().toLowerCase();
 
-/* =========================================================
-   DATA CONTOH
-   ========================================================= */
-function mkNote(o){
-  return `---
-judul: ${o.judul}
-judul_slug: ${slugify(o.judul).split('-').slice(0,6).join('-')}
-sumber: ${o.url}
-kreator: ${o.kreator}
-platform: ${o.platform}
-jenis: ${o.jenis}
-panjang: ${o.panjang}
-mode: ${o.mode}
-audio: ${o.audio}
-tags: [${o.tags.join(', ')}]
-series_terdeteksi: ${o.series || '-'}
-part_terdeteksi: ${o.part || '-'}
-momen_visual: ${o.visual || '-'}
----
-
-## Isi
-${o.isi}
-
-## Caption
-${o.caption || '-'}
-
-## Penutup
-${o.penutup}
-`;
-}
-function seed(){
-  const T = (id,name,parent_id=null,description='') => ({id,name,parent_id,description});
-  const themes = [
-    T('t1','UI',null,'Tampilan visual antarmuka: layout, warna, tombol, teks'),
-    T('t1a','Layout & Grid','t1'), T('t1b','Spacing','t1'), T('t1c','Hierarki Tombol','t1'), T('t1d','Warna & Kontras','t1'), T('t1e','Microcopy','t1'),
-    T('t2','UX',null,'Pengalaman dan kenyamanan pemakai'),
-    T('t2a','Ergonomi Mobile','t2'), T('t2b','Feedback Interaksi','t2'),
-    T('t3','Repo GitHub',null,'Repository/library gratis yang layak dipakai'),
-    T('t3a','Library Animasi','t3'),
-    T('t4','Bisnis Freelance',null,'Cara menjalankan jasa freelance'),
-    T('t4a','Pricing Jasa','t4')
-  ];
-  const P = (id,acc,platform,series_id,part,date,proc,url,theme_ids,flags,note) => {
-    const md = mkNote(note);
-    const m = parseMD(md);
-    return {id,account_id:acc,platform,series_id,part_number:part,post_date:date,processed_at:proc,original_url:url,theme_ids,
-      title:m.title,title_slug:m.title_slug,tags:m.tags||[],has_visual:!!m.has_visual,visual_notes:m.visual_notes||'',
-      validated:!!flags.v,reprocess:!!flags.r,md_content:md};
-  };
-  const posts = [
-    P('p1','a1','Instagram','s1',1,'2026-08-02','2026-08-20T09:12:00+07:00','https://www.instagram.com/p/C9rAnc01xYz/',['t1a'],{v:1},{
-      judul:'Grid 4 kolom untuk layar HP',url:'https://www.instagram.com/p/C9rAnc01xYz/',kreator:'@rancang.ui',platform:'Instagram',jenis:'carousel',panjang:'8 slide',mode:'berat',audio:'bukan video',tags:['layout','grid','mobile'],series:'Layout Mobile 101',part:1,
-      isi:`**Slide 1**\nIsi: "Layout HP kamu berantakan? Mungkin kamu belum pakai grid."\nMaksudnya: tampilan terasa acak karena elemen tidak mengikuti garis bantu yang sama.\n\n**Slide 2–3**\nIsi: grid 4 kolom, margin kiri-kanan 16px, gutter 16px.\nMaksudnya: layar HP dibagi 4 lajur. Jarak tepi layar dan jarak antar lajur dibuat sama.\nIstilah sulit: **gutter** = jarak kosong antar kolom. Contoh: dua kartu produk berdampingan dipisah 16px.\n\n**Slide 4–6**\nIsi: contoh kartu produk selebar 2 kolom vs 4 kolom.\nMaksudnya: 2 kolom = 2 kartu per baris, 4 kolom = 1 kartu penuh.\n\n**Slide 7**\nIsi: kesalahan umum — teks dan gambar punya margin berbeda-beda.\n\n**Slide 8**\nIsi: ajakan menyimpan postingan untuk part berikutnya.`,
-      penutup:'- Layar HP cukup 4 kolom dengan margin dan gutter 16px. Semua elemen harus menempel ke garis kolom yang sama.\n- Sudah dibuka sampai slide 8.'}),
-    P('p2','a1','Instagram','s1',2,'2026-08-09','2026-08-20T09:40:00+07:00','https://www.instagram.com/p/C9wBq72kLmN/',['t1b'],{v:1},{
-      judul:'Jarak antar section pakai kelipatan 8',url:'https://www.instagram.com/p/C9wBq72kLmN/',kreator:'@rancang.ui',platform:'Instagram',jenis:'carousel',panjang:'6 slide',mode:'berat',audio:'bukan video',tags:['spacing','layout','mobile'],series:'Layout Mobile 101',part:2,visual:'Slide 4 — before-after jarak antar section, perbedaannya halus dan lebih jelas kalau dilihat langsung',
-      isi:`**Slide 1**\nIsi: "Jarak antar section itu bukan feeling."\n\n**Slide 2**\nIsi: skala jarak 8 – 16 – 24 – 32 – 48 – 64.\nMaksudnya: pakai angka dari daftar ini saja, jangan asal angka.\nIstilah sulit: **spacing scale** = daftar ukuran jarak yang boleh dipakai.\n\n**Slide 3**\nIsi: jarak di dalam komponen lebih kecil daripada jarak antar section.\n\n**Slide 4**\nIsi: before-after halaman landing (lihat momen_visual).\n\n**Slide 5–6**\nIsi: ringkasan dan ajakan follow.`,
-      penutup:'- Pakai skala kelipatan 8. Jarak di dalam grup lebih rapat daripada jarak antar grup; section di HP umumnya 48–64px.\n- Sudah dibuka sampai slide 6.'}),
-    P('p3','a1','Instagram',null,null,'2026-08-15','2026-08-20T10:05:00+07:00','https://www.instagram.com/reel/DA1cXe9pQrS/',['t1c'],{},{
-      judul:'Satu layar satu tombol utama',url:'https://www.instagram.com/reel/DA1cXe9pQrS/',kreator:'@rancang.ui',platform:'Instagram',jenis:'reels',panjang:'0:48',mode:'ringan',audio:'terdengar',tags:['button','hierarki','cta'],
-      isi:`**00:00–00:12** — "Kalau semua tombol warnanya sama, user bingung harus klik yang mana."\n\n**00:12–00:25** — Contoh halaman checkout dengan 3 tombol berwarna penuh.\n\n**00:25–00:40** — Versi perbaikan: 1 tombol utama warna penuh, 1 tombol bergaris, 1 teks link.\n\n**00:40–00:48** — "Satu layar, satu bintang utama." Catatan: kreator menyebut "ghost button" di 00:33, tapi yang terlihat mirip teks link biasa (tidak yakin).`,
-      penutup:'- Tentukan satu aksi utama per layar; aksi kedua pakai tombol bergaris, aksi ketiga cukup teks link.\n- Ambigu: istilah "ghost button" vs tampilan yang mirip link.\n- Sudah dibuka sampai 00:48.'}),
-    P('p4','a1','Instagram','s1',4,'2026-08-30','2026-09-02T19:58:00+07:00','https://www.instagram.com/p/DB7tHk3vWxY/',['t2a','t1a'],{r:1},{
-      judul:'Thumb zone di layar HP',url:'https://www.instagram.com/p/DB7tHk3vWxY/',kreator:'@rancang.ui',platform:'Instagram',jenis:'carousel',panjang:'7 slide',mode:'berat',audio:'bukan video',tags:['mobile','ergonomi'],series:'Layout Mobile 101',part:4,
-      isi:`**Slide 1–2** — Ilustrasi jangkauan jempol saat HP dipegang satu tangan.\nIstilah sulit: **thumb zone** = area layar yang nyaman dijangkau jempol.\n\n**Slide 3–5** — Teks slide buram, tidak terbaca jelas.\n\n**Slide 6–7** — Rekomendasi: tombol utama di sepertiga bawah layar.`,
-      penutup:'- Tombol penting diletakkan di bagian bawah layar.\n- Slide 3–5 tidak terbaca, isi catatan ini kemungkinan belum lengkap.\n- Sudah dibuka sampai slide 7.'}),
-    P('p5','a2','TikTok','s2',1,'2026-09-01','2026-09-12T13:10:00+07:00','https://www.tiktok.com/@pixelbersih/video/7410000000000000001',['t1d'],{v:1},{
-      judul:'Cek kontras warna tombol CTA',url:'https://www.tiktok.com/@pixelbersih/video/7410000000000000001',kreator:'@pixelbersih',platform:'TikTok',jenis:'video',panjang:'1:05',mode:'berat',audio:'terdengar',tags:['warna','kontras','cta','aksesibilitas'],series:'Warna untuk CTA',part:1,
-      isi:`**00:00–00:10**\nIsi: "Tombol kamu cantik, tapi kebaca nggak?"\n\n**00:10–00:30**\nIsi: rasio kontras minimal **4.5:1** untuk teks.\nMaksudnya: warna teks dan warna tombol harus cukup beda terang-gelapnya.\nIstilah sulit: **rasio kontras** = ukuran beda terang-gelap dua warna. Makin tinggi, makin mudah dibaca.\n\n**00:30–00:52** — Demo cek kontras pakai plugin (nama plugin tidak disebut).\n\n**00:52–01:05** — Tips: kalau ragu, gelapkan warna tombol satu tingkat.`,
-      penutup:'- Teks tombol minimal kontras 4.5:1; warna brand boleh digelapkan khusus untuk tombol.\n- Sudah dibuka sampai 01:05.'}),
-    P('p6','a2','TikTok','s2',2,'2026-09-05','2026-09-12T13:24:00+07:00','https://www.tiktok.com/@pixelbersih/video/7410000000000000002',['t2b','t1d'],{},{
-      judul:'Warna hover dan pressed pada tombol',url:'https://www.tiktok.com/@pixelbersih/video/7410000000000000002',kreator:'@pixelbersih',platform:'TikTok',jenis:'video',panjang:'0:52',mode:'ringan',audio:'terdengar',tags:['warna','cta','interaksi'],series:'Warna untuk CTA',part:2,
-      isi:`**00:00–00:14** — "Tombol yang diam saja pas diklik itu bikin ragu."\n\n**00:14–00:28** — Hover: warna satu tingkat lebih gelap.\n\n**00:28–00:44** — Pressed: lebih gelap lagi dan sedikit mengecil.\n\n**00:44–00:52** — "Jangan ganti ke warna lain sama sekali."`,
-      penutup:'- Beri perubahan warna saat hover dan ditekan, tetap di keluarga warna yang sama.\n- Sudah dibuka sampai 00:52.'}),
-    P('p7','a2','TikTok',null,null,'2026-09-10','2026-09-12T13:37:00+07:00','https://www.tiktok.com/@pixelbersih/video/7410000000000000003',['t1e'],{},{
-      judul:'Ganti label Submit dengan kata kerja',url:'https://www.tiktok.com/@pixelbersih/video/7410000000000000003',kreator:'@pixelbersih',platform:'TikTok',jenis:'video',panjang:'0:40',mode:'ringan',audio:'terdengar',tags:['copywriting','button','cta'],visual:'00:21 — perbandingan 4 label tombol berdampingan',
-      isi:`**00:00–00:09** — "Submit itu kata paling malas di dunia UI."\n\n**00:09–00:21** — Contoh label: "Kirim", "Daftar", "Pesan sekarang", "Dapatkan penawaran".\n\n**00:21–00:33** — Perbandingan 4 label berdampingan (lihat momen_visual).\n\n**00:33–00:40** — Rumus: kata kerja + hasil yang didapat.`,
-      penutup:'- Label tombol = kata kerja + hasil. Hindari label generik seperti "Submit" atau "OK".\n- Sudah dibuka sampai 00:40.'}),
-    P('p8','a4','TikTok',null,null,'2026-09-14','2026-09-18T20:02:00+07:00','https://www.tiktok.com/@kodebersih/video/7420000000000000001',['t3a'],{v:1},{
-      judul:'3 library gratis untuk animasi scroll',url:'https://www.tiktok.com/@kodebersih/video/7420000000000000001',kreator:'@kodebersih',platform:'TikTok',jenis:'video',panjang:'0:58',mode:'berat',audio:'terdengar',tags:['animasi','scroll','library','javascript'],
-      isi:`**00:00–00:08**\nIsi: "Website kamu kaku? Pakai tiga library ini."\n\n**00:08–00:24**\nIsi: **Lenis** — untuk scroll yang terasa halus.\nMaksudnya: saat halaman digulir, geraknya tidak patah-patah.\n\n**00:24–00:40**\nIsi: **AOS** — elemen muncul dengan animasi saat masuk layar.\nIstilah sulit: **on scroll** = dipicu ketika pengguna menggulir halaman.\n\n**00:40–00:58**\nIsi: **GSAP ScrollTrigger** — untuk animasi yang lebih rumit dan bisa diatur per detik gulir.\n[Tambahan] GSAP punya lisensi sendiri; cek syaratnya sebelum dipakai untuk klien.`,
-      penutup:'- Lenis untuk scroll halus, AOS untuk animasi muncul sederhana, GSAP ScrollTrigger untuk animasi kompleks.\n- Sudah dibuka sampai 00:58.'}),
-    P('p9','a5','YouTube',null,null,'2026-09-16','2026-09-19T08:30:00+07:00','https://www.youtube.com/shorts/aBcDeFgHiJ0',['t4a'],{},{
-      judul:'Menentukan harga jasa website',url:'https://www.youtube.com/shorts/aBcDeFgHiJ0',kreator:'@freelance.waras',platform:'YouTube',jenis:'video',panjang:'0:59',mode:'berat',audio:'terdengar',tags:['pricing','freelance','jasa-website'],
-      isi:`**00:00–00:15**\nIsi: jangan menghitung harga dari jam kerja saja.\nMaksudnya: klien membayar hasil, bukan lamanya kamu mengerjakan.\n\n**00:15–00:40**\nIsi: rumus sederhana: biaya dasar + nilai untuk bisnis klien + biaya revisi.\nIstilah sulit: **value-based pricing** = harga ditentukan dari manfaat yang didapat klien.\n\n**00:40–00:59**\nIsi: selalu tawarkan 3 paket (dasar, standar, lengkap).`,
-      penutup:'- Harga jasa sebaiknya berdasarkan nilai untuk klien dan ditawarkan dalam 3 paket.\n- Opini pembicara: "paket tengah paling laku" tidak disertai data.\n- Sudah dibuka sampai 00:59.'}),
-    P('p10','a3','Instagram',null,null,'2026-09-17','2026-09-20T10:15:00+07:00','https://www.instagram.com/p/DC2kLmNoPq1/',[],{},{
-      judul:'Font pairing untuk landing page',url:'https://www.instagram.com/p/DC2kLmNoPq1/',kreator:'@layout.lab',platform:'Instagram',jenis:'carousel',panjang:'5 slide',mode:'ringan',audio:'bukan video',tags:['tipografi','font'],
-      isi:`**Slide 1** — "Dua font cukup."\n\n**Slide 2–4** — Contoh pasangan: font judul tebal + font isi yang netral.\n\n**Slide 5** — Batasi maksimal 2 jenis font per website.`,
-      penutup:'- Pakai 2 font: satu untuk judul, satu untuk isi.\n- Sudah dibuka sampai slide 5.'})
-  ];
-  return {
-    v:2,
-    settings:{downloader:{Instagram:'snapinsta.app',TikTok:'snaptik.app',YouTube:'y2mate.nu',Threads:'threadsdownloader.io',X:'twitsave.com',LinkedIn:'linkedinvideodownloader.com'}},
-    accounts:[
-      {id:'a1',handle:'@rancang.ui',platform:'Instagram',profile_url:'https://www.instagram.com/rancang.ui/'},
-      {id:'a2',handle:'@pixelbersih',platform:'TikTok',profile_url:'https://www.tiktok.com/@pixelbersih'},
-      {id:'a3',handle:'@layout.lab',platform:'Instagram',profile_url:'https://www.instagram.com/layout.lab/'},
-      {id:'a4',handle:'@kodebersih',platform:'TikTok',profile_url:'https://www.tiktok.com/@kodebersih'},
-      {id:'a5',handle:'@freelance.waras',platform:'YouTube',profile_url:'https://www.youtube.com/@freelance.waras'}
-    ],
-    series:[
-      {id:'s1',account_id:'a1',name:'Layout Mobile 101',description:'Dasar menyusun layout untuk layar HP'},
-      {id:'s2',account_id:'a2',name:'Warna untuk CTA',description:'Warna tombol aksi utama'}
-    ],
-    themes,
-    posts,
-    packages:[
-      {id:'k1',name:'Ebook UI/UX',description:'Bahan ebook progresif UI/UX untuk pemula',theme_ids:['t1','t2'],include_unvalidated:true},
-      {id:'k2',name:'Ide Konten Freelance',description:'Bahan konten sosmed seputar jasa web',theme_ids:['t4','t3a'],include_unvalidated:false}
-    ],
-    runs:[
-      {id:'r1',account_id:'a1',started_at:'2026-08-20T09:00:00+07:00',ended_at:'2026-08-20T10:10:00+07:00',reason:'selesai',count:3,notes:'Semua postingan lama sampai 15 Agu sudah masuk.'},
-      {id:'r2',account_id:'a1',started_at:'2026-09-02T19:30:00+07:00',ended_at:'2026-09-02T20:05:00+07:00',reason:'limit',count:1,notes:'Claude kena limit setelah postingan 30 Agu. Part 3 series Layout Mobile belum ketemu — cek apakah memang tidak diupload.'},
-      {id:'r3',account_id:'a2',started_at:'2026-09-12T13:00:00+07:00',ended_at:'2026-09-12T13:40:00+07:00',reason:'selesai',count:3,notes:''}
-    ],
-    pendingRun:null
-  };
-}
-
-/* ---------- penyimpanan ---------- */
 let S;
-function load(){ try { const raw = localStorage.getItem(KEY); if(raw){ const d = JSON.parse(raw); if(d && d.v===2) return d; } } catch(e){} return seed(); }
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} updateCounts(); updateSession(); }
 
 /* =========================================================
    QUERY
@@ -867,11 +770,6 @@ function updateCounts(){
   const c = $('#cCat'); c.textContent = re ? `${S.posts.length} · ${re} ulang` : S.posts.length; c.classList.toggle('hot', !!re);
   $('#cPkt').textContent = S.packages.length;
 }
-$('#resetBtn').onclick = () => {
-  openDialog({title:'Reset data demo?', sub:'Semua perubahan di demo ini hilang dan kembali ke data contoh awal.', body:'<p class="small muted" style="margin:0">Hanya berpengaruh di browser ini.</p>', submit:'Ya, reset',
-    onSubmit:() => { S = seed(); procAcc = null; sel.clear(); resetF(); save(); go('katalog'); toast('Data demo dikembalikan ke awal'); }});
-};
-
 /* sesi berjalan */
 function updateSession(){
   const s = $('#session'); const pr = S.pendingRun;
@@ -1153,7 +1051,8 @@ function renderPromptPanel(){
     <div class="prompt-box"><pre id="promptTxt">${esc(buildPrompt(a))}</pre></div>
     <div class="prompt-actions"><span class="small muted">${running ? 'Sesi untuk kreator ini sedang berjalan.' : 'Menyalin perintah akan memulai sesi (tercatat di Run Log).'}</span>
       <button class="btn pri" id="copyPrompt">Salin perintah</button></div>`;
-  $('#dlInput').oninput = e => { S.settings.downloader[a.platform] = e.target.value.trim(); save(); $('#promptTxt').textContent = buildPrompt(a); };
+  $('#dlInput').oninput = e => { S.settings.downloader[a.platform] = e.target.value.trim(); $('#promptTxt').textContent = buildPrompt(a); };
+  $('#dlInput').onchange = () => save();
   $('#copyPrompt').onclick = async () => {
     const ok = await copyText(buildPrompt(a));
     if(!ok){ toast('Gagal menyalin — blok teksnya lalu salin manual'); return; }
@@ -1228,8 +1127,9 @@ function renderAddForm(){
   $('#fMd').addEventListener('input', () => { clearTimeout(parseT); parseT = setTimeout(detect, 250); });
   ['fUrl','fDate','fPart','fTitle','fSeriesNew'].forEach(id => $('#'+id).addEventListener('input', refresh));
   $('#fClear').onclick = () => renderAddForm();
-  f.onsubmit = e => {
+  f.onsubmit = async e => {
     e.preventDefault();
+    if($('#fSave').disabled) return;
     clearTimeout(parseT); if($('#fMd').value.trim()) detect();
     const c = current(); const errs = [];
     if(!c.md_content) errs.push('hasil Gemini');
@@ -1250,9 +1150,14 @@ function renderAddForm(){
       original_url:c.original_url, title:c.title, title_slug: m.title_slug || slugify(c.title).split('-').slice(0,6).join('-'), tags:c.tags, theme_ids:ids,
       has_visual:c.has_visual, visual_notes:c.visual_notes, md_content:c.md_content};
     const newT = items.filter(i => i.isNew).length;
-    if(dup){ Object.assign(dup, rec, {validated:false, reprocess:false}); toast('Catatan lama diganti dengan versi baru'); }
-    else { S.posts.push({id:uid(), ...rec, validated:false, reprocess:false}); toast(`Tersimpan: ${c.title}${newT ? ` · ${newT} tema baru` : ''}${ids.length ? '' : ' · tanpa tema'}`); }
-    save(); renderPromptPanel(); renderAddForm();
+    const backup = dup ? JSON.parse(JSON.stringify(dup)) : null; const newId = uid();
+    if(dup) Object.assign(dup, rec, {validated:false, reprocess:false});
+    else S.posts.push({id:newId, ...rec, validated:false, reprocess:false});
+    $('#fSave').disabled = true; $('#fSave').textContent = 'Menyimpan ke cloud…';
+    const ok = await save();
+    if(!ok){ if(dup) Object.assign(dup, backup); else S.posts = S.posts.filter(x => x.id !== newId); updateCounts(); $('#fSave').disabled = false; $('#fSave').textContent = 'Simpan catatan'; toast('GAGAL menyimpan ke database — isi form tidak dihapus, klik Simpan lagi'); return; }
+    toast(dup ? 'Tersimpan: catatan lama diganti versi baru' : `Tersimpan: ${c.title}${newT ? ` · ${newT} tema baru` : ''}${ids.length ? '' : ' · tanpa tema'}`);
+    renderPromptPanel(); renderAddForm();
     $('#fMd').focus();
   };
   refresh();
@@ -1550,10 +1455,179 @@ $('#view').addEventListener('click', e => {
   }
 });
 
-/* ---------- mulai ---------- */
-S = load();
-save();
-go((location.hash || '#katalog').slice(1));
+/* =========================================================
+   SUPABASE — login, muat data, sinkron otomatis
+   Kunci publishable aman ditaruh di sini: data dilindungi RLS,
+   hanya user yang login yang bisa membaca/menulis datanya sendiri.
+   ========================================================= */
+const SB_URL = 'https://fzcupxgglpmstfvjltsq.supabase.co';
+const SB_KEY = 'sb_publishable_b30o10IIq-Inuj4e9V5ekg_Iv_kcEvY';
+const PENDING_KEY = 'bambang-pending-run';
+const DEFAULT_DL = {Instagram:'snapinsta.app',TikTok:'snaptik.app',YouTube:'y2mate.nu',Threads:'threadsdownloader.io',X:'twitsave.com',LinkedIn:'linkedinvideodownloader.com'};
+const sb = window.supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:true, autoRefreshToken:true}});
+let USER = null;
+
+const emptyState = () => ({settings:{downloader:{...DEFAULT_DL}}, accounts:[], series:[], themes:[], posts:[], packages:[], runs:[], pendingRun:null});
+const isoTs = v => v ? new Date(v).toISOString() : null;
+
+/* bentuk data aplikasi → baris tabel database */
+function rowsOf(st){
+  const t = {};
+  t.accounts = st.accounts.map(a => ({id:a.id, handle:a.handle, platform:a.platform, profile_url:a.profile_url||null}));
+  t.series = st.series.map(s => ({id:s.id, account_id:s.account_id, name:s.name, description:s.description||null}));
+  t.themes = st.themes.map(x => ({id:x.id, name:x.name, parent_id:x.parent_id||null, description:x.description||null}));
+  t.posts = st.posts.map(p => ({id:p.id, account_id:p.account_id, series_id:p.series_id||null, part_number:p.part_number||null, platform:p.platform,
+    original_url:p.original_url, post_date:p.post_date||null, processed_at:isoTs(p.processed_at), title:p.title||'', title_slug:p.title_slug||null,
+    tags:p.tags||[], md_content:p.md_content, has_visual:!!p.has_visual, visual_notes:p.visual_notes||null, validated:!!p.validated, reprocess:!!p.reprocess}));
+  t.packages = st.packages.map(k => ({id:k.id, name:k.name, description:k.description||null, include_unvalidated:!!k.include_unvalidated}));
+  t.run_logs = st.runs.map(r => ({id:r.id, account_id:r.account_id, started_at:isoTs(r.started_at), ended_at:isoTs(r.ended_at), stopped_reason:r.reason, posts_processed:r.count||0, notes:r.notes||null}));
+  t.settings = [{owner: USER ? USER.id : null, downloader: st.settings.downloader}];
+  t.post_themes = []; st.posts.forEach(p => (p.theme_ids||[]).forEach(th => t.post_themes.push({post_id:p.id, theme_id:th})));
+  t.package_themes = []; st.packages.forEach(k => (k.theme_ids||[]).forEach(th => t.package_themes.push({package_id:k.id, theme_id:th})));
+  return t;
+}
+const keyOf = (table, r) => table === 'post_themes' ? r.post_id+'|'+r.theme_id : table === 'package_themes' ? r.package_id+'|'+r.theme_id : table === 'settings' ? 'me' : r.id;
+function snapshot(rows){ const s = {}; for(const [tb, arr] of Object.entries(rows)){ s[tb] = new Map(arr.map(r => [keyOf(tb,r), JSON.stringify(r)])); } return s; }
+let LAST = null;
+
+/* ambil semua baris (per 1000) */
+async function fetchAll(table, order){
+  const out = []; const step = 1000;
+  for(let from = 0; ; from += step){
+    let q = sb.from(table).select('*').range(from, from + step - 1);
+    if(order) q = q.order(order, {ascending:true});
+    const {data, error} = await q; if(error) throw error;
+    out.push(...data); if(data.length < step) break;
+  }
+  return out;
+}
+async function loadAll(){
+  setSync('loading');
+  const [acc, ser, th, po, pt, pk, pkt, rl, st] = await Promise.all([
+    fetchAll('accounts','created_at'), fetchAll('series','created_at'), fetchAll('themes','created_at'), fetchAll('posts','processed_at'),
+    fetchAll('post_themes'), fetchAll('packages','created_at'), fetchAll('package_themes'), fetchAll('run_logs','started_at'), fetchAll('settings')]);
+  const s = emptyState();
+  s.accounts = acc.map(a => ({id:a.id, handle:a.handle, platform:a.platform, profile_url:a.profile_url||''}));
+  s.series = ser.map(x => ({id:x.id, account_id:x.account_id, name:x.name, description:x.description||''}));
+  s.themes = th.map(x => ({id:x.id, name:x.name, parent_id:x.parent_id||null, description:x.description||''}));
+  const ptBy = {}; pt.forEach(r => (ptBy[r.post_id] = ptBy[r.post_id] || []).push(r.theme_id));
+  s.posts = po.map(p => ({id:p.id, account_id:p.account_id, series_id:p.series_id||null, part_number:p.part_number||null, platform:p.platform,
+    original_url:p.original_url, post_date:p.post_date||'', processed_at:isoTs(p.processed_at), title:p.title||'', title_slug:p.title_slug||'',
+    tags:p.tags||[], md_content:p.md_content||'', has_visual:!!p.has_visual, visual_notes:p.visual_notes||'', validated:!!p.validated, reprocess:!!p.reprocess,
+    theme_ids: ptBy[p.id] || []}));
+  const pkBy = {}; pkt.forEach(r => (pkBy[r.package_id] = pkBy[r.package_id] || []).push(r.theme_id));
+  s.packages = pk.map(k => ({id:k.id, name:k.name, description:k.description||'', include_unvalidated:!!k.include_unvalidated, theme_ids: pkBy[k.id] || []}));
+  s.runs = rl.map(r => ({id:r.id, account_id:r.account_id, started_at:isoTs(r.started_at), ended_at:isoTs(r.ended_at), reason:r.stopped_reason||'selesai', count:r.posts_processed||0, notes:r.notes||''}));
+  if(st[0] && st[0].downloader) s.settings.downloader = {...DEFAULT_DL, ...st[0].downloader};
+  try { const pr = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); if(pr && s.accounts.find(a => a.id === pr.account_id)) s.pendingRun = pr; } catch(e){}
+  S = s;
+  LAST = snapshot(rowsOf(S));
+  if(!st.length) LAST.settings = new Map(); // baris settings belum ada → akan dibuat saat sinkron pertama
+  setSync('ok');
+}
+
+/* bandingkan data sekarang dengan yang terakhir tersimpan, kirim bedanya saja */
+async function doSync(){
+  if(!USER || !LAST) return true;
+  const cur = rowsOf(S); const plan = {};
+  for(const [tb, arr] of Object.entries(cur)){
+    const prev = LAST[tb] || new Map(); const now = new Map(arr.map(r => [keyOf(tb,r), r]));
+    plan[tb] = {up: arr.filter(r => prev.get(keyOf(tb,r)) !== JSON.stringify(r)), del: [...prev.keys()].filter(k => !now.has(k))};
+  }
+  const dirty = Object.values(plan).some(p => p.up.length || p.del.length);
+  if(!dirty){ setSync('ok'); return true; }
+  setSync('saving');
+  const chk = ({error}) => { if(error) throw error; };
+  const up = async (tb, rows, conflict='id') => { for(let i = 0; i < rows.length; i += 200) chk(await sb.from(tb).upsert(rows.slice(i, i+200), {onConflict:conflict})); };
+  const delIds = async (tb, ids) => { for(let i = 0; i < ids.length; i += 200) chk(await sb.from(tb).delete().in('id', ids.slice(i, i+200))); };
+  const delPairs = async (tb, col, keys) => { const by = {}; keys.forEach(k => { const [a,b] = k.split('|'); (by[a] = by[a] || []).push(b); }); for(const [a, bs] of Object.entries(by)) chk(await sb.from(tb).delete().eq(col, a).in('theme_id', bs)); };
+  try {
+    await up('accounts', plan.accounts.up);
+    await up('series', plan.series.up);
+    await up('themes', plan.themes.up.filter(r => !r.parent_id));
+    await up('themes', plan.themes.up.filter(r => r.parent_id));
+    await up('posts', plan.posts.up);
+    await up('packages', plan.packages.up);
+    await up('run_logs', plan.run_logs.up);
+    if(plan.settings.up.length) await up('settings', plan.settings.up, 'owner');
+    await delPairs('post_themes', 'post_id', plan.post_themes.del);
+    await delPairs('package_themes', 'package_id', plan.package_themes.del);
+    if(plan.post_themes.up.length) await up('post_themes', plan.post_themes.up, 'post_id,theme_id');
+    if(plan.package_themes.up.length) await up('package_themes', plan.package_themes.up, 'package_id,theme_id');
+    await delIds('posts', plan.posts.del);
+    await delIds('run_logs', plan.run_logs.del);
+    await delIds('packages', plan.packages.del);
+    const thDel = plan.themes.del; const prevTh = LAST.themes;
+    const wasSub = id => { try { return !!JSON.parse(prevTh.get(id)).parent_id; } catch(e){ return false; } };
+    await delIds('themes', thDel.filter(wasSub));
+    await delIds('themes', thDel.filter(id => !wasSub(id)));
+    await delIds('series', plan.series.del);
+    await delIds('accounts', plan.accounts.del);
+    LAST = snapshot(cur);
+    setSync('ok');
+    return true;
+  } catch(err){
+    console.error(err);
+    setSync('error', err.message || String(err));
+    return false;
+  }
+}
+let syncChain = Promise.resolve(true);
+function save(){
+  try { S.pendingRun ? localStorage.setItem(PENDING_KEY, JSON.stringify(S.pendingRun)) : localStorage.removeItem(PENDING_KEY); } catch(e){}
+  updateCounts(); updateSession();
+  syncChain = syncChain.then(doSync, doSync);
+  return syncChain;
+}
+let SYNC_STATE = 'ok';
+function setSync(state, msg=''){
+  SYNC_STATE = state;
+  const el = $('#syncPill'); if(!el) return;
+  el.dataset.state = state;
+  el.innerHTML = {loading:'Memuat…', saving:'Menyimpan…', ok:'Tersimpan di cloud', error:'Gagal menyimpan · <button type="button" class="link-btn" id="syncRetry">coba lagi</button>'}[state];
+  el.title = msg;
+  if(state === 'error'){ $('#syncRetry').onclick = () => save(); toast('Gagal menyimpan ke database: ' + (msg || 'cek koneksi internet')); }
+}
+window.addEventListener('beforeunload', e => { if(SYNC_STATE === 'saving' || SYNC_STATE === 'error'){ e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------- login ---------- */
+function showAuth(on){
+  $('#authScreen').hidden = !on;
+  $$('.app-only').forEach(el => el.hidden = on);
+}
+$('#authForm').onsubmit = async e => {
+  e.preventDefault();
+  const btn = $('#authBtn'), msg = $('#authMsg');
+  btn.disabled = true; btn.textContent = 'Masuk…'; msg.textContent = '';
+  const {error} = await sb.auth.signInWithPassword({email: $('#authEmail').value.trim(), password: $('#authPass').value});
+  btn.disabled = false; btn.textContent = 'Masuk';
+  if(error) msg.textContent = /invalid/i.test(error.message) ? 'Email atau password salah.' : /confirm/i.test(error.message) ? 'Email belum dikonfirmasi. Centang "Auto Confirm User" saat membuat user.' : error.message;
+};
+$('#logoutBtn').onclick = async () => {
+  if(SYNC_STATE === 'saving'){ toast('Tunggu sampai selesai menyimpan'); return; }
+  await sb.auth.signOut();
+};
+$('#reloadBtn').onclick = async () => {
+  if(SYNC_STATE === 'saving'){ toast('Tunggu sampai selesai menyimpan'); return; }
+  try { await loadAll(); updateCounts(); updateSession(); rerender(); toast('Data dimuat ulang dari cloud'); }
+  catch(err){ setSync('error', err.message); }
+};
+let booted = false;
+async function enterApp(session){
+  USER = session.user;
+  $('#userEmail').textContent = USER.email || '';
+  showAuth(false);
+  $('#view').innerHTML = '<div class="empty"><strong>Memuat data…</strong>Mengambil catatan dari Supabase.</div>';
+  try { await loadAll(); }
+  catch(err){ setSync('error', err.message); $('#view').innerHTML = `<div class="empty"><strong>Gagal memuat data</strong>${esc(err.message)}<br><button class="btn" onclick="location.reload()">Coba lagi</button></div>`; return; }
+  updateCounts(); updateSession();
+  go((location.hash || '#katalog').slice(1));
+  booted = true;
+}
+sb.auth.onAuthStateChange((event, session) => {
+  if(event === 'SIGNED_OUT' || !session){ USER = null; LAST = null; S = emptyState(); booted = false; showAuth(true); return; }
+  if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && (!USER || USER.id !== session.user.id || !booted)) setTimeout(() => enterApp(session), 0);
+});
 </script>
 </body>
 </html>
