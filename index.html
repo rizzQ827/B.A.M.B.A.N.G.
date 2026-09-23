@@ -193,6 +193,7 @@ button.tc:hover{border-color:var(--line-2)}
 .f > span em{font-style:normal;font-weight:400;color:var(--muted)}
 .f input,.f select,.f textarea{width:100%;border:1px solid var(--line-2);background:#fff;border-radius:var(--r-sm);padding:8px 10px;font-size:14px}
 .f textarea{font:13px/1.55 var(--f-mono);resize:vertical;min-height:210px}
+.f input[type=checkbox],.f input[type=radio]{width:auto;padding:0;border:0;flex:none;box-shadow:none}
 .f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .f .help{font-size:12px;color:var(--muted)}
 .inline-f{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
@@ -240,6 +241,36 @@ button.tc:hover{border-color:var(--line-2)}
 .badge.warn{background:var(--warn-soft);color:var(--warn)}
 .badge.bad{background:var(--bad-soft);color:var(--bad)}
 .badge.vis{background:var(--vis-soft);color:var(--vis)}
+.badge.skip{background:var(--sunk);color:var(--muted)}
+
+/* antrian link */
+.qbar{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--line);margin:8px 0 6px}
+.qbar i{display:block;height:100%}
+.qbar .s{background:var(--ok)}.qbar .g{background:var(--bad)}.qbar .l{background:var(--line-2)}
+.qnums{display:flex;gap:4px 14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.qnums b{font:600 13.5px var(--f-mono);color:var(--ink);margin-right:3px}
+.qnext{margin-top:12px;border:1.5px solid var(--accent);border-radius:var(--r-sm);padding:11px 12px;display:grid;gap:8px;background:#fffaf6}
+.qnext .k{font-size:11.5px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.07em}
+.qnext .u{font:500 13px/1.4 var(--f-mono);word-break:break-all}
+.qnext .u a{color:inherit}
+.qnext .m{font-size:12.5px;color:var(--muted)}
+.qacts{display:flex;gap:6px;flex-wrap:wrap}
+.qfoot{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.qlist{border:1px solid var(--line);border-radius:var(--r-sm);max-height:56vh;overflow:auto;background:#fff}
+.q-row{display:grid;grid-template-columns:46px 1fr auto;gap:4px 10px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);font-size:13px}
+.q-row:first-child{border-top:0}
+.q-row.is-next{background:#fffaf6}
+.q-n{font:600 12.5px var(--f-mono);color:var(--muted)}
+.q-main{min-width:0}
+.q-main a{font:500 12.5px/1.4 var(--f-mono);word-break:break-all;text-decoration:none}
+.q-main a:hover{text-decoration:underline}
+.q-meta{font-size:12px;color:var(--muted)}
+.q-side{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.qprev{font-size:13px;background:var(--sunk);border-radius:var(--r-sm);padding:9px 11px}
+.radio{display:grid;gap:6px;font-size:13.5px}
+.radio label{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
+.radio input{margin-top:3px;accent-color:var(--accent)}
+.radio label.off{opacity:.5;cursor:not-allowed}
 .r-empty{padding:26px 16px;text-align:center;color:var(--muted);font-size:14px}
 
 /* packages */
@@ -317,7 +348,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
   .card-h{flex-direction:column}
   .step{grid-template-columns:1fr}
   .step-n{justify-content:flex-start;padding:12px 16px 0;background:none;font-size:13px;color:var(--accent)}
-  .step-n::before{content:"Langkah "}
+  .step-n::before{content:"Langkah\00a0"}
   .snap .k{min-width:0;width:100%}
   .brand h1{font-size:26px}
   .r{grid-template-columns:24px 1fr}
@@ -325,6 +356,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
   .nav .wrap{flex-direction:column;align-items:stretch;gap:0}
   .session{margin:0 0 8px;align-self:flex-start}
   .tree{grid-template-columns:1fr}
+  .q-row{grid-template-columns:40px 1fr}
+  .q-side{grid-column:2;justify-content:flex-start}
 }
 </style>
 </head>
@@ -376,7 +409,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
 <footer class="app-only" hidden>
   <div class="wrap">
     <span>Masuk sebagai <b id="userEmail"></b> · <button class="link-btn" id="logoutBtn">Keluar</button></span>
-    <span>Tersambung ke Supabase · v0.3</span>
+    <span>Tersambung ke Supabase · v0.4</span>
   </div>
 </footer>
 
@@ -386,7 +419,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
 <script>
 /* =========================================================
-   BAMBANG v0.3 — tersambung ke Supabase
+   BAMBANG v0.4 — tersambung ke Supabase + antrian link
    Data tersimpan di database cloud, dilindungi login + RLS
    ========================================================= */
 const PLATFORMS = ['Instagram','TikTok','YouTube','Threads','X','LinkedIn'];
@@ -408,6 +441,21 @@ const dur = (a,b) => { const m = Math.max(0, Math.round((new Date(b) - new Date(
 const norm = u => String(u||'').replace(/[?#].*$/,'').replace(/\/+$/,'').toLowerCase();
 const lc = s => String(s||'').trim().toLowerCase();
 
+/* Tanggal posting Instagram bisa dibaca dari kode link-nya (/p/KODE/ atau /reel/KODE/).
+   Hasil: waktu dalam milidetik, atau null kalau bukan link Instagram. */
+const IG_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+function igTime(url){
+  const m = String(url||'').match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([A-Za-z0-9_-]{8,14})/i);
+  if(!m || typeof BigInt === 'undefined') return null;
+  let n = 0n;
+  for(const ch of m[1]){ const i = IG_ALPHA.indexOf(ch); if(i < 0) return null; n = n * 64n + BigInt(i); }
+  const ms = Number(n >> 23n) + 1314220021721;
+  if(!isFinite(ms) || ms < 1314220021721 || ms > Date.now() + 864e5) return null;
+  return ms;
+}
+function igDate(url){ const ms = igTime(url); if(ms == null) return ''; const d = new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+const shortUrl = u => String(u||'').replace(/^https?:\/\/(www\.)?/i,'');
+
 let S;
 
 /* =========================================================
@@ -425,6 +473,16 @@ const thPath = t => { if(!t) return '?'; const p = t.parent_id ? thById(t.parent
 function postThemeSet(p){ const s = new Set(); (p.theme_ids||[]).forEach(id => { const t = thById(id); if(!t) return; s.add(id); if(t.parent_id) s.add(t.parent_id); }); return s; }
 const postsInTheme = id => S.posts.filter(p => postThemeSet(p).has(id));
 const pkgPosts = k => S.posts.filter(p => { const set = postThemeSet(p); return k.theme_ids.some(id => set.has(id)) && (k.include_unvalidated || p.validated); });
+/* antrian link */
+const QSTAT = {antri:['warn','Antri'], selesai:['ok','Selesai'], gagal:['bad','Gagal'], lewati:['skip','Dilewati']};
+const queueOf = accId => S.queue.filter(q => q.account_id === accId).sort((a,b) => a.position - b.position);
+const qByUrl = url => S.queue.find(q => norm(q.url) === norm(url));
+function queueStats(accId){
+  const list = queueOf(accId); const c = {antri:0, selesai:0, gagal:0, lewati:0};
+  list.forEach(q => { c[q.status] = (c[q.status]||0) + 1; });
+  return {list, total:list.length, ...c, next: list.find(q => q.status === 'antri') || null};
+}
+const qBadge = st => { const [c,l] = QSTAT[st] || ['warn', st]; return `<span class="badge ${c}">${l}</span>`; };
 const pbadge = (platform, cls='') => { const [l,c] = PMETA[platform] || ['?','#777']; return `<span class="pb ${cls}" style="--pc:${c}" title="${esc(platform)}" aria-label="${esc(platform)}">${l}</span>`; };
 function themeChip(id){ const t = thById(id); if(!t) return ''; const p = t.parent_id ? thById(t.parent_id) : null;
   return `<span class="tc">${p ? `${esc(p.name)} <span class="sep">›</span> <b>${esc(t.name)}</b>` : `<b>${esc(t.name)}</b>`}</span>`; }
@@ -811,6 +869,10 @@ function accCard(a){
     ? `<div class="prog-main"><span class="k">Postingan terakhir tersimpan</span><strong>${fmtD(pg.last.post_date)}</strong><a href="${esc(pg.last.original_url)}" target="_blank" rel="noopener">buka ↗</a></div>
        <div class="prog-meta">${pg.count} catatan · diproses terakhir ${fmtDT(pg.lastProcessed)}${pg.unvalidated?` · ${pg.unvalidated} belum divalidasi`:''}${pg.reprocess.length?` · <span class="hot">${pg.reprocess.length} perlu diproses ulang</span>`:''}${pg.untagged?` · ${pg.untagged} tanpa tema`:''}</div>`
     : `<div class="prog-main"><strong>Belum ada catatan</strong></div><div class="prog-meta">Proses pertama mulai dari postingan paling lama.</div>`;
+  const qs = queueStats(a.id);
+  const qline = qs.total
+    ? `<div class="prog-meta">Antrian link: <b style="color:var(--ink)">${qs.selesai}/${qs.total}</b> selesai · ${qs.antri} antri${qs.gagal?` · <span class="hot">${qs.gagal} gagal</span>`:''}${qs.lewati?` · ${qs.lewati} dilewati`:''}</div>`
+    : `<div class="prog-meta">Antrian link: belum ada</div>`;
   const series = pg.series.length ? pg.series.map(s => {
     let chips = '';
     for(let i=1;i<=s.max;i++) chips += s.parts.includes(i) ? `<span class="chip" title="Part ${i} tersimpan">${i}</span>` : `<span class="chip miss" title="Part ${i} belum ada">${i}?</span>`;
@@ -822,7 +884,7 @@ function accCard(a){
   return `<article class="card">
     <div class="card-h"><div class="who">${pbadge(a.platform,'lg')}<div><h3><a href="${esc(a.profile_url||'#')}" target="_blank" rel="noopener">${esc(a.handle)}</a></h3><small>${esc(a.platform)}</small></div></div>
       <div class="card-actions"><button class="btn sm" data-a="edit-acc" data-id="${a.id}">Edit</button><button class="btn pri sm" data-a="start" data-id="${a.id}">Proses →</button></div></div>
-    <div class="prog">${prog}</div>
+    <div class="prog">${prog}${qline}</div>
     <div class="sec"><div class="sec-h"><span>Tema</span></div>${tms}</div>
     <div class="sec"><div class="sec-h"><span>Series</span><button class="link-btn" data-a="add-series" data-id="${a.id}">+ Series</button></div>${series}</div>
   </article>`;
@@ -911,6 +973,7 @@ function accDialog(a){
       if(!confirm(`Hapus ${a.handle}? ${n} catatan, series, dan log kreator ini ikut terhapus.`)) return false;
       S.accounts = S.accounts.filter(x => x.id !== a.id); S.series = S.series.filter(x => x.account_id !== a.id);
       S.posts = S.posts.filter(x => x.account_id !== a.id); S.runs = S.runs.filter(x => x.account_id !== a.id);
+      S.queue = S.queue.filter(x => x.account_id !== a.id);
       if(S.pendingRun && S.pendingRun.account_id === a.id) S.pendingRun = null;
       if(procAcc === a.id) procAcc = null;
       save(); rerender(); toast('Kreator dihapus'); }},
@@ -955,59 +1018,107 @@ function themeTreeText(){
   if(!tree.length) return '   (belum ada tema — silakan buat yang pertama)';
   return tree.map(t => { const subs = subsOf(t.id); return `   - ${t.name}${t.description?` (${t.description})`:''}${subs.length ? ': ' + subs.map(s => s.name).join(', ') : ''}`; }).join('\n');
 }
+const UPLOAD = {drive:'Google Drive', hp:'Lewat HP', manual:'Manual (aku upload sendiri)'};
 function buildPrompt(a){
-  const pg = progress(a.id);
+  const pg = progress(a.id); const qs = queueStats(a.id);
+  const mode = UPLOAD[S.settings.upload_mode] ? S.settings.upload_mode : 'drive';
+  const isYT = a.platform === 'YouTube';
   const dl = S.settings.downloader[a.platform] || 'situs downloader yang biasa dipakai';
   const url = location.href.split('#')[0] + '#proses';
   const seriesTxt = pg.series.length
     ? pg.series.map(s => `   - "${s.name}": sudah sampai part ${s.max || '—'}${s.missing.length ? ` (part ${s.missing.join(', ')} belum ada — cek apakah terlewat)` : ''}`).join('\n')
     : '   - Belum ada series tercatat';
   const reTxt = pg.reprocess.length
-    ? `\n- Perlu DIPROSES ULANG dulu (download + Gemini lagi, lalu simpan dengan link yang sama — BAMBANG akan mengganti catatan lamanya):\n${pg.reprocess.map(p => `   - ${fmtD(p.post_date)} — ${p.original_url}`).join('\n')}`
+    ? `\n- Perlu DIPROSES ULANG dulu, sebelum antrian (download + Gemini lagi, lalu simpan dengan link yang sama — BAMBANG akan mengganti catatan lamanya):\n${pg.reprocess.map(p => `   - ${fmtD(p.post_date)} — ${p.original_url}`).join('\n')}`
     : '';
-  return `Tugas: Kumpulkan postingan kreator ${a.handle} (${a.platform}) dan simpan sebagai catatan di BAMBANG.
+  const nextList = qs.list.filter(q => q.status === 'antri').slice(0, 10);
+  const queueTxt = qs.total
+    ? `- Progress: ${qs.selesai} dari ${qs.total} selesai · ${qs.antri} antri${qs.gagal ? ` · ${qs.gagal} gagal` : ''}${qs.lewati ? ` · ${qs.lewati} dilewati` : ''}
+${nextList.length ? `- ${nextList.length} link berikutnya:\n${nextList.map(q => `   #${q.position} · ${igDate(q.url) ? fmtD(igDate(q.url)) : 'tanggal ?'} · ${q.url}${q.pinned ? ' (di-pin)' : ''}`).join('\n')}` : '- Semua link di antrian sudah diproses.'}
+- Acuan utama tetap kotak "Antrian link" di BAMBANG (tab Proses, langkah 1). Link otomatis dicentang "Selesai" saat catatannya tersimpan, jadi selalu ambil dari bagian "Berikutnya" di sana.`
+    : `- BELUM ADA ANTRIAN. Buka profil kreator, kumpulkan SEMUA link postingan dari yang paling lama ke paling baru. Lalu di BAMBANG: tab Proses → langkah 1 "Antrian link" → "+ Tambah link" → tempel semua link (satu link per baris) → Simpan. Setelah itu baru mulai memproses.
+- Postingan terakhir yang tersimpan: ${pg.last ? `${fmtD(pg.last.post_date)} — ${pg.last.original_url}` : 'belum ada'}`;
+
+  const meta = `   sumber: <link postingan>
+   kreator: ${a.handle}
+   platform: ${a.platform}
+   series: <nama series atau ->
+   part: <nomor atau ->`;
+  const useDrive = mode === 'drive' && !isYT;
+  let stepDl, stepGem, stepClean = '';
+  if(isYT){
+    stepDl = `3. TIDAK PERLU DOWNLOAD. Gemini bisa membaca link YouTube secara langsung.`;
+    stepGem = `4. Buka Gem "${GEM_NAME}" (chat BARU untuk setiap postingan). Kirim link YouTube-nya di baris pertama, lalu di bawahnya:\n${meta}`;
+  } else if(mode === 'drive'){
+    stepDl = `3. Buka ${dl} → paste link → pilih kualitas TERBAIK → download. Carousel: download semua slide.
+   File otomatis masuk ke folder "BAMBANG" di Google Drive. Buka tab drive.google.com → folder BAMBANG, lalu tunggu sampai filenya muncul (biasanya 10–60 detik, muat ulang halamannya kalau perlu).`;
+    stepGem = `4. Buka Gem "${GEM_NAME}" (chat BARU untuk setiap postingan). Klik tombol "+" di kolom chat → pilih "Drive" → buka folder BAMBANG → pilih file postingan ini (carousel: semua slide) → Insert/Sisipkan. Lalu kirim pesan:
+${meta}
+   Kalau Gemini menolak file dari Drive, BERHENTI dan laporkan pesan error-nya. Jangan cari jalan lain sendiri.`;
+    stepClean = `\n8. Bersihkan: di drive.google.com → folder BAMBANG, klik kanan file postingan ini → "Pindahkan ke sampah". Salinan di komputer ikut terhapus otomatis.`;
+  } else if(mode === 'manual'){
+    stepDl = `3. Buka ${dl} → paste link → pilih kualitas TERBAIK → download. Carousel: download semua slide. Catat nama file yang ter-download.`;
+    stepGem = `4. Buka Gem "${GEM_NAME}" (chat BARU untuk setiap postingan). Ketik pesan di bawah ini ke kolom chat, tapi JANGAN dikirim dulu:
+${meta}
+   Lalu minta ke Reyhan: "Tolong upload <nama file> ke chat Gemini yang sudah terbuka, lalu klik kirim. Kabari aku kalau sudah." Tunggu sampai Reyhan membalas.`;
+  } else {
+    stepDl = `3. TIDAK PERLU DOWNLOAD. Reyhan yang mengirim video postingan ini ke Gem dari HP.`;
+    stepGem = `4. Buka gemini.google.com → daftar chat (Recent/Terbaru) → cari chat Gem "${GEM_NAME}" yang pesannya berisi "sumber: <link postingan ini>". Buka chat itu.
+   Kalau chat-nya belum ada: tulis "menunggu dari HP" di laporan lalu BERHENTI. Jangan tandai Gagal.`;
+  }
+  const alat = [`- BAMBANG: ${url}`, `- Profil kreator: ${a.profile_url || `cari ${a.handle} di ${a.platform}`}`];
+  if(!isYT && mode !== 'hp') alat.push(`- Downloader ${a.platform}: ${dl}`);
+  alat.push(`- Gemini → Gem "${GEM_NAME}"`);
+  if(useDrive) alat.push(`- Google Drive: https://drive.google.com → folder "BAMBANG" (hasil download masuk ke sini otomatis)`);
+  const persiapan = useDrive
+    ? `\nPERSIAPAN (sekali di awal)
+- Buka tab: BAMBANG, ${dl}, Gemini, dan Google Drive (folder BAMBANG).
+- Kalau di folder BAMBANG masih ada file sisa sesi sebelumnya, pindahkan ke sampah dulu supaya tidak tertukar.\n`
+    : mode === 'hp' && !isYT
+    ? `\nCARA REYHAN MENGIRIM DARI HP (untuk referensi)
+- Reyhan membagikan video ke Gem "${GEM_NAME}" dengan pesan:
+${meta}\n`
+    : '';
+
+  return `Tugas: Proses antrian link kreator ${a.handle} (${a.platform}) satu per satu sampai jadi catatan di BAMBANG.
+Jalur upload ke Gemini: ${isYT ? 'link YouTube langsung' : UPLOAD[mode]}
 
 ALAT
-- BAMBANG: ${url}
-- Profil kreator: ${a.profile_url || `cari ${a.handle} di ${a.platform}`}
-- Downloader ${a.platform}: ${dl}
-- Gemini → Gem "${GEM_NAME}"
+${alat.join('\n')}
 
-TITIK LANJUT (dari BAMBANG saat perintah ini dibuat)
-- Postingan terakhir tersimpan: ${pg.last ? `${fmtD(pg.last.post_date)} — ${pg.last.original_url}` : 'BELUM ADA — mulai dari postingan paling lama'}
-- Series berjalan:
+ANTRIAN (dari BAMBANG saat perintah ini dibuat)
+${queueTxt}
+
+SERIES BERJALAN
 ${seriesTxt}${reTxt}
 
 POHON TEMA SAAT INI (pakai yang sudah ada dulu)
 ${themeTreeText()}
-
-LANGKAH UNTUK TIAP POSTINGAN
-Urutkan dari paling lama ke paling baru, mulai ${pg.last ? 'SETELAH titik lanjut di atas' : 'dari postingan PALING LAMA'}.
-1. Buka postingan. Cek caption DAN thumbnail: apakah bagian dari series ("part", "bagian", angka urutan, atau desain thumbnail seragam)? Catat nama series & nomor part.
-2. Copy link → buka ${dl} → paste → pilih kualitas TERBAIK → download. Carousel: download semua slide.
-3. Buka Gem "${GEM_NAME}" (chat BARU untuk tiap postingan). Upload semua file, lalu kirim:
-   sumber: <link postingan>
-   kreator: ${a.handle}
-   platform: ${a.platform}
-   series: <nama series atau ->
-   part: <nomor atau ->
-4. Tunggu sampai jawaban selesai. Cek ada blok --- judul: ... --- di atas dan baris "Sudah dibuka sampai ..." di bawah. Kalau tidak ada / terpotong, minta Gemini mengulang.
-5. Baca jawaban Gemini, lalu TENTUKAN TEMA (kamu yang memutuskan):
+${persiapan}
+LANGKAH UNTUK TIAP LINK
+1. Di tab BAMBANG → tab "Proses" → langkah 1 "Antrian link" → bagian "Berikutnya" → klik "Pakai link ini". Link dan tanggal postingan langsung terisi di form "Tambah catatan".
+2. Buka link itu. Cek caption DAN thumbnail: apakah bagian dari series ("part", "day", "bagian", angka urutan, atau desain thumbnail seragam)? Catat nama series & nomor part.
+   Kalau postingan sudah dihapus/tidak bisa dibuka: di BAMBANG klik "Gagal", tulis alasannya, lalu lanjut ke link berikutnya.
+   Kalau jelas bukan konten (misalnya murni pengumuman giveaway atau iklan tanpa isi): klik "Lewati", tulis alasan singkat, lanjut ke link berikutnya.
+${stepDl}
+${stepGem}
+5. Tunggu sampai jawaban selesai. Cek ada blok --- judul: ... --- di atas dan baris "Sudah dibuka sampai ..." di bawah. Kalau tidak ada atau terpotong, minta Gemini mengulang.
+6. Baca jawaban Gemini, lalu TENTUKAN TEMA (kamu yang memutuskan):
    - Format: Tema > Subtema. Lebih dari satu dipisah titik koma. Contoh: UI > Hierarki Tombol; UX > Ergonomi Mobile
    - Pakai tema/subtema dari pohon di atas kalau cocok. Buat baru HANYA kalau benar-benar tidak ada yang pas.
    - Nama harus spesifik dan unik. Hindari "Umum", "Lainnya", "Tips", "Tutorial".
    - Maksimal 2 tingkat (Tema > Subtema), maksimal 3 tema per postingan.
-6. Kembali ke tab BAMBANG → tab "Proses" → langkah 3 "Tambah catatan":
-   a. Tempel SELURUH jawaban Gemini ke kolom "Hasil dari Gemini" (link, judul, tag, series, part, momen visual terisi otomatis).
-   b. Isi "Tanggal postingan" = tanggal upload asli.
-   c. Isi kolom "Tema" sesuai langkah 5. Label "baru" berarti tema itu akan dibuat.
-   d. Cek series & part, klik "Simpan catatan", pastikan muncul notifikasi "Tersimpan".
-7. Lanjut ke postingan berikutnya.
+7. Kembali ke tab BAMBANG → tab "Proses" → langkah 4 "Tambah catatan":
+   a. Tempel SELURUH jawaban Gemini ke kolom "Hasil dari Gemini" (judul, tag, series, part, momen visual terisi otomatis).
+   b. Pastikan "Link asli postingan" sama dengan link dari antrian, dan "Tanggal postingan" sudah terisi. Tanggal Instagram terisi otomatis dari link; untuk platform lain, isi tanggal upload aslinya.
+   c. Isi kolom "Tema" sesuai langkah 6. Label "baru" berarti tema itu akan dibuat.
+   d. Cek series & part, klik "Simpan catatan", lalu pastikan muncul notifikasi "Tersimpan". Link di antrian otomatis berubah jadi "Selesai".${stepClean}
+${stepClean ? '9' : '8'}. Lanjut ke link berikutnya (kembali ke langkah 1).
 
-BERHENTI kalau: kena limit, downloader/Gemini error, atau semua postingan selesai. Sebelum berhenti, tulis laporan:
-| No | Tanggal post | Link | Series/Part | Tema | Status (tersimpan/gagal) |
+BERHENTI kalau: kena limit, downloader/Gemini error, atau antrian habis. Sebelum berhenti, tulis laporan:
+| No antrian | Tanggal post | Link | Series/Part | Tema | Status (tersimpan/gagal/dilewati) |
 Berhenti karena: selesai / limit / error — <keterangan>
-Postingan terakhir yang TERSIMPAN: <link>
+Link terakhir yang TERSIMPAN: <link>
 
 Jangan menghapus atau mengubah catatan lain di BAMBANG.`;
 }
@@ -1016,43 +1127,236 @@ function renderProses(){
   if(!accs.length){ $('#view').innerHTML = `<div class="vh"><div><h2>Proses</h2></div></div><div class="empty"><strong>Belum ada kreator</strong>Tambahkan dulu di Katalog.<br><button class="btn pri" data-a="go-kat">Ke Katalog</button></div>`; return; }
   if(!procAcc || !accById(procAcc)) procAcc = accs[0].id;
   $('#view').innerHTML = `
-  <div class="vh"><div><h2>Proses</h2><p>Satu putaran kerja: salin perintah ke Claude in Chrome, lalu Claude yang mengerjakan sampai catatan tersimpan di sini.</p></div></div>
+  <div class="vh"><div><h2>Proses</h2><p>Satu putaran kerja: isi antrian link, salin perintah ke Claude in Chrome, lalu Claude mengerjakan link satu per satu sampai catatannya tersimpan di sini.</p></div>
+    <label class="f" style="max-width:320px;width:100%"><span>Kreator</span><select id="pAcc">${accs.map(a => `<option value="${a.id}" ${a.id===procAcc?'selected':''}>${esc(a.handle)} · ${a.platform}</option>`).join('')}</select></label></div>
   <div class="steps">
     <section class="step"><div class="step-n">1</div><div class="step-b">
-      <h3>Salin perintah untuk Claude in Chrome</h3>
-      <p class="hint">Titik lanjut, series, antrian proses ulang, dan pohon tema sudah terisi otomatis.</p>
-      <label class="f" style="max-width:360px"><span>Kreator</span><select id="pAcc">${accs.map(a => `<option value="${a.id}" ${a.id===procAcc?'selected':''}>${esc(a.handle)} · ${a.platform}</option>`).join('')}</select></label>
-      <div id="pPanel"></div>
+      <h3>Antrian link</h3>
+      <p class="hint">Semua link postingan yang mau diproses, urut dari paling lama. Link otomatis dicentang saat catatannya tersimpan, jadi progress aman walau sesi terputus.</p>
+      <div id="qPanel"></div>
     </div></section>
     <section class="step"><div class="step-n">2</div><div class="step-b">
-      <h3>Claude mengerjakan</h3>
-      <ol class="flow"><li>Download postingan lewat situs downloader</li><li>Upload ke Gem <b>"${GEM_NAME}"</b>, ambil hasilnya</li><li>Baca hasil Gemini, lalu tentukan tema &amp; subtema</li><li>Isi form di langkah 3, simpan, lanjut ke postingan berikutnya</li></ol>
+      <h3>Salin perintah untuk Claude in Chrome</h3>
+      <p class="hint">Antrian, series, daftar proses ulang, dan pohon tema sudah terisi otomatis.</p>
+      <div id="pPanel"></div>
     </div></section>
     <section class="step"><div class="step-n">3</div><div class="step-b">
+      <h3>Claude mengerjakan</h3>
+      <ol class="flow" id="pFlow"></ol>
+    </div></section>
+    <section class="step"><div class="step-n">4</div><div class="step-b">
       <h3>Tambah catatan</h3>
-      <p class="hint">Diisi Claude (atau kamu, kalau manual). Tempel hasil Gemini dulu — sebagian besar kolom akan terisi sendiri.</p>
+      <p class="hint">Diisi Claude (atau kamu, kalau manual). Klik "Pakai link ini" di langkah 1, lalu tempel hasil Gemini. Sebagian besar kolom akan terisi sendiri.</p>
       <form id="addForm" class="fgrid" novalidate></form>
     </div></section>
   </div>`;
-  $('#pAcc').onchange = e => { procAcc = e.target.value; renderPromptPanel(); renderAddForm(); };
-  renderPromptPanel(); renderAddForm();
+  $('#pAcc').onchange = e => { procAcc = e.target.value; renderQueuePanel(); renderPromptPanel(); renderAddForm(); };
+  renderQueuePanel(); renderPromptPanel(); renderAddForm();
 }
+function renderFlow(a){
+  const mode = S.settings.upload_mode; const isYT = a.platform === 'YouTube';
+  const up = isYT ? 'Kirim link YouTube langsung ke Gem'
+    : mode === 'drive' ? 'Download → file masuk ke folder Drive "BAMBANG" → pilih lewat + → Drive di Gem'
+    : mode === 'manual' ? 'Download, lalu minta kamu meng-upload file ke Gem'
+    : 'Ambil hasil Gem yang kamu kirim dari HP';
+  $('#pFlow').innerHTML = `<li>Ambil link berikutnya dari antrian</li><li>${up} <b>"${GEM_NAME}"</b></li><li>Baca hasil Gemini, lalu tentukan tema &amp; subtema</li><li>Simpan di langkah 4 → antrian tercentang otomatis${mode === 'drive' && !isYT ? ' → hapus file di Drive' : ''}</li>`;
+}
+
+/* ---------- panel antrian ---------- */
+function renderQueuePanel(){
+  const a = accById(procAcc); const qs = queueStats(a.id); const box = $('#qPanel'); if(!box) return;
+  if(!qs.total){
+    box.innerHTML = `<div class="empty" style="padding:20px 16px"><strong>Antrian ${esc(a.handle)} masih kosong</strong>Tempel daftar link postingan (satu per baris). Minta Claude in Chrome mengumpulkannya dari profil kreator.<br><button class="btn pri" data-q="add">+ Tambah link</button></div>`;
+    bindQueuePanel(); return;
+  }
+  const pct = n => (n / qs.total * 100).toFixed(2) + '%';
+  const nx = qs.next;
+  const nd = nx ? igDate(nx.url) : '';
+  box.innerHTML = `
+    <div class="qbar" role="img" aria-label="${qs.selesai} dari ${qs.total} selesai"><i class="s" style="width:${pct(qs.selesai)}"></i><i class="g" style="width:${pct(qs.gagal)}"></i><i class="l" style="width:${pct(qs.lewati)}"></i></div>
+    <div class="qnums"><span><b>${qs.selesai}/${qs.total}</b>selesai</span><span><b>${qs.antri}</b>antri</span>${qs.gagal?`<span style="color:var(--bad)"><b style="color:var(--bad)">${qs.gagal}</b>gagal</span>`:''}${qs.lewati?`<span><b>${qs.lewati}</b>dilewati</span>`:''}</div>
+    ${nx ? `<div class="qnext" id="qNext">
+      <span class="k">Berikutnya · #${nx.position}</span>
+      <div class="u"><a href="${esc(nx.url)}" target="_blank" rel="noopener">${esc(shortUrl(nx.url))}</a></div>
+      <div class="m">${nd ? `Diposting ${fmtD(nd)}` : 'Tanggal posting belum diketahui'}${nx.pinned ? ' · di-pin di profil' : ''}${nx.note ? ` · ${esc(nx.note)}` : ''}</div>
+      <div class="qacts"><button class="btn pri sm" data-q="use" data-id="${nx.id}">Pakai link ini</button><button class="btn sm" data-q="lewati" data-id="${nx.id}">Lewati</button><button class="btn danger sm" data-q="gagal" data-id="${nx.id}">Gagal</button></div>
+    </div>` : `<div class="qnext"><span class="k">Antrian habis</span><div class="m">Semua link sudah diproses${qs.gagal ? `. Ada ${qs.gagal} link gagal, cek di "Lihat semua".` : '.'}</div></div>`}
+    <div class="qfoot"><button class="btn sm" data-q="list">Lihat semua (${qs.total})</button><button class="btn sm" data-q="add">+ Tambah link</button></div>`;
+  bindQueuePanel();
+}
+function bindQueuePanel(){
+  $$('#qPanel [data-q]').forEach(b => b.onclick = () => {
+    const q = S.queue.find(x => x.id === b.dataset.id);
+    switch(b.dataset.q){
+      case 'use': useQueueItem(q); break;
+      case 'lewati': case 'gagal': markDialog(q, b.dataset.q); break;
+      case 'list': openQueueList(); break;
+      case 'add': addLinksDialog(procAcc); break;
+    }
+  });
+}
+function useQueueItem(q){
+  if(!q) return;
+  if(view !== 'proses' || !$('#addForm')){ procAcc = q.account_id; go('proses', {scroll:false}); }
+  else if(procAcc !== q.account_id){ procAcc = q.account_id; renderProses(); }
+  const u = $('#fUrl'), d = $('#fDate');
+  u.value = q.url; u.dispatchEvent(new Event('input'));
+  const dt = igDate(q.url); if(dt){ d.value = dt; d.dispatchEvent(new Event('input')); }
+  $('#addForm').scrollIntoView({behavior:'smooth', block:'start'});
+  toast(`Link #${q.position} dipakai${dt ? ` · tanggal ${fmtD(dt)}` : ' · isi tanggalnya manual'}`);
+}
+function markDialog(q, status){
+  if(!q) return;
+  const isFail = status === 'gagal';
+  openDialog({title: isFail ? `Tandai #${q.position} gagal` : `Lewati #${q.position}`, sub: esc(shortUrl(q.url)),
+    body:`<div class="fgrid"><label class="f"><span>Alasan${isFail ? '' : ' <em>(opsional)</em>'}</span><input name="note" id="qReason" value="${esc(q.note||'')}" placeholder="${isFail ? 'contoh: postingan sudah dihapus / downloader error' : 'contoh: pengumuman giveaway, bukan materi'}"></label></div>`,
+    submit: isFail ? 'Tandai gagal' : 'Lewati',
+    onSubmit: fd => {
+      const note = (fd.get('note')||'').trim();
+      if(isFail && !note){ toast('Tulis alasannya dulu'); return false; }
+      Object.assign(q, {status, note: note || null});
+      save(); renderQueuePanel(); renderPromptPanel(); toast(isFail ? `#${q.position} ditandai gagal` : `#${q.position} dilewati`);
+    }});
+}
+let qFilter = 'semua';
+function openQueueList(filter){
+  if(filter) qFilter = filter;
+  const a = accById(procAcc); const qs = queueStats(a.id);
+  const rows = qs.list.filter(q => qFilter === 'semua' || q.status === qFilter);
+  const segBtn = (k, l, n) => `<button type="button" data-f="${k}" aria-pressed="${qFilter===k}">${l} <span class="cnt">${n}</span></button>`;
+  openDialog({title:`Antrian ${esc(a.handle)}`, sub:`${qs.selesai} dari ${qs.total} selesai`, wide:true, submit:null,
+    body:`<div class="seg" role="group" aria-label="Filter status" style="margin-bottom:10px;flex-wrap:wrap">${segBtn('semua','Semua',qs.total)}${segBtn('antri','Antri',qs.antri)}${segBtn('selesai','Selesai',qs.selesai)}${segBtn('gagal','Gagal',qs.gagal)}${segBtn('lewati','Dilewati',qs.lewati)}</div>
+      <div class="qlist" id="qList">${rows.length ? rows.map(q => {
+        const d = igDate(q.url);
+        return `<div class="q-row${qs.next && q.id === qs.next.id ? ' is-next' : ''}" ${qs.next && q.id === qs.next.id ? 'id="qRowNext"' : ''}>
+          <span class="q-n">#${q.position}</span>
+          <div class="q-main"><a href="${esc(q.url)}" target="_blank" rel="noopener">${esc(shortUrl(q.url))}</a>
+            <div class="q-meta">${d ? fmtD(d) : 'tanggal ?'}${q.pinned ? ' · di-pin' : ''}${q.note ? ` · ${esc(q.note)}` : ''}</div></div>
+          <div class="q-side">${qBadge(q.status)}${q.status === 'antri' ? `<button type="button" class="icon-btn" data-qa="use" data-id="${q.id}">Pakai</button>` : ''}${q.post_id ? `<button type="button" class="icon-btn" data-qa="open" data-id="${q.id}">Catatan</button>` : ''}<button type="button" class="icon-btn" data-qa="edit" data-id="${q.id}">Ubah</button></div>
+        </div>`; }).join('') : '<div class="r-empty">Tidak ada link dengan status ini.</div>'}</div>`});
+  $$('[data-f]', dlg).forEach(b => b.onclick = () => openQueueList(b.dataset.f));
+  $('#qList').onclick = e => {
+    const b = e.target.closest('[data-qa]'); if(!b) return;
+    const q = S.queue.find(x => x.id === b.dataset.id); if(!q) return;
+    if(b.dataset.qa === 'use'){ dlg.close(); useQueueItem(q); }
+    else if(b.dataset.qa === 'open'){ dlg.close(); openPost(q.post_id); }
+    else queueItemDialog(q);
+  };
+  const nxRow = $('#qRowNext'); if(nxRow && qFilter === 'semua') nxRow.scrollIntoView({block:'center'});
+}
+function queueItemDialog(q){
+  openDialog({title:`Link #${q.position}`, sub: esc(shortUrl(q.url)),
+    body:`<div class="fgrid">
+      <label class="f c6"><span>Status</span><select name="status">${Object.entries(QSTAT).map(([k,[,l]]) => `<option value="${k}" ${k===q.status?'selected':''}>${l}</option>`).join('')}</select></label>
+      <label class="f c6"><span>Nomor urut</span><input name="position" type="number" min="1" value="${q.position}"></label>
+      <label class="f"><span>Catatan <em>(opsional)</em></span><input name="note" value="${esc(q.note||'')}"></label>
+      <label class="check f" style="flex-direction:row"><input type="checkbox" name="pinned" ${q.pinned?'checked':''}><span style="font-weight:500">Di-pin di profil kreator</span></label>
+      ${q.post_id ? '<p class="small muted" style="grid-column:span 12;margin:0">Link ini sudah punya catatan. Kalau statusnya diubah, catatannya tetap ada.</p>' : ''}</div>`,
+    danger:{label:'Hapus dari antrian', fn:() => {
+      if(!confirm(`Hapus link #${q.position} dari antrian? Catatan yang sudah tersimpan tidak ikut terhapus.`)) return false;
+      S.queue = S.queue.filter(x => x.id !== q.id); save(); renderQueuePanel(); renderPromptPanel(); toast('Link dihapus dari antrian');
+      setTimeout(() => openQueueList(), 0); }},
+    onSubmit: fd => {
+      const pos = Math.max(1, parseInt(fd.get('position'), 10) || q.position);
+      Object.assign(q, {status: fd.get('status'), note: (fd.get('note')||'').trim() || null, pinned: !!fd.get('pinned'), position: pos});
+      save(); renderQueuePanel(); renderPromptPanel(); toast('Antrian diperbarui');
+      setTimeout(() => openQueueList(), 0);
+    }});
+}
+
+/* ---------- tambah link ---------- */
+function parseLinks(txt){
+  const out = []; const seen = new Set();
+  String(txt||'').split(/\r?\n/).forEach(line => {
+    const m = line.match(/https?:\/\/[^\s<>"'()\]]+/i); if(!m) return;
+    let u = m[0].replace(/[?#].*$/,'').replace(/[.,;]+$/,'');
+    if(/instagram\.com/i.test(u) && !u.endsWith('/')) u += '/';
+    const k = norm(u); if(seen.has(k)) return; seen.add(k);
+    out.push({url:u, pinned: /pin|📌/i.test(line.replace(m[0],''))});
+  });
+  return out;
+}
+function addLinksDialog(accId){
+  const a = accById(accId);
+  const form = openDialog({title:`Tambah link ke antrian ${esc(a.handle)}`, sub:'Tempel satu link per baris. Nomor urut, teks lain, dan tanda "(di-pin)" boleh ikut tertempel.', wide:true, submit:'Tambahkan',
+    body:`<div class="fgrid">
+      <label class="f"><span>Daftar link</span><textarea name="links" id="qLinks" placeholder="1. https://www.instagram.com/reel/.../&#10;2. https://www.instagram.com/p/.../ (di-pin)"></textarea></label>
+      <div class="f"><span>Posisi di antrian</span><div class="radio">
+        <label><input type="radio" name="mode" value="end" checked><span>Taruh di akhir antrian, sesuai urutan yang ditempel</span></label>
+        <label id="qDateOpt"><input type="radio" name="mode" value="date"><span>Urutkan otomatis berdasarkan tanggal posting <em class="muted">(khusus Instagram, cocok untuk menyisipkan link yang terlewat)</em></span></label>
+      </div></div>
+      <label class="check f" style="flex-direction:row" id="qRevWrap"><input type="checkbox" name="rev" id="qRev"><span style="font-weight:500">Daftar yang ditempel urut dari paling BARU <span class="muted small">(akan dibalik jadi paling lama dulu)</span></span></label>
+      <div class="f"><div class="qprev" id="qPrev">Belum ada link terbaca.</div></div>
+    </div>`,
+    onSubmit: fd => {
+      const items = parseLinks(fd.get('links'));
+      const fresh = items.filter(i => !qByUrl(i.url));
+      if(!items.length){ toast('Tidak ada link yang terbaca'); return false; }
+      if(!fresh.length){ toast('Semua link ini sudah ada di antrian'); return false; }
+      const mode = fd.get('mode');
+      const existing = queueOf(accId);
+      if(mode === 'date' && [...existing, ...fresh].some(x => igTime(x.url) == null)){ toast('Ada link yang tanggalnya tidak terbaca. Pilih "Taruh di akhir antrian".'); return false; }
+      if(fd.get('rev')) fresh.reverse();
+      let firstPos = null;
+      const recs = fresh.map(i => { const post = S.posts.find(p => norm(p.original_url) === norm(i.url));
+        return {id:uid(), account_id:accId, url:i.url, position:0, pinned:i.pinned, status: post ? 'selesai' : 'antri', note:null, post_id: post ? post.id : null}; });
+      if(mode === 'date'){
+        const all = [...existing, ...recs].sort((x,y) => igTime(x.url) - igTime(y.url));
+        all.forEach((q,i) => { q.position = i + 1; });
+        firstPos = recs.map(r => r.position).sort((x,y) => x - y)[0];
+      } else {
+        let p = existing.reduce((m,q) => Math.max(m, q.position), 0);
+        recs.forEach(r => { r.position = ++p; }); firstPos = recs[0].position;
+      }
+      S.queue.push(...recs);
+      save(); renderQueuePanel(); renderPromptPanel(); renderKatalogIfOpen();
+      toast(`${recs.length} link ditambahkan${mode === 'date' && recs.length === 1 ? ` di posisi #${firstPos}` : ''}${items.length - fresh.length ? ` · ${items.length - fresh.length} sudah ada, dilewati` : ''}`);
+    }});
+  const ta = $('#qLinks', form);
+  const live = () => {
+    const items = parseLinks(ta.value);
+    const dupQ = items.filter(i => qByUrl(i.url)).length;
+    const fresh = items.filter(i => !qByUrl(i.url));
+    const done = fresh.filter(i => S.posts.some(p => norm(p.original_url) === norm(i.url))).length;
+    const pins = fresh.filter(i => i.pinned).length;
+    const noDate = [...queueOf(accId), ...fresh].some(x => igTime(x.url) == null);
+    const dOpt = $('#qDateOpt', form); const dIn = $('input', dOpt);
+    dIn.disabled = noDate; dOpt.classList.toggle('off', noDate);
+    if(noDate && dIn.checked){ $('input[value="end"]', form).checked = true; }
+    $('#qRevWrap', form).hidden = $('input[name="mode"]:checked', form).value === 'date';
+    const times = fresh.map(i => igTime(i.url)).filter(Boolean).sort((x,y) => x - y);
+    $('#qPrev', form).innerHTML = items.length
+      ? `Terbaca <b>${items.length}</b> link · <b>${fresh.length}</b> baru${dupQ ? ` · ${dupQ} sudah ada di antrian (dilewati)` : ''}${done ? ` · ${done} sudah jadi catatan (langsung ditandai Selesai)` : ''}${pins ? ` · ${pins} di-pin` : ''}${times.length ? `<br><span class="muted">Rentang tanggal: ${fmtD(new Date(times[0]).toISOString())} – ${fmtD(new Date(times[times.length-1]).toISOString())}</span>` : ''}`
+      : 'Belum ada link terbaca.';
+  };
+  ta.addEventListener('input', live);
+  $$('input[name="mode"]', form).forEach(r => r.addEventListener('change', live));
+  live();
+}
+function renderKatalogIfOpen(){ if(view === 'katalog') renderKatalog(); }
+
 function renderPromptPanel(){
   const a = accById(procAcc); const pg = progress(a.id);
   const dl = S.settings.downloader[a.platform] || '';
+  const mode = S.settings.upload_mode;
   const running = S.pendingRun && S.pendingRun.account_id === a.id;
   $('#pPanel').innerHTML = `
     <div class="snap">
-      <div><span class="k">Titik lanjut</span><span>${pg.last ? `${fmtD(pg.last.post_date)} · <a href="${esc(pg.last.original_url)}" target="_blank" rel="noopener">postingan terakhir ↗</a>` : 'Belum ada — mulai dari postingan paling lama'}</span></div>
       <div><span class="k">Series berjalan</span><span>${pg.series.length ? pg.series.map(s => `${esc(s.name)} (part ${s.max||'—'})${s.missing.length?` <span class="hot">· part ${s.missing.join(', ')} kosong</span>`:''}`).join('<br>') : '—'}</span></div>
       <div><span class="k">Perlu diproses ulang</span><span class="${pg.reprocess.length?'hot':''}">${pg.reprocess.length ? `${pg.reprocess.length} postingan (ikut di perintah)` : '—'}</span></div>
     </div>
-    <div class="inline-f"><span>Downloader ${esc(a.platform)}:</span><input id="dlInput" value="${esc(dl)}" placeholder="contoh: snapinsta.app" aria-label="Situs downloader untuk ${esc(a.platform)}"><span class="small muted">tersimpan per platform</span></div>
+    <div class="fgrid" style="gap:10px">
+      <label class="f c6"><span>Jalur upload ke Gemini <em>(tersimpan)</em></span><select id="upMode">${Object.entries(UPLOAD).map(([k,l]) => `<option value="${k}" ${k===mode?'selected':''}>${l}</option>`).join('')}</select></label>
+      <label class="f c6"><span>Downloader ${esc(a.platform)} <em>(tersimpan per platform)</em></span><input id="dlInput" value="${esc(dl)}" placeholder="contoh: fastdl.app"></label>
+    </div>
+    ${a.platform === 'YouTube' ? '<p class="small muted" style="margin:8px 0 0">YouTube tidak perlu download: Gemini membaca link-nya langsung.</p>' : ''}
     <div class="prompt-box"><pre id="promptTxt">${esc(buildPrompt(a))}</pre></div>
     <div class="prompt-actions"><span class="small muted">${running ? 'Sesi untuk kreator ini sedang berjalan.' : 'Menyalin perintah akan memulai sesi (tercatat di Run Log).'}</span>
       <button class="btn pri" id="copyPrompt">Salin perintah</button></div>`;
+  renderFlow(a);
   $('#dlInput').oninput = e => { S.settings.downloader[a.platform] = e.target.value.trim(); $('#promptTxt').textContent = buildPrompt(a); };
   $('#dlInput').onchange = () => save();
+  $('#upMode').onchange = e => { S.settings.upload_mode = e.target.value; save(); $('#promptTxt').textContent = buildPrompt(a); renderFlow(a); };
   $('#copyPrompt').onclick = async () => {
     const ok = await copyText(buildPrompt(a));
     if(!ok){ toast('Gagal menyalin — blok teksnya lalu salin manual'); return; }
@@ -1066,7 +1370,7 @@ function renderAddForm(){
   const f = $('#addForm');
   f.innerHTML = `
     <label class="f"><span>Hasil dari Gemini</span><textarea name="md" id="fMd" placeholder="Tempel seluruh jawaban Gemini di sini, mulai dari --- judul: ... sampai 'Sudah dibuka sampai ...'"></textarea><span class="help" id="detectNote">Tempel hasil Gemini untuk mengisi otomatis</span></label>
-    <label class="f c8"><span>Link asli postingan</span><input name="url" id="fUrl" type="url" placeholder="https://…"></label>
+    <label class="f c8"><span>Link asli postingan</span><input name="url" id="fUrl" type="url" placeholder="https://…"><span class="help" id="qNote"></span></label>
     <label class="f c4"><span>Tanggal postingan</span><input name="date" id="fDate" type="date" max="${today()}"></label>
     <label class="f c8"><span>Judul</span><input name="judul" id="fTitle" placeholder="judul singkat isi konten"></label>
     <label class="f c4"><span>Tag <em>(pisah koma)</em></span><input name="tags" id="fTags" placeholder="layout, warna"></label>
@@ -1098,8 +1402,15 @@ function renderAddForm(){
       found.push('series');
     }
     if(m.has_visual !== undefined && !touched.has('fVis')){ $('#fVis').checked = m.has_visual; $('#fVisWrap').hidden = !m.has_visual; if(!touched.has('fVisNote')) $('#fVisNote').value = m.visual_notes || ''; found.push('momen visual'); }
+    if(autoDate()) found.push('tanggal');
     $('#detectNote').textContent = found.length ? `Terisi otomatis: ${found.join(', ')}. Periksa sebelum simpan.` : 'Blok metadata (--- judul: ... ---) tidak ditemukan — isi manual.';
     refresh();
+  }
+  /* tanggal Instagram diambil dari kode link, kecuali sudah diisi manual */
+  function autoDate(){
+    if(touched.has('fDate')) return false;
+    const d = igDate($('#fUrl').value.trim()); if(!d || $('#fDate').value === d) return false;
+    $('#fDate').value = d; return true;
   }
   function current(){
     const sv = $('#fSeries').value;
@@ -1114,6 +1425,11 @@ function renderAddForm(){
     if(c.newName){ S.series.push({id:'__tmp', account_id:a.id, name:c.newName}); tmp.series_id = '__tmp'; }
     $('#fName').textContent = fileName(tmp);
     S.series = S.series.filter(s => s.id !== '__tmp');
+    const qi = c.original_url ? qByUrl(c.original_url) : null;
+    const qa = qi ? accById(qi.account_id) : null;
+    $('#qNote').innerHTML = !c.original_url ? '' : qi
+      ? `Antrian #${qi.position}${qa && qa.id !== a.id ? ` (${esc(qa.handle)})` : ''} · ${qi.status === 'selesai' ? 'sudah Selesai' : 'akan dicentang Selesai saat disimpan'}`
+      : (queueOf(a.id).length ? '<span style="color:var(--warn)">Link ini tidak ada di antrian</span>' : '');
     const box = $('#dupBox');
     const dup = c.original_url ? S.posts.find(p => norm(p.original_url) === norm(c.original_url)) : null;
     box.hidden = !dup; box.className = 'warnbox'; $('#fSave').textContent = 'Simpan catatan';
@@ -1125,6 +1441,7 @@ function renderAddForm(){
     return dup;
   }
   $('#fMd').addEventListener('input', () => { clearTimeout(parseT); parseT = setTimeout(detect, 250); });
+  $('#fUrl').addEventListener('input', autoDate);
   ['fUrl','fDate','fPart','fTitle','fSeriesNew'].forEach(id => $('#'+id).addEventListener('input', refresh));
   $('#fClear').onclick = () => renderAddForm();
   f.onsubmit = async e => {
@@ -1153,11 +1470,14 @@ function renderAddForm(){
     const backup = dup ? JSON.parse(JSON.stringify(dup)) : null; const newId = uid();
     if(dup) Object.assign(dup, rec, {validated:false, reprocess:false});
     else S.posts.push({id:newId, ...rec, validated:false, reprocess:false});
+    const qi = qByUrl(c.original_url); const qBackup = qi ? {...qi} : null;
+    if(qi) Object.assign(qi, {status:'selesai', post_id: dup ? dup.id : newId, note:null});
     $('#fSave').disabled = true; $('#fSave').textContent = 'Menyimpan ke cloud…';
     const ok = await save();
-    if(!ok){ if(dup) Object.assign(dup, backup); else S.posts = S.posts.filter(x => x.id !== newId); updateCounts(); $('#fSave').disabled = false; $('#fSave').textContent = 'Simpan catatan'; toast('GAGAL menyimpan ke database — isi form tidak dihapus, klik Simpan lagi'); return; }
-    toast(dup ? 'Tersimpan: catatan lama diganti versi baru' : `Tersimpan: ${c.title}${newT ? ` · ${newT} tema baru` : ''}${ids.length ? '' : ' · tanpa tema'}`);
-    renderPromptPanel(); renderAddForm();
+    if(!ok){ if(dup) Object.assign(dup, backup); else S.posts = S.posts.filter(x => x.id !== newId); if(qi) Object.assign(qi, qBackup); updateCounts(); $('#fSave').disabled = false; $('#fSave').textContent = 'Simpan catatan'; toast('GAGAL menyimpan ke database — isi form tidak dihapus, klik Simpan lagi'); return; }
+    const qsNow = queueStats(a.id);
+    toast((dup ? 'Tersimpan: catatan lama diganti versi baru' : `Tersimpan: ${c.title}${newT ? ` · ${newT} tema baru` : ''}${ids.length ? '' : ' · tanpa tema'}`) + (qi ? ` · antrian #${qi.position} selesai (${qsNow.selesai}/${qsNow.total})` : ''));
+    renderQueuePanel(); renderPromptPanel(); renderAddForm();
     $('#fMd').focus();
   };
   refresh();
@@ -1467,7 +1787,7 @@ const DEFAULT_DL = {Instagram:'snapinsta.app',TikTok:'snaptik.app',YouTube:'y2ma
 const sb = window.supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:true, autoRefreshToken:true}});
 let USER = null;
 
-const emptyState = () => ({settings:{downloader:{...DEFAULT_DL}}, accounts:[], series:[], themes:[], posts:[], packages:[], runs:[], pendingRun:null});
+const emptyState = () => ({settings:{downloader:{...DEFAULT_DL}, upload_mode:'drive'}, accounts:[], series:[], themes:[], posts:[], packages:[], runs:[], queue:[], pendingRun:null});
 const isoTs = v => v ? new Date(v).toISOString() : null;
 
 /* bentuk data aplikasi → baris tabel database */
@@ -1481,7 +1801,9 @@ function rowsOf(st){
     tags:p.tags||[], md_content:p.md_content, has_visual:!!p.has_visual, visual_notes:p.visual_notes||null, validated:!!p.validated, reprocess:!!p.reprocess}));
   t.packages = st.packages.map(k => ({id:k.id, name:k.name, description:k.description||null, include_unvalidated:!!k.include_unvalidated}));
   t.run_logs = st.runs.map(r => ({id:r.id, account_id:r.account_id, started_at:isoTs(r.started_at), ended_at:isoTs(r.ended_at), stopped_reason:r.reason, posts_processed:r.count||0, notes:r.notes||null}));
-  t.settings = [{owner: USER ? USER.id : null, downloader: st.settings.downloader}];
+  t.settings = [{owner: USER ? USER.id : null, downloader: st.settings.downloader, upload_mode: st.settings.upload_mode || 'drive'}];
+  const postIds = new Set(st.posts.map(p => p.id));
+  t.link_queue = st.queue.map(q => ({id:q.id, account_id:q.account_id, url:q.url, position:q.position, pinned:!!q.pinned, status:q.status, note:q.note||null, post_id: q.post_id && postIds.has(q.post_id) ? q.post_id : null}));
   t.post_themes = []; st.posts.forEach(p => (p.theme_ids||[]).forEach(th => t.post_themes.push({post_id:p.id, theme_id:th})));
   t.package_themes = []; st.packages.forEach(k => (k.theme_ids||[]).forEach(th => t.package_themes.push({package_id:k.id, theme_id:th})));
   return t;
@@ -1503,9 +1825,9 @@ async function fetchAll(table, order){
 }
 async function loadAll(){
   setSync('loading');
-  const [acc, ser, th, po, pt, pk, pkt, rl, st] = await Promise.all([
+  const [acc, ser, th, po, pt, pk, pkt, rl, st, lq] = await Promise.all([
     fetchAll('accounts','created_at'), fetchAll('series','created_at'), fetchAll('themes','created_at'), fetchAll('posts','processed_at'),
-    fetchAll('post_themes'), fetchAll('packages','created_at'), fetchAll('package_themes'), fetchAll('run_logs','started_at'), fetchAll('settings')]);
+    fetchAll('post_themes'), fetchAll('packages','created_at'), fetchAll('package_themes'), fetchAll('run_logs','started_at'), fetchAll('settings'), fetchAll('link_queue','position')]);
   const s = emptyState();
   s.accounts = acc.map(a => ({id:a.id, handle:a.handle, platform:a.platform, profile_url:a.profile_url||''}));
   s.series = ser.map(x => ({id:x.id, account_id:x.account_id, name:x.name, description:x.description||''}));
@@ -1519,6 +1841,8 @@ async function loadAll(){
   s.packages = pk.map(k => ({id:k.id, name:k.name, description:k.description||'', include_unvalidated:!!k.include_unvalidated, theme_ids: pkBy[k.id] || []}));
   s.runs = rl.map(r => ({id:r.id, account_id:r.account_id, started_at:isoTs(r.started_at), ended_at:isoTs(r.ended_at), reason:r.stopped_reason||'selesai', count:r.posts_processed||0, notes:r.notes||''}));
   if(st[0] && st[0].downloader) s.settings.downloader = {...DEFAULT_DL, ...st[0].downloader};
+  if(st[0] && st[0].upload_mode) s.settings.upload_mode = st[0].upload_mode;
+  s.queue = lq.map(q => ({id:q.id, account_id:q.account_id, url:q.url, position:q.position, pinned:!!q.pinned, status:q.status||'antri', note:q.note||null, post_id:q.post_id||null}));
   try { const pr = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); if(pr && s.accounts.find(a => a.id === pr.account_id)) s.pendingRun = pr; } catch(e){}
   S = s;
   LAST = snapshot(rowsOf(S));
@@ -1542,11 +1866,13 @@ async function doSync(){
   const delIds = async (tb, ids) => { for(let i = 0; i < ids.length; i += 200) chk(await sb.from(tb).delete().in('id', ids.slice(i, i+200))); };
   const delPairs = async (tb, col, keys) => { const by = {}; keys.forEach(k => { const [a,b] = k.split('|'); (by[a] = by[a] || []).push(b); }); for(const [a, bs] of Object.entries(by)) chk(await sb.from(tb).delete().eq(col, a).in('theme_id', bs)); };
   try {
+    await delIds('link_queue', plan.link_queue.del);
     await up('accounts', plan.accounts.up);
     await up('series', plan.series.up);
     await up('themes', plan.themes.up.filter(r => !r.parent_id));
     await up('themes', plan.themes.up.filter(r => r.parent_id));
     await up('posts', plan.posts.up);
+    await up('link_queue', plan.link_queue.up);
     await up('packages', plan.packages.up);
     await up('run_logs', plan.run_logs.up);
     if(plan.settings.up.length) await up('settings', plan.settings.up, 'owner');
