@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="bambang-app" content="tes">
+<title>Tes BAMBANG Helper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f1ec;--surface:#fff;--sunk:#ebe7df;--ink:#1c1a17;--ink-2:#48443d;--muted:#736d62;--line:#e2ddd3;--line-2:#cfc8bc;--accent:#b5441b;--accent-h:#9c3913;--accent-soft:#f7e4da;--ok:#2d7a4b;--ok-soft:#e0f0e5;--bad:#b42318;--bad-soft:#fbe2de;--warn:#8a5a00;--warn-soft:#fbeed2;--r:12px;--r-sm:7px;--f-d:"Bricolage Grotesque",system-ui,sans-serif;--f-b:"Instrument Sans",system-ui,sans-serif;--f-m:"JetBrains Mono",ui-monospace,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-b)}
+button,input,textarea{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.wrap{max-width:760px;margin:0 auto;padding:24px 16px 80px}
+h1{font:800 26px/1.1 var(--f-d);margin:0;letter-spacing:-.02em;display:flex;gap:10px;align-items:center}
+h1 i{width:10px;height:10px;background:var(--accent);border-radius:2px;transform:rotate(45deg);display:inline-block}
+.sub{color:var(--muted);font-size:13.5px;margin:6px 0 16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px}
+.f{display:grid;gap:5px}
+.f>span{font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.f>span em{font-style:normal;font-weight:400;color:var(--muted)}
+.f input,.f textarea{width:100%;border:1px solid var(--line-2);border-radius:var(--r-sm);padding:9px 10px;background:#fff;font-size:14px}
+.f textarea{min-height:90px;resize:vertical;font:13px/1.5 var(--f-m)}
+.f input:focus,.f textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.help{font-size:12px;color:var(--muted)}
+.btn{appearance:none;border:1px solid var(--line-2);background:#fff;border-radius:var(--r-sm);padding:9px 14px;font-weight:600;cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:var(--accent-h)}
+.btn:disabled{opacity:.5;cursor:wait}
+.acts{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:99px}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.wait{background:var(--warn-soft);color:var(--warn)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.install{background:var(--warn-soft);color:#5f3f00;border-radius:var(--r);padding:12px 14px;font-size:13.5px;margin-bottom:14px}
+.install ol{margin:6px 0 0;padding-left:20px}
+.steps{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:8px}
+.steps li{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;font-size:14px;display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start}
+.steps li .d{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-2);margin-top:2px}
+.steps li.run .d{border-color:var(--warn);border-top-color:transparent;animation:spin .8s linear infinite}
+.steps li.ok .d{background:var(--ok);border-color:var(--ok)}
+.steps li.bad .d{background:var(--bad);border-color:var(--bad)}
+.steps li small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;word-break:break-word}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.steps li.run .d{animation:none}}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin-top:6px}
+.meta dt{color:var(--muted)}.meta dd{margin:0;word-break:break-word}
+details{margin-top:6px;font-size:13px}
+details pre{max-height:200px}
+pre{margin:10px 0 0;background:#1f1d1a;color:#ece6da;border-radius:var(--r-sm);padding:14px;font:12.5px/1.6 var(--f-m);white-space:pre-wrap;word-break:break-word;max-height:60vh;overflow:auto}
+.errbox{background:var(--bad-soft);color:#7a1a12;border-radius:var(--r-sm);padding:10px 12px;font-size:14px;margin-top:12px}
+.auth{max-width:380px}
+.msg{color:var(--bad);font-size:13px;min-height:1em;margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><i></i>Tes BAMBANG Helper</h1>
+  <p class="sub">Tempel link Instagram atau YouTube. Extension BAMBANG mengambil video/foto, caption, dan tanggalnya, lalu Gemini membacanya. Tanpa situs downloader, tanpa upload manual.</p>
+
+  <form class="card auth" id="authForm" hidden>
+    <b>Masuk dulu</b>
+    <p class="help" style="margin:0">Pakai email &amp; password yang sama dengan BAMBANG.</p>
+    <label class="f"><span>Email</span><input id="em" type="email" required autocomplete="username"></label>
+    <label class="f"><span>Password</span><input id="pw" type="password" required autocomplete="current-password"></label>
+    <p class="msg" id="authMsg"></p>
+    <button class="btn pri" type="submit">Masuk</button>
+  </form>
+
+  <div id="app" hidden>
+    <div class="bar"><span class="chip wait" id="extChip">Mencari extension BAMBANG Helper…</span><span class="help">Masuk sebagai <b id="who"></b></span></div>
+    <div class="install" id="install" hidden>
+      <b>Extension BAMBANG Helper belum terdeteksi.</b> Link YouTube tetap bisa dites tanpa extension.
+      <ol>
+        <li>Buka <b>chrome://extensions</b>, lalu nyalakan <b>Developer mode</b> (pojok kanan atas).</li>
+        <li>Klik <b>Load unpacked</b>, lalu pilih folder <b>bambang-extension</b> hasil ekstrak ZIP.</li>
+        <li>Muat ulang halaman ini (Ctrl+Shift+R).</li>
+      </ol>
+    </div>
+    <form class="card" id="form">
+      <label class="f"><span>Link postingan</span><input id="src" type="url" required placeholder="https://www.instagram.com/reel/… atau https://youtu.be/…" value="https://www.instagram.com/reel/DRmbVhwE0kM/"></label>
+      <label class="f" id="capWrap" hidden><span>Caption / deskripsi video <em>(opsional, untuk YouTube)</em></span><textarea id="cap" placeholder="Tempel deskripsi video kalau ada materinya"></textarea></label>
+      <div class="acts"><span class="help" id="kindNote">Instagram: caption, tanggal, dan file diambil otomatis.</span><button class="btn pri" id="go" type="submit">Ambil &amp; baca</button></div>
+    </form>
+    <ol class="steps" id="steps" hidden>
+      <li id="s1"><span class="d"></span><div><b>Ambil dari platform</b><small></small></div></li>
+      <li id="s2"><span class="d"></span><div><b>Gemini membaca</b><small></small></div></li>
+    </ol>
+    <div id="metaBox"></div>
+    <div id="out"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
+<script>
+const SB_URL = 'https://fzcupxgglpmstfvjltsq.supabase.co';
+const SB_KEY = 'sb_publishable_b30o10IIq-Inuj4e9V5ekg_Iv_kcEvY';
+const sb = window.supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:true, autoRefreshToken:true}});
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+const STAGE = {download:'Gagal mengambil file', gemini:'Gemini gagal membaca', config:'Pengaturan server belum lengkap', input:'Isian belum lengkap', server:'Server error'};
+const isYT = u => /^https?:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//i.test(u);
+const isIG = u => /instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\//i.test(u);
+
+/* ---------- jembatan ke extension ---------- */
+const EXT = {ready:false, version:null, progress:{}};
+window.addEventListener('message', e => {
+  if(e.source !== window || !e.data || e.data.source !== 'bambang-ext') return;
+  if(e.data.type === 'hello'){ EXT.ready = true; EXT.version = e.data.version; paintExt(); }
+  if(e.data.type === 'progress' && EXT.progress[e.data.id]) EXT.progress[e.data.id](e.data.text);
+});
+function extCall(type, payload, onProgress, timeout = 240000){
+  return new Promise((resolve, reject) => {
+    const id = rid(); payload = {...payload, progressId:id};
+    if(onProgress) EXT.progress[id] = onProgress;
+    const done = () => { window.removeEventListener('message', on); clearTimeout(t); delete EXT.progress[id]; };
+    const on = e => { if(e.source !== window || !e.data || e.data.source !== 'bambang-ext' || e.data.id !== id || e.data.type === 'progress') return; done(); resolve(e.data); };
+    window.addEventListener('message', on);
+    const t = setTimeout(() => { done(); reject(new Error('Extension tidak menjawab (lebih dari 4 menit)')); }, timeout);
+    window.postMessage({source:'bambang-page', id, type, payload}, '*');
+  });
+}
+function paintExt(){
+  const c = $('#extChip');
+  if(EXT.ready){ c.className = 'chip ok'; c.textContent = `Extension BAMBANG Helper aktif · v${EXT.version}`; $('#install').hidden = true; }
+  else { c.className = 'chip bad'; c.textContent = 'Extension BAMBANG Helper belum terpasang'; $('#install').hidden = false; }
+}
+window.postMessage({source:'bambang-page', type:'ping'}, '*');
+setTimeout(() => { if(!EXT.ready) paintExt(); }, 1500);
+
+/* ---------- login ---------- */
+function show(on){ $('#authForm').hidden = on; $('#app').hidden = !on; }
+sb.auth.onAuthStateChange((ev, s) => { if(s){ $('#who').textContent = s.user.email; show(true); } else show(false); });
+$('#authForm').onsubmit = async e => {
+  e.preventDefault(); $('#authMsg').textContent = '';
+  const {error} = await sb.auth.signInWithPassword({email:$('#em').value.trim(), password:$('#pw').value});
+  if(error) $('#authMsg').textContent = /invalid/i.test(error.message) ? 'Email atau password salah.' : error.message;
+};
+
+/* ---------- form ---------- */
+$('#src').addEventListener('input', () => {
+  const u = $('#src').value.trim();
+  $('#capWrap').hidden = !isYT(u);
+  $('#kindNote').textContent = isYT(u) ? 'YouTube: Gemini membaca link-nya langsung, tanpa extension.' : isIG(u) ? 'Instagram: caption, tanggal, dan file diambil otomatis.' : 'Tahap 1 mendukung Instagram dan YouTube.';
+});
+function step(n, state, text){ const li = $('#s'+n); li.className = state; if(text != null) $('small', li).textContent = text; }
+const fmtDate = iso => iso ? new Date(iso).toLocaleString('id-ID',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+
+$('#form').onsubmit = async e => {
+  e.preventDefault();
+  const src = $('#src').value.trim();
+  $('#out').innerHTML = ''; $('#metaBox').innerHTML = '';
+  if(!isIG(src) && !isYT(src)){ $('#out').innerHTML = `<div class="errbox"><b>Link belum didukung.</b> Tahap 1: Instagram (/p/, /reel/) dan YouTube.</div>`; return; }
+  const {data:{session}} = await sb.auth.getSession();
+  if(!session){ show(false); return; }
+  const btn = $('#go'); btn.disabled = true; $('#steps').hidden = false;
+  step(1, '', ''); step(2, '', '');
+  let body = {source_url: src}, paths = [];
+  try {
+    /* 1. ambil */
+    if(isIG(src)){
+      if(!EXT.ready) throw {stage:'ext', msg:'Extension BAMBANG Helper belum terpasang. Ikuti langkah pemasangan di atas.'};
+      step(1, 'run', 'Menghubungi extension…');
+      const t0 = Date.now();
+      const r = await extCall('ig-fetch', {url:src, sb:{url:SB_URL, key:SB_KEY, token:session.access_token, uid:session.user.id}}, txt => step(1, 'run', txt));
+      if(!r.ok) throw {stage:'ext', msg:r.error};
+      paths = r.paths;
+      const m = r.meta;
+      step(1, 'ok', `${m.media.length} file (${m.type}) · ${r.mb} MB · ${((Date.now()-t0)/1000).toFixed(1)} detik`);
+      $('#metaBox').innerHTML = `<div class="card" style="margin-top:12px;gap:4px"><b>Data dari Instagram</b>
+        <dl class="meta"><dt>Kreator</dt><dd>${esc(m.username)}</dd><dt>Diposting</dt><dd>${esc(fmtDate(m.taken_at))}</dd><dt>Jenis</dt><dd>${esc(m.type)}${m.duration ? ` · ${Math.round(m.duration)} detik` : ''} · ${m.media.map(x => x.kind === 'video' ? 'video' : 'foto').join(', ')}</dd></dl>
+        <details><summary>Caption (${m.caption.length} karakter)</summary><pre>${esc(m.caption || '(kosong)')}</pre></details></div>`;
+      body = {...body, storage_paths:paths, kreator:m.username, platform:'Instagram', caption:m.caption};
+    } else {
+      step(1, 'ok', 'YouTube tidak perlu diunduh');
+      body = {...body, youtube_url:src, platform:'YouTube', caption:$('#cap').value};
+    }
+    /* 2. Gemini */
+    const t1 = Date.now();
+    const iv = setInterval(() => step(2, 'run', `Memproses… ${Math.round((Date.now()-t1)/1000)} detik (biasanya 15–60 detik)`), 1000);
+    let res;
+    try {
+      const {data, error} = await sb.functions.invoke('gemini-read', {body});
+      if(error){ let d = null; try { d = await error.context.json(); } catch(_){} res = d || {ok:false, stage:'server', error:error.message}; }
+      else res = data;
+    } finally { clearInterval(iv); }
+    if(!res || !res.ok) throw {stage:res && res.stage, msg:res && res.error};
+    paths = []; // sudah dihapus server
+    step(2, 'ok', `${res.seconds} detik · model ${res.model}`);
+    $('#out').innerHTML = `<div class="acts" style="margin-top:14px"><b>Hasil untuk BAMBANG</b><button class="btn" id="copy" type="button">Salin hasil</button></div><pre>${esc(res.md)}</pre>`;
+    $('#copy').onclick = async () => { try { await navigator.clipboard.writeText(res.md); $('#copy').textContent = 'Tersalin'; } catch(_){ $('#copy').textContent = 'Gagal menyalin'; } };
+  } catch(err){
+    const stage = err && err.stage; const msg = (err && (err.msg || err.message)) || 'Tidak ada keterangan';
+    const n = stage === 'ext' ? 1 : 2; step(n, 'bad', msg);
+    $('#out').innerHTML = `<div class="errbox"><b>${esc(stage === 'ext' ? 'Gagal mengambil dari Instagram' : (STAGE[stage] || 'Gagal'))}</b><br>${esc(msg)}</div>`;
+    if(paths.length) sb.storage.from('tmp-media').remove(paths).catch(() => {});
+  } finally { btn.disabled = false; }
+};
+</script>
+</body>
+</html>
