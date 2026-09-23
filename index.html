@@ -425,6 +425,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
 const PLATFORMS = ['Instagram','TikTok','YouTube','Threads','X','LinkedIn'];
 const PMETA = {Instagram:['IG','#c92a6b'],TikTok:['TT','#161616'],YouTube:['YT','#d62a2a'],Threads:['TH','#3d434a'],X:['X','#26292d'],LinkedIn:['IN','#1864ab']};
 const GEM_NAME = 'Pembaca Konten BAMBANG';
+const DRIVE_FOLDER = 'B.A.M.B.A.N.G.'; // folder sementara di My Drive
 
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -1043,7 +1044,9 @@ ${nextList.length ? `- ${nextList.length} link berikutnya:\n${nextList.map(q => 
    kreator: ${a.handle}
    platform: ${a.platform}
    series: <nama series atau ->
-   part: <nomor atau ->`;
+   part: <nomor atau ->
+   caption:
+   <salin caption LENGKAP dari postingan, apa adanya>`;
   const useDrive = mode === 'drive' && !isYT;
   let stepDl, stepGem, stepClean = '';
   if(isYT){
@@ -1051,16 +1054,17 @@ ${nextList.length ? `- ${nextList.length} link berikutnya:\n${nextList.map(q => 
     stepGem = `4. Buka Gem "${GEM_NAME}" (chat BARU untuk setiap postingan). Kirim link YouTube-nya di baris pertama, lalu di bawahnya:\n${meta}`;
   } else if(mode === 'drive'){
     stepDl = `3. Buka ${dl} → paste link → pilih kualitas TERBAIK → download. Carousel: download semua slide.
-   File otomatis masuk ke folder "BAMBANG" di Google Drive. Buka tab drive.google.com → folder BAMBANG, lalu tunggu sampai filenya muncul (biasanya 10–60 detik, muat ulang halamannya kalau perlu).`;
-    stepGem = `4. Buka Gem "${GEM_NAME}" (chat BARU untuk setiap postingan). Klik tombol "+" di kolom chat → pilih "Drive" → buka folder BAMBANG → pilih file postingan ini (carousel: semua slide) → Insert/Sisipkan. Lalu kirim pesan:
+   File otomatis masuk ke folder "${DRIVE_FOLDER}" di Google Drive. Buka tab drive.google.com → folder "${DRIVE_FOLDER}", lalu tunggu sampai filenya muncul (biasanya 10–60 detik, muat ulang halamannya kalau perlu).`;
+    stepGem = `4. Buka Gem "${GEM_NAME}" (chat BARU untuk setiap postingan). Klik tombol "+" di kolom chat → pilih "Drive" → buka folder "${DRIVE_FOLDER}" → pilih file postingan ini (carousel: semua slide) → Insert/Sisipkan. Lalu kirim pesan:
 ${meta}
    Kalau Gemini menolak file dari Drive, BERHENTI dan laporkan pesan error-nya. Jangan cari jalan lain sendiri.`;
-    stepClean = `\n8. Bersihkan: di drive.google.com → folder BAMBANG, klik kanan file postingan ini → "Pindahkan ke sampah". Salinan di komputer ikut terhapus otomatis.`;
+    stepClean = `\n8. Bersihkan: di drive.google.com → folder "${DRIVE_FOLDER}", klik kanan file postingan ini → "Pindahkan ke sampah". Salinan di komputer ikut terhapus otomatis.`;
   } else if(mode === 'manual'){
     stepDl = `3. Buka ${dl} → paste link → pilih kualitas TERBAIK → download. Carousel: download semua slide. Catat nama file yang ter-download.`;
     stepGem = `4. Buka Gem "${GEM_NAME}" (chat BARU untuk setiap postingan). Ketik pesan di bawah ini ke kolom chat, tapi JANGAN dikirim dulu:
 ${meta}
-   Lalu minta ke Reyhan: "Tolong upload <nama file> ke chat Gemini yang sudah terbuka, lalu klik kirim. Kabari aku kalau sudah." Tunggu sampai Reyhan membalas.`;
+   Lalu minta ke Reyhan: "Link #<nomor antrian> siap. Tolong upload file PALING BARU di folder Downloads (<jumlah> file, dari ${dl}) ke chat Gemini yang sudah terbuka, lalu klik kirim. Kabari aku kalau sudah." Tunggu sampai Reyhan membalas.
+   Setelah jawaban Gemini keluar, cek bagian awal "## Isi" benar-benar menjelaskan postingan ini (cocokkan dengan caption). Kalau Gemini bilang file tidak bisa dibuka atau isinya tidak cocok, minta Reyhan upload ulang di chat BARU.`;
   } else {
     stepDl = `3. TIDAK PERLU DOWNLOAD. Reyhan yang mengirim video postingan ini ke Gem dari HP.`;
     stepGem = `4. Buka gemini.google.com → daftar chat (Recent/Terbaru) → cari chat Gem "${GEM_NAME}" yang pesannya berisi "sumber: <link postingan ini>". Buka chat itu.
@@ -1069,11 +1073,11 @@ ${meta}
   const alat = [`- BAMBANG: ${url}`, `- Profil kreator: ${a.profile_url || `cari ${a.handle} di ${a.platform}`}`];
   if(!isYT && mode !== 'hp') alat.push(`- Downloader ${a.platform}: ${dl}`);
   alat.push(`- Gemini → Gem "${GEM_NAME}"`);
-  if(useDrive) alat.push(`- Google Drive: https://drive.google.com → folder "BAMBANG" (hasil download masuk ke sini otomatis)`);
+  if(useDrive) alat.push(`- Google Drive: https://drive.google.com → folder "${DRIVE_FOLDER}" (hasil download masuk ke sini otomatis)`);
   const persiapan = useDrive
     ? `\nPERSIAPAN (sekali di awal)
-- Buka tab: BAMBANG, ${dl}, Gemini, dan Google Drive (folder BAMBANG).
-- Kalau di folder BAMBANG masih ada file sisa sesi sebelumnya, pindahkan ke sampah dulu supaya tidak tertukar.\n`
+- Buka tab: BAMBANG, ${dl}, Gemini, dan Google Drive (folder "${DRIVE_FOLDER}").
+- Kalau di folder "${DRIVE_FOLDER}" masih ada file sisa sesi sebelumnya, pindahkan ke sampah dulu supaya tidak tertukar.\n`
     : mode === 'hp' && !isYT
     ? `\nCARA REYHAN MENGIRIM DARI HP (untuk referensi)
 - Reyhan membagikan video ke Gem "${GEM_NAME}" dengan pesan:
@@ -1098,6 +1102,7 @@ ${persiapan}
 LANGKAH UNTUK TIAP LINK
 1. Di tab BAMBANG → tab "Proses" → langkah 1 "Antrian link" → bagian "Berikutnya" → klik "Pakai link ini". Link dan tanggal postingan langsung terisi di form "Tambah catatan".
 2. Buka link itu. Cek caption DAN thumbnail: apakah bagian dari series ("part", "day", "bagian", angka urutan, atau desain thumbnail seragam)? Catat nama series & nomor part.
+   Salin CAPTION LENGKAP-nya (klik "selengkapnya"/"more" dulu supaya tidak terpotong). Caption ini wajib ikut dikirim ke Gemini di langkah 4, karena banyak kreator menaruh penjelasan detailnya di caption, bukan di video.
    Kalau postingan sudah dihapus/tidak bisa dibuka: di BAMBANG klik "Gagal", tulis alasannya, lalu lanjut ke link berikutnya.
    Kalau jelas bukan konten (misalnya murni pengumuman giveaway atau iklan tanpa isi): klik "Lewati", tulis alasan singkat, lanjut ke link berikutnya.
 ${stepDl}
@@ -1156,7 +1161,7 @@ function renderProses(){
 function renderFlow(a){
   const mode = S.settings.upload_mode; const isYT = a.platform === 'YouTube';
   const up = isYT ? 'Kirim link YouTube langsung ke Gem'
-    : mode === 'drive' ? 'Download → file masuk ke folder Drive "BAMBANG" → pilih lewat + → Drive di Gem'
+    : mode === 'drive' ? `Download → file masuk ke folder Drive "${DRIVE_FOLDER}" → pilih lewat + → Drive di Gem`
     : mode === 'manual' ? 'Download, lalu minta kamu meng-upload file ke Gem'
     : 'Ambil hasil Gem yang kamu kirim dari HP';
   $('#pFlow').innerHTML = `<li>Ambil link berikutnya dari antrian</li><li>${up} <b>"${GEM_NAME}"</b></li><li>Baca hasil Gemini, lalu tentukan tema &amp; subtema</li><li>Simpan di langkah 4 → antrian tercentang otomatis${mode === 'drive' && !isYT ? ' → hapus file di Drive' : ''}</li>`;
@@ -1783,7 +1788,7 @@ $('#view').addEventListener('click', e => {
 const SB_URL = 'https://fzcupxgglpmstfvjltsq.supabase.co';
 const SB_KEY = 'sb_publishable_b30o10IIq-Inuj4e9V5ekg_Iv_kcEvY';
 const PENDING_KEY = 'bambang-pending-run';
-const DEFAULT_DL = {Instagram:'snapinsta.app',TikTok:'snaptik.app',YouTube:'y2mate.nu',Threads:'threadsdownloader.io',X:'twitsave.com',LinkedIn:'linkedinvideodownloader.com'};
+const DEFAULT_DL = {Instagram:'snapinsta.to',TikTok:'snaptik.app',YouTube:'y2mate.nu',Threads:'threadsdownloader.io',X:'twitsave.com',LinkedIn:'linkedinvideodownloader.com'};
 const sb = window.supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:true, autoRefreshToken:true}});
 let USER = null;
 
