@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="bambang-app" content="main">
 <title>BAMBANG</title>
 <meta name="description" content="BAMBANG (Bot Analisis Materi Belajar, Awam Nan Gamblang) — gudang ide dari konten sosmed. Tersimpan di Supabase.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,6 +42,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .sync[data-state="saving"],.sync[data-state="loading"]{background:var(--warn-soft);color:var(--warn)}
 .sync[data-state="error"]{background:var(--bad-soft);color:var(--bad)}
 .sync .link-btn{font-size:12px;color:inherit;text-decoration:underline}
+.ext{font:500 12px/1 var(--f-body);padding:6px 10px;border-radius:99px;background:var(--sunk);color:var(--muted)}
+.ext.on{background:var(--ok-soft);color:var(--ok)}
 .auth{min-height:60vh;display:grid;place-items:center;padding:24px 16px 60px}
 .auth-card{width:min(380px,100%);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 20px;display:grid;gap:12px}
 .auth-card h2{margin:0;font:700 22px/1.2 var(--f-display)}
@@ -51,20 +54,22 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* nav */
 .nav{position:sticky;top:0;z-index:20;background:rgba(243,241,236,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-bottom:-1px}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-bottom:-1px;align-items:center}
 .tabs::-webkit-scrollbar{display:none}
 .tab{appearance:none;border:0;background:none;padding:12px 10px 11px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;display:flex;gap:7px;align-items:center}
 .tab:hover{color:var(--ink)}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab.home{font-weight:600;color:var(--ink-2)}
 .tab .cnt{font:500 11px/1 var(--f-mono);background:var(--sunk);padding:3px 6px;border-radius:99px;color:var(--ink-2)}
 .tab .cnt.hot{background:var(--bad-soft);color:var(--bad)}
-.session{display:none;align-items:center;gap:8px;font-size:12.5px;background:var(--ink);color:#fff;border-radius:99px;padding:4px 4px 4px 12px;white-space:nowrap;flex:none}
-.session.on{display:flex}
-.session b{font-weight:600}
-.session .pulse{width:7px;height:7px;border-radius:50%;background:#5fd38d;animation:pulse 1.8s infinite}
-.session button{border:0;background:#fff;color:var(--ink);border-radius:99px;padding:3px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.tab .cnt.acc{background:var(--accent-soft);color:var(--accent-h)}
+.tab-sep{display:flex;align-items:center;gap:6px;padding:0 6px 0 14px;margin-left:6px;border-left:1px solid var(--line-2);font:600 10.5px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;height:18px}
+.eng-pill{display:none;align-items:center;gap:8px;font-size:12.5px;background:var(--ink);color:#fff;border-radius:99px;padding:5px 12px;white-space:nowrap;flex:none;border:0;cursor:pointer}
+.eng-pill.on{display:flex}
+.eng-pill .pulse{width:7px;height:7px;border-radius:50%;background:#5fd38d;animation:pulse 1.8s infinite}
+.eng-pill.jeda .pulse{background:#f0b44c;animation:none}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(95,211,141,.6)}70%{box-shadow:0 0 0 7px rgba(95,211,141,0)}100%{box-shadow:0 0 0 0 rgba(95,211,141,0)}}
-@media (prefers-reduced-motion:reduce){.session .pulse{animation:none}}
+@media (prefers-reduced-motion:reduce){.eng-pill .pulse,.dot.run{animation:none}}
 
 main{padding:22px 0 80px}
 .vh{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:16px;flex-wrap:wrap}
@@ -81,6 +86,7 @@ main{padding:22px 0 80px}
 .btn.danger{color:var(--bad);border-color:#e8b9b3}
 .btn.danger:hover{background:var(--bad-soft)}
 .btn.sm{padding:5px 10px;font-size:13px}
+.btn.lg{padding:11px 18px;font-size:15px}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .link-btn{appearance:none;border:0;background:none;padding:0;color:var(--accent);font-weight:600;cursor:pointer;font-size:13px}
 .link-btn:hover{text-decoration:underline}
@@ -94,13 +100,105 @@ main{padding:22px 0 80px}
 .stats{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);margin:0 0 16px}
 .stats b{font:600 15px var(--f-mono);color:var(--ink);margin-right:4px}
 .stats .hot b,.stats .hot{color:var(--bad)}
-.stats .link-btn{font-size:13px}
 
 /* platform badge */
 .pb{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;background:var(--pc,#777);color:#fff;font:600 9.5px/1 var(--f-mono);letter-spacing:.02em;flex:none}
 .pb.lg{width:34px;height:34px;border-radius:9px;font-size:12px}
 
-/* cards */
+/* ============ BERANDA ============ */
+.hello{font:800 clamp(26px,4.6vw,38px)/1.05 var(--f-display);letter-spacing:-.03em;margin:4px 0 6px}
+.hello-sub{color:var(--muted);font-size:14px;margin:0 0 20px;max-width:60ch}
+.choices{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-bottom:14px}
+.choice{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.choice h3{margin:0;font:700 19px/1.2 var(--f-display);letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+.choice h3 .n{font:600 11px/1 var(--f-mono);color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:4px 6px}
+.choice > p{margin:-4px 0 0;color:var(--muted);font-size:13px}
+.inrow{display:flex;gap:8px;flex-wrap:wrap}
+.inrow input{flex:1;min-width:180px;border:1px solid var(--line-2);border-radius:var(--r-sm);padding:10px 12px;font-size:15px;background:#fff}
+.inrow input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.found{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fbfaf7;display:grid;gap:8px;font-size:13.5px}
+.found .who{display:flex;gap:10px;align-items:center}
+.found .who b{font:700 16px var(--f-display)}
+.found .nums{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--muted);font-size:12.5px}
+.found .nums b{font:600 13.5px var(--f-mono);color:var(--ink)}
+.found .acts{display:flex;gap:6px;flex-wrap:wrap}
+.status-line{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.status-line.bad{color:var(--bad)}
+.acc-list{display:grid;gap:2px}
+.acc-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 4px;border-top:1px dashed var(--line)}
+.acc-row:first-child{border-top:0}
+.acc-row .nm{font-weight:600;font-size:14.5px;word-break:break-word}
+.acc-row .sm{font-size:12px;color:var(--muted)}
+.mini-bar{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin:5px 0 3px;display:flex}
+.mini-bar i{display:block;height:100%}
+.mini-bar .s{background:var(--ok)}.mini-bar .g{background:var(--bad)}.mini-bar .l{background:var(--line-2)}
+
+/* mesin */
+.engine{background:var(--ink);color:#f3efe7;border-radius:14px;padding:16px 18px;display:grid;gap:12px;margin-bottom:14px}
+.engine-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.engine-h .ttl{display:flex;align-items:center;gap:10px;font:700 17px/1.2 var(--f-display)}
+.dot{width:10px;height:10px;border-radius:50%;background:#6b655b;flex:none}
+.dot.run{background:#5fd38d;animation:pulse 1.8s infinite}
+.dot.pause{background:#f0b44c}
+.dot.dead{background:#e0705f}
+.engine-h small{color:#b9b2a5;font-size:12.5px;font-weight:400;font-family:var(--f-body)}
+.engine-now{font-size:14px;line-height:1.5}
+.engine-now b{color:#fff}
+.engine-now .sub{display:block;color:#b9b2a5;font-size:12.5px;margin-top:2px}
+.eng-bar{height:8px;border-radius:99px;background:#3a3631;overflow:hidden;display:flex}
+.eng-bar i{display:block;height:100%}
+.eng-bar .s{background:#5fd38d}.eng-bar .g{background:#e0705f}.eng-bar .l{background:#6b655b}
+.eng-nums{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:#b9b2a5}
+.eng-nums b{font:600 14px var(--f-mono);color:#fff;margin-right:3px}
+.eng-acts{display:flex;gap:6px;flex-wrap:wrap}
+.engine .btn{background:#fff;border-color:#fff;color:var(--ink)}
+.engine .btn.ghost{background:transparent;border-color:#5c574f;color:#f3efe7}
+.engine .btn.ghost:hover{background:#2c2925}
+.engine .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.engine .note{font-size:12.5px;color:#b9b2a5;margin:0}
+.engine .warnmsg{background:#3d2f16;color:#f5d596;border-radius:8px;padding:9px 11px;font-size:13px}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-width:0}
+.panel-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.panel-h h3{margin:0;font:700 16px/1.2 var(--f-display)}
+.feed{list-style:none;margin:0;padding:0;display:grid;max-height:440px;overflow:auto}
+.feed li{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;padding:8px 0;border-top:1px dashed var(--line);font-size:13.5px}
+.feed li:first-child{border-top:0}
+.feed .who{font:600 10.5px/1 var(--f-mono);text-transform:uppercase;letter-spacing:.04em;padding:4px 6px;border-radius:5px;background:var(--sunk);color:var(--ink-2);align-self:start;margin-top:1px}
+.feed .who.claude{background:var(--vis-soft);color:var(--vis)}
+.feed .who.kamu{background:var(--accent-soft);color:var(--accent-h)}
+.feed .t{word-break:break-word}
+.feed .t.ok::before{content:"✓ ";color:var(--ok);font-weight:700}
+.feed .t.error::before{content:"✗ ";color:var(--bad);font-weight:700}
+.feed .t.warn::before{content:"! ";color:var(--warn);font-weight:700}
+.feed time{grid-column:2;font-size:11.5px;color:var(--muted)}
+.feed .t .link-btn{font-size:13.5px}
+.res{display:grid}
+.res button{appearance:none;border:0;background:none;text-align:left;padding:9px 0;border-top:1px dashed var(--line);cursor:pointer;display:grid;gap:2px}
+.res button:first-child{border-top:0}
+.res button:hover .rt{color:var(--accent)}
+.res .rt{font-weight:600;font-size:14px;line-height:1.35}
+.res .rm{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+/* ============ BERI TEMA ============ */
+.tnext{background:var(--surface);border:1.5px solid var(--accent);border-radius:14px;overflow:hidden}
+.tnext-h{padding:14px 16px 10px;border-bottom:1px solid var(--line);display:grid;gap:4px}
+.tnext-h .k{font:600 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.tnext-h h3{margin:0;font:700 20px/1.25 var(--f-display);letter-spacing:-.01em}
+.tnext-h .m{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tnext-b{padding:14px 16px;max-height:52vh;overflow:auto;background:#fdfcfa}
+.tnext-f{padding:14px 16px;border-top:1px solid var(--line);display:grid;gap:10px;background:#fbfaf7}
+.tnext-f .acts{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.wait-list{margin-top:14px}
+.wait-list ol{margin:6px 0 0;padding-left:22px;font-size:13.5px;color:var(--ink-2)}
+.wait-list li{margin:3px 0}
+details.prompt{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+details.prompt summary{cursor:pointer;font-weight:600;font-size:14px}
+.prompt-box pre{margin:10px 0 0;background:#1f1d1a;color:#ece6da;border-radius:var(--r-sm);padding:14px 14px 16px;font:12.5px/1.6 var(--f-mono);white-space:pre-wrap;word-break:break-word;max-height:340px;overflow:auto}
+.prompt-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+/* cards (katalog) */
 .list{display:grid;gap:12px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .card-h{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:14px 16px 12px}
@@ -169,21 +267,16 @@ button.tc:hover{border-color:var(--line-2)}
 .empty strong{display:block;color:var(--ink);font-size:15px;margin-bottom:4px}
 .empty .btn{margin-top:12px}
 
-/* process steps */
+/* langkah (antrian) */
 .steps{display:grid;gap:14px}
 .step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:grid;grid-template-columns:44px 1fr;overflow:hidden}
 .step-n{background:var(--sunk);display:flex;justify-content:center;padding-top:16px;font:800 18px/1 var(--f-display);color:var(--ink-2)}
 .step-b{padding:15px 16px 16px;min-width:0}
 .step-b h3{margin:0;font:700 17px/1.25 var(--f-display)}
 .step-b > p.hint{margin:4px 0 12px;color:var(--muted);font-size:13px}
-.flow{margin:6px 0 0;padding-left:20px;font-size:13.5px;color:var(--ink-2)}
-.flow li{margin:3px 0}
-.snap{display:grid;gap:6px;background:var(--sunk);border-radius:var(--r-sm);padding:11px 12px;font-size:13.5px;margin:12px 0}
-.snap div{display:flex;gap:8px;flex-wrap:wrap}
-.snap .k{color:var(--muted);min-width:128px}
-.snap .hot{color:var(--bad);font-weight:600}
-.prompt-box pre{margin:10px 0 0;background:#1f1d1a;color:#ece6da;border-radius:var(--r-sm);padding:14px 14px 16px;font:12.5px/1.6 var(--f-mono);white-space:pre-wrap;word-break:break-word;max-height:340px;overflow:auto}
-.prompt-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+details.step-more{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px}
+details.step-more > summary{cursor:pointer;font:700 16px/1.3 var(--f-display)}
+details.step-more > p.hint{margin:6px 0 12px;color:var(--muted);font-size:13px}
 
 /* forms */
 .fgrid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
@@ -233,7 +326,7 @@ button.tc:hover{border-color:var(--line-2)}
 .r-title{font-weight:600;font-size:15px;line-height:1.35}
 .r-main:hover .r-title{color:var(--accent)}
 .r-meta{font-size:12.5px;color:var(--muted);margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.r-meta .pb{width:16px;height:16px;border-radius:4px;font-size:7.5px}
+.r-meta .pb,.rm .pb{width:16px;height:16px;border-radius:4px;font-size:7.5px}
 .r .tcs{margin-top:7px}
 .badges{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
 .badge{font:600 11px/1 var(--f-body);padding:4px 7px;border-radius:5px;white-space:nowrap}
@@ -241,6 +334,7 @@ button.tc:hover{border-color:var(--line-2)}
 .badge.warn{background:var(--warn-soft);color:var(--warn)}
 .badge.bad{background:var(--bad-soft);color:var(--bad)}
 .badge.vis{background:var(--vis-soft);color:var(--vis)}
+.badge.acc{background:var(--accent-soft);color:var(--accent-h)}
 .badge.skip{background:var(--sunk);color:var(--muted)}
 
 /* antrian link */
@@ -300,10 +394,6 @@ button.tc:hover{border-color:var(--line-2)}
 .log .num span{font-size:11.5px;color:var(--muted)}
 .log .note{grid-column:span 2;font-size:13.5px;color:var(--ink-2);border-top:1px dashed var(--line);padding-top:8px}
 .log .acts{grid-column:span 2;display:flex;justify-content:flex-end}
-.banner{background:var(--ink);color:#f3efe7;border-radius:var(--r);padding:14px 16px;display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-.banner p{margin:0;font-size:14px}
-.banner small{display:block;color:#b9b2a5;font-size:12.5px;margin-top:2px}
-.banner .btn{background:#fff;border-color:#fff}
 
 /* dialog */
 dialog{border:0;padding:0;border-radius:14px;width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px);background:var(--surface);color:var(--ink);box-shadow:0 30px 80px -20px rgba(20,15,10,.45)}
@@ -338,10 +428,14 @@ dialog::backdrop{background:rgba(28,24,20,.45)}
 
 #toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:100;max-width:calc(100vw - 32px);box-shadow:0 10px 30px -10px rgba(0,0,0,.4)}
 #toast.on{opacity:1;transform:translate(-50%,0)}
+.fresh{position:fixed;right:16px;bottom:22px;z-index:90;background:var(--accent);color:#fff;border:0;border-radius:99px;padding:9px 14px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 10px 30px -10px rgba(0,0,0,.4)}
 
 footer{border-top:1px solid var(--line);padding:18px 0 28px;color:var(--muted);font-size:12.5px}
 footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
 
+@media (max-width:820px){
+  .choices,.two{grid-template-columns:1fr}
+}
 @media (max-width:720px){
   .f.c6,.f.c4,.f.c8,.f.c3,.f.c9{grid-column:span 12}
   .filters .f.c4,.filters .f.c3{grid-column:span 6}
@@ -349,15 +443,16 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
   .step{grid-template-columns:1fr}
   .step-n{justify-content:flex-start;padding:12px 16px 0;background:none;font-size:13px;color:var(--accent)}
   .step-n::before{content:"Langkah\00a0"}
-  .snap .k{min-width:0;width:100%}
   .brand h1{font-size:26px}
   .r{grid-template-columns:24px 1fr}
   .badges{grid-column:2;flex-direction:row;flex-wrap:wrap;align-items:flex-start}
   .nav .wrap{flex-direction:column;align-items:stretch;gap:0}
-  .session{margin:0 0 8px;align-self:flex-start}
+  .eng-pill{margin:0 0 8px;align-self:flex-start}
   .tree{grid-template-columns:1fr}
   .q-row{grid-template-columns:40px 1fr}
   .q-side{grid-column:2;justify-content:flex-start}
+  .acc-row{grid-template-columns:auto 1fr}
+  .acc-row > .btn,.acc-row > span.small{grid-column:2;justify-self:start}
 }
 </style>
 </head>
@@ -370,6 +465,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
       <p>Bot Analisis Materi Belajar, Awam Nan Gamblang — gudang ide dari konten sosmed</p>
     </div>
     <div class="top-r app-only" hidden>
+      <span class="ext" id="extChip" title="Extension BAMBANG Helper hanya ada di Chrome laptop">Extension: mencari…</span>
       <span class="sync" id="syncPill" data-state="loading" role="status">Memuat…</span>
       <button class="btn ghost sm" id="reloadBtn" title="Ambil ulang data terbaru dari cloud">Muat ulang</button>
     </div>
@@ -390,17 +486,16 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
 <nav class="nav app-only" aria-label="Menu utama" hidden>
   <div class="wrap">
     <div class="tabs" role="tablist">
+      <button class="tab home" role="tab" data-view="beranda">Beranda</button>
+      <span class="tab-sep" aria-hidden="true">Ruang kerja Claude</span>
+      <button class="tab" role="tab" data-view="tema">Beri tema <span class="cnt acc" id="cTema">0</span></button>
+      <button class="tab" role="tab" data-view="antrian">Antrian</button>
       <button class="tab" role="tab" data-view="katalog">Katalog</button>
-      <button class="tab" role="tab" data-view="proses">Proses</button>
       <button class="tab" role="tab" data-view="catatan">Catatan <span class="cnt" id="cCat">0</span></button>
       <button class="tab" role="tab" data-view="paket">Paket <span class="cnt" id="cPkt">0</span></button>
       <button class="tab" role="tab" data-view="log">Run Log</button>
     </div>
-    <div class="session" id="session" role="status">
-      <span class="pulse" aria-hidden="true"></span>
-      <span>Sesi <b id="sessAcc"></b> · <span id="sessTime"></span></span>
-      <button id="sessEnd">Akhiri</button>
-    </div>
+    <button class="eng-pill" id="engPill" type="button" title="Buka status mesin"><span class="pulse" aria-hidden="true"></span><span id="engPillTxt"></span></button>
   </div>
 </nav>
 
@@ -409,23 +504,22 @@ footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
 <footer class="app-only" hidden>
   <div class="wrap">
     <span>Masuk sebagai <b id="userEmail"></b> · <button class="link-btn" id="logoutBtn">Keluar</button></span>
-    <span>Tersambung ke Supabase · v0.4</span>
+    <span>Tersambung ke Supabase · v0.5</span>
   </div>
 </footer>
 
 <dialog id="dlg"></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
+<button class="fresh" id="freshBtn" type="button" hidden>Ada data baru · tampilkan</button>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
 <script>
 /* =========================================================
-   BAMBANG v0.4 — tersambung ke Supabase + antrian link
-   Data tersimpan di database cloud, dilindungi login + RLS
+   BAMBANG v0.5 — dashboard simpel + ruang kerja Claude + mesin otomatis
+   Mesin: extension BAMBANG Helper (ambil postingan) → server gemini-read (Gemini) → simpan catatan
    ========================================================= */
 const PLATFORMS = ['Instagram','TikTok','YouTube','Threads','X','LinkedIn'];
 const PMETA = {Instagram:['IG','#c92a6b'],TikTok:['TT','#161616'],YouTube:['YT','#d62a2a'],Threads:['TH','#3d434a'],X:['X','#26292d'],LinkedIn:['IN','#1864ab']};
-const GEM_NAME = 'Pembaca Konten BAMBANG';
-const DRIVE_FOLDER = 'B.A.M.B.A.N.G.'; // folder sementara di My Drive
 
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -437,24 +531,31 @@ const fmtD = iso => { if(!iso) return '—'; const d = new Date(iso.length===10 
 const fmtDT = iso => { if(!iso) return '—'; const d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleDateString('id-ID',{day:'numeric',month:'short'}) + ', ' + d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}); };
 const pad = n => String(n).padStart(2,'0');
 const toLocalInput = iso => { if(!iso) return ''; const d = new Date(iso); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
-const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const localDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today = () => localDate(new Date());
 const dur = (a,b) => { const m = Math.max(0, Math.round((new Date(b) - new Date(a))/60000)); return m < 60 ? `${m} mnt` : `${Math.floor(m/60)} j ${m%60} mnt`; };
-const norm = u => String(u||'').replace(/[?#].*$/,'').replace(/\/+$/,'').toLowerCase();
+const durMin = m => { m = Math.max(0, Math.round(m)); return m < 60 ? `${m} menit` : `${Math.floor(m/60)} jam ${m%60} menit`; };
+const ago = iso => { if(!iso) return ''; const s = Math.round((Date.now() - new Date(iso)) / 1000); if(s < 45) return 'baru saja'; if(s < 3600) return `${Math.round(s/60)} mnt lalu`; if(s < 86400) return `${Math.round(s/3600)} jam lalu`; return fmtDT(iso); };
 const lc = s => String(s||'').trim().toLowerCase();
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-/* Tanggal posting Instagram bisa dibaca dari kode link-nya (/p/KODE/ atau /reel/KODE/).
-   Hasil: waktu dalam milidetik, atau null kalau bukan link Instagram. */
+/* Instagram: kode link (shortcode) dan tanggal posting yang tersimpan di dalamnya */
 const IG_ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+const igCode = url => { const m = String(url||'').match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([A-Za-z0-9_-]{5,})/i); return m ? m[1] : null; };
+const isIG = url => !!igCode(url);
+const isYT = url => /^https?:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//i.test(String(url||''));
+/* kunci pembanding link: /reel/KODE dan /p/KODE dianggap sama */
+const ukey = u => { const c = igCode(u); return c ? 'ig:' + c : String(u||'').replace(/[?#].*$/,'').replace(/\/+$/,'').toLowerCase(); };
 function igTime(url){
-  const m = String(url||'').match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([A-Za-z0-9_-]{8,14})/i);
-  if(!m || typeof BigInt === 'undefined') return null;
+  const code = igCode(url);
+  if(!code || code.length < 8 || code.length > 14 || typeof BigInt === 'undefined') return null;
   let n = 0n;
-  for(const ch of m[1]){ const i = IG_ALPHA.indexOf(ch); if(i < 0) return null; n = n * 64n + BigInt(i); }
+  for(const ch of code){ const i = IG_ALPHA.indexOf(ch); if(i < 0) return null; n = n * 64n + BigInt(i); }
   const ms = Number(n >> 23n) + 1314220021721;
   if(!isFinite(ms) || ms < 1314220021721 || ms > Date.now() + 864e5) return null;
   return ms;
 }
-function igDate(url){ const ms = igTime(url); if(ms == null) return ''; const d = new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function igDate(url){ const ms = igTime(url); return ms == null ? '' : localDate(new Date(ms)); }
 const shortUrl = u => String(u||'').replace(/^https?:\/\/(www\.)?/i,'');
 
 let S;
@@ -466,6 +567,7 @@ const accById = id => S.accounts.find(a => a.id === id);
 const seriesOf = accId => S.series.filter(s => s.account_id === accId);
 const serById = id => S.series.find(s => s.id === id);
 const thById = id => S.themes.find(t => t.id === id);
+const postById = id => S.posts.find(p => p.id === id);
 const temas = () => S.themes.filter(t => !t.parent_id).sort((a,b) => a.name.localeCompare(b.name,'id'));
 const subsOf = id => S.themes.filter(t => t.parent_id === id).sort((a,b) => a.name.localeCompare(b.name,'id'));
 const thByName = n => S.themes.find(t => lc(t.name) === lc(n));
@@ -474,10 +576,13 @@ const thPath = t => { if(!t) return '?'; const p = t.parent_id ? thById(t.parent
 function postThemeSet(p){ const s = new Set(); (p.theme_ids||[]).forEach(id => { const t = thById(id); if(!t) return; s.add(id); if(t.parent_id) s.add(t.parent_id); }); return s; }
 const postsInTheme = id => S.posts.filter(p => postThemeSet(p).has(id));
 const pkgPosts = k => S.posts.filter(p => { const set = postThemeSet(p); return k.theme_ids.some(id => set.has(id)) && (k.include_unvalidated || p.validated); });
+/* catatan yang belum diberi tema, urut dari postingan paling lama */
+const waitingTheme = () => S.posts.filter(p => !(p.theme_ids||[]).length).sort((a,b) => (a.post_date||'').localeCompare(b.post_date||'') || (a.processed_at||'').localeCompare(b.processed_at||''));
+const postByUrl = url => { const k = ukey(url); return S.posts.find(p => ukey(p.original_url) === k); };
 /* antrian link */
 const QSTAT = {antri:['warn','Antri'], selesai:['ok','Selesai'], gagal:['bad','Gagal'], lewati:['skip','Dilewati']};
 const queueOf = accId => S.queue.filter(q => q.account_id === accId).sort((a,b) => a.position - b.position);
-const qByUrl = url => S.queue.find(q => norm(q.url) === norm(url));
+const qByUrl = url => { const k = ukey(url); return S.queue.find(q => ukey(q.url) === k); };
 function queueStats(accId){
   const list = queueOf(accId); const c = {antri:0, selesai:0, gagal:0, lewati:0};
   list.forEach(q => { c[q.status] = (c[q.status]||0) + 1; });
@@ -487,6 +592,7 @@ const qBadge = st => { const [c,l] = QSTAT[st] || ['warn', st]; return `<span cl
 const pbadge = (platform, cls='') => { const [l,c] = PMETA[platform] || ['?','#777']; return `<span class="pb ${cls}" style="--pc:${c}" title="${esc(platform)}" aria-label="${esc(platform)}">${l}</span>`; };
 function themeChip(id){ const t = thById(id); if(!t) return ''; const p = t.parent_id ? thById(t.parent_id) : null;
   return `<span class="tc">${p ? `${esc(p.name)} <span class="sep">›</span> <b>${esc(t.name)}</b>` : `<b>${esc(t.name)}</b>`}</span>`; }
+const themeChips = p => (p.theme_ids||[]).length ? p.theme_ids.map(themeChip).join('') : '<span class="tc warn">menunggu tema</span>';
 
 function progress(accId){
   const ps = S.posts.filter(p => p.account_id === accId).sort((a,b) => (a.post_date||'').localeCompare(b.post_date||''));
@@ -523,8 +629,7 @@ function splitFM(md){
   const fm = {};
   m[1].split('\n').forEach(line => {
     const mm = line.match(/^\s*([A-Za-z_]+)\s*:\s*(.*)$/); if(!mm) return;
-    let v = mm[2].trim().replace(/^["']|["']$/g,'');
-    fm[mm[1].toLowerCase()] = v;
+    fm[mm[1].toLowerCase()] = mm[2].trim().replace(/^["']|["']$/g,'');
   });
   return {fm, body:s.slice(m[0].length).trim(), has:true};
 }
@@ -540,6 +645,7 @@ function parseMD(md){
   if(/^\d+/.test(fm.part_terdeteksi||'')) r.part = parseInt(fm.part_terdeteksi,10);
   if('momen_visual' in fm){ r.has_visual = !empty(fm.momen_visual); r.visual_notes = r.has_visual ? fm.momen_visual : ''; }
   if(!empty(fm.tema)) r.tema = fm.tema;
+  if(!empty(fm.audio)) r.audio = fm.audio;
   return r;
 }
 
@@ -549,7 +655,7 @@ function parseMD(md){
 function resolveThemes(str, commit=false){
   const items = []; const ids = [];
   const segs = String(str||'').split(/[;\n]/).map(s => s.trim()).filter(Boolean);
-  const pending = []; // tema baru yang belum di-commit (untuk preview)
+  const pending = [];
   const findT = n => thByName(n) || pending.find(t => lc(t.name) === lc(n));
   for(const seg of segs){
     const [rawT, rawS] = seg.split(/\s*(?:>|›|→)\s*/).map(x => (x||'').trim());
@@ -591,7 +697,7 @@ function bindThemeField(id, onChange){
   const render = () => {
     const {items} = resolveThemes(inp.value);
     prev.innerHTML = items.length ? items.map(i => `<span class="tc ${i.isNew?'new':''} ${i.note?'warn':''}" title="${esc(i.note)}">${esc(i.label)}</span>`).join('') + (items.some(i => i.note) ? `<span class="small" style="color:var(--warn)">${esc(items.find(i => i.note).note)}</span>` : '') : '<span class="small muted">Belum ada tema dipilih</span>';
-    if(onChange) onChange();
+    if(onChange) onChange(items);
   };
   pick.onclick = e => { const b = e.target.closest('[data-v]'); if(!b) return; const cur = inp.value.split(';').map(s => s.trim()).filter(Boolean); if(!cur.map(lc).includes(lc(b.dataset.v))) cur.push(b.dataset.v); inp.value = cur.join('; '); inp.dispatchEvent(new Event('input')); };
   inp.addEventListener('input', render);
@@ -694,7 +800,6 @@ function buildVault(posts, meta){
   const byDate = arr => arr.slice().sort((a,b) => (a.post_date||'').localeCompare(b.post_date||''));
   posts.forEach(p => files.push({name: root + 'Catatan/' + names.get(p.id) + '.md', text: noteContent(p, names.get(p.id))}));
 
-  // tema & subtema
   const tIds = new Set(); posts.forEach(p => postThemeSet(p).forEach(id => tIds.add(id)));
   const inExp = id => posts.filter(p => postThemeSet(p).has(id));
   const direct = id => posts.filter(p => (p.theme_ids||[]).includes(id));
@@ -715,7 +820,6 @@ function buildVault(posts, meta){
     files.push({name: root + 'Tema/' + fsafe(t.name) + '.md', text: L.join('\n')});
   });
 
-  // kreator
   const aIds = [...new Set(posts.map(p => p.account_id))];
   aIds.map(accById).filter(Boolean).forEach(a => {
     const ps = byDate(posts.filter(p => p.account_id === a.id));
@@ -726,7 +830,6 @@ function buildVault(posts, meta){
     files.push({name: root + 'Kreator/' + fsafe(a.handle) + '.md', text: L.join('\n') + '\n'});
   });
 
-  // series
   const sIds = [...new Set(posts.map(p => p.series_id).filter(Boolean))];
   sIds.map(serById).filter(Boolean).forEach(s => {
     const a = accById(s.account_id);
@@ -740,7 +843,6 @@ function buildVault(posts, meta){
     files.push({name: root + 'Series/' + fsafe(s.name) + '.md', text: L.join('\n') + '\n'});
   });
 
-  // _BACA-DULU.md
   const nVal = posts.filter(p => p.validated).length, nRe = posts.filter(p => p.reprocess).length, nVis = posts.filter(p => p.has_visual).length;
   const R = [];
   R.push(`# Paket: ${meta.name}`, '');
@@ -755,7 +857,7 @@ function buildVault(posts, meta){
   R.push('- Label **[Tambahan]** = penjelasan dari Gemini sendiri, bukan isi asli konten.');
   R.push('- `momen_visual` = bagian yang aslinya visual; teks hanya menggambarkannya.');
   R.push('- Folder `Tema/`, `Kreator/`, `Series/` berisi halaman indeks yang menghubungkan catatan dengan format tautan Obsidian `[[nama-file]]`.');
-  R.push('- Tema dan subtema dipilih oleh Claude in Chrome saat pengumpulan. Kalau ada yang janggal, sampaikan ke Reyhan.', '');
+  R.push('- Tema dan subtema dipilih oleh Claude in Chrome setelah membaca catatan. Kalau ada yang janggal, sampaikan ke Reyhan.', '');
   R.push('## Kualitas', '', `- Tervalidasi: ${nVal} dari ${posts.length}`, `- Perlu diproses ulang: ${nRe}`, `- Punya momen visual: ${nVis}`, '');
   R.push('## Peta tema', '');
   temas().filter(t => tIds.has(t.id)).forEach(t => {
@@ -782,7 +884,7 @@ function exportZip(posts, meta){
    UTIL UI
    ========================================================= */
 let toastT;
-function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2800); }
+function toast(msg, ms=2800){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms); }
 async function copyText(txt){
   try { await navigator.clipboard.writeText(txt); return true; }
   catch(e){ const ta = document.createElement('textarea'); ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); let ok=false; try{ ok = document.execCommand('copy'); }catch(_){} ta.remove(); return ok; }
@@ -796,26 +898,30 @@ function openDialog({title, sub='', body, submit='Simpan', onSubmit, danger=null
     <div class="dlg-h"><div><h3>${title}</h3>${sub?`<p>${sub}</p>`:''}</div><button type="button" class="x" data-close aria-label="Tutup">×</button></div>
     <div class="dlg-b">${body}</div>
     <div class="dlg-f">${danger?`<button type="button" class="btn danger sm" data-danger>${danger.label}</button>`:''}
-      <div class="r-side"><button type="button" class="btn ghost" data-close>Batal</button>${submit?`<button type="submit" class="btn pri">${submit}</button>`:''}</div></div>
+      <div class="r-side"><button type="button" class="btn ghost" data-close>${submit ? 'Batal' : 'Tutup'}</button>${submit?`<button type="submit" class="btn pri">${submit}</button>`:''}</div></div>
   </form>`;
   const form = $('form', dlg);
   $$('[data-close]', dlg).forEach(b => b.onclick = () => dlg.close());
   if(danger) $('[data-danger]', dlg).onclick = () => { if(danger.fn() !== false) dlg.close(); };
   form.onsubmit = e => { e.preventDefault(); if(onSubmit && onSubmit(new FormData(form), form) === false) return; dlg.close(); };
   if(!dlg.open) dlg.showModal();
-  const first = $('input:not([type=hidden]):not([type=checkbox]),select,textarea', dlg); if(first) first.focus();
+  const first = $('input:not([type=hidden]):not([type=checkbox]):not([type=radio]),select,textarea', dlg); if(first) first.focus();
   return form;
 }
 dlg.addEventListener('click', e => { if(e.target === dlg) dlg.close(); });
+dlg.addEventListener('close', () => { if(PENDING_RERENDER) safeRerender(); });
 
 /* =========================================================
    NAVIGASI
    ========================================================= */
-let view = 'katalog', katSub = 'kreator';
-const VIEWS = {katalog:renderKatalog, proses:renderProses, catatan:renderCatatan, paket:renderPaket, log:renderLog};
+let view = 'beranda', katSub = 'kreator';
+const VIEWS = {beranda:renderBeranda, tema:renderBeriTema, antrian:renderAntrian, katalog:renderKatalog, catatan:renderCatatan, paket:renderPaket, log:renderLog};
+const ALIAS = {proses:'antrian'};
 function go(v, opts={}){
-  if(!VIEWS[v]) v = 'katalog';
+  v = ALIAS[v] || v;
+  if(!VIEWS[v]) v = 'beranda';
   view = v;
+  PENDING_RERENDER = false; $('#freshBtn').hidden = true;
   $$('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.view === v ? 'true' : 'false'));
   if(location.hash !== '#' + v) history.replaceState(null, '', '#' + v);
   VIEWS[v](opts);
@@ -824,29 +930,597 @@ function go(v, opts={}){
 $$('.tab').forEach(t => t.onclick = () => go(t.dataset.view));
 function rerender(){ go(view, {scroll:false}); }
 
+/* render ulang tanpa mengganggu orang yang sedang mengetik */
+let PENDING_RERENDER = false;
+function isBusyTyping(){
+  if(dlg.open) return true;
+  const a = document.activeElement;
+  if(a && $('#view').contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type !== 'checkbox') return true;
+  return $$('#view [data-keep]').some(el => (el.value || '').trim());
+}
+function safeRerender(){
+  if(view === 'beranda'){ renderBerandaLive(); PENDING_RERENDER = false; $('#freshBtn').hidden = true; return; }
+  if(isBusyTyping()){ PENDING_RERENDER = true; $('#freshBtn').hidden = false; return; }
+  PENDING_RERENDER = false; $('#freshBtn').hidden = true; rerender();
+}
+$('#freshBtn').onclick = () => { $('#freshBtn').hidden = true; PENDING_RERENDER = false; rerender(); };
+
 function updateCounts(){
   const re = S.posts.filter(p => p.reprocess).length;
   const c = $('#cCat'); c.textContent = re ? `${S.posts.length} · ${re} ulang` : S.posts.length; c.classList.toggle('hot', !!re);
   $('#cPkt').textContent = S.packages.length;
+  $('#cTema').textContent = waitingTheme().filter(p => !p.reprocess).length;
 }
-/* sesi berjalan */
-function updateSession(){
-  const s = $('#session'); const pr = S.pendingRun;
-  if(!pr || !accById(pr.account_id)){ s.classList.remove('on'); return; }
-  s.classList.add('on');
-  $('#sessAcc').textContent = accById(pr.account_id).handle;
-  $('#sessTime').textContent = dur(pr.started_at, new Date().toISOString());
-}
-$('#sessEnd').onclick = () => { go('log'); openRunDialog(null, true); };
-setInterval(updateSession, 30000);
 
 /* =========================================================
-   TAB KATALOG — Kreator | Tema
+   BERANDA — dashboard simpel
+   ========================================================= */
+function greeting(){ const h = new Date().getHours(); return h < 4 ? 'Selamat malam' : h < 11 ? 'Selamat pagi' : h < 15 ? 'Selamat siang' : h < 18 ? 'Selamat sore' : 'Selamat malam'; }
+function renderBeranda(){
+  $('#view').innerHTML = `
+    <h2 class="hello">${greeting()}. Mau ngapain sekarang?</h2>
+    <p class="hello-sub">Pilih kreator yang mau dipelajari. Mesin mengambil postingannya satu per satu, Gemini membacanya jadi catatan, lalu Claude memberi tema. Kamu cukup memantau dari sini, dari HP juga bisa.</p>
+    <div id="engineBox"></div>
+    <div class="choices">
+      <section class="choice" aria-labelledby="chNew">
+        <h3 id="chNew"><span class="n">A</span>Sasaran baru</h3>
+        <p>Tulis username Instagram. Semua link postingannya dikumpulkan otomatis, urut dari yang paling lama.</p>
+        <form class="inrow" id="newForm" autocomplete="off">
+          <input id="newIn" data-keep placeholder="@username atau link profil Instagram" aria-label="Username Instagram">
+          <button class="btn pri" type="submit" id="newBtn">Cari postingan</button>
+        </form>
+        <div id="newOut"></div>
+      </section>
+      <section class="choice" aria-labelledby="chGo">
+        <h3 id="chGo"><span class="n">B</span>Lanjutkan sasaran</h3>
+        <p>Kreator yang antriannya sudah ada. Progress tersimpan per link, jadi aman walau sempat berhenti.</p>
+        <div class="acc-list" id="accList"></div>
+      </section>
+    </div>
+    <div class="two">
+      <section class="panel" aria-labelledby="fdH"><div class="panel-h"><h3 id="fdH">Aktivitas</h3><span class="small muted">langsung dari mesin &amp; Claude</span></div><ul class="feed" id="feed"></ul></section>
+      <section class="panel" aria-labelledby="rsH"><div class="panel-h"><h3 id="rsH">Catatan terbaru</h3><button class="link-btn" data-a="go-catatan">Semua →</button></div><div class="res" id="results"></div></section>
+    </div>`;
+  $('#newForm').onsubmit = e => { e.preventDefault(); findTarget(); };
+  renderBerandaLive();
+}
+function renderBerandaLive(){
+  if(view !== 'beranda' || !$('#engineBox')) return;
+  paintEngineBox(); renderAccList(); renderFeed(); renderResults();
+}
+function renderAccList(){
+  const box = $('#accList'); if(!box) return;
+  const accs = S.accounts.filter(a => queueOf(a.id).length || S.posts.some(p => p.account_id === a.id));
+  if(!accs.length){ box.innerHTML = '<p class="small muted" style="margin:6px 0">Belum ada sasaran. Mulai dari kolom A.</p>'; return; }
+  const ev = engView(); const busy = ev.status === 'jalan' || ev.status === 'jeda';
+  box.innerHTML = accs.map(a => {
+    const qs = queueStats(a.id); const tot = qs.total || 1;
+    const wait = S.posts.filter(p => p.account_id === a.id && !(p.theme_ids||[]).length).length;
+    const re = S.posts.filter(p => p.account_id === a.id && p.reprocess).length;
+    const todo = qs.antri + re;
+    let act;
+    if(busy && ev.account_id === a.id) act = `<span class="small" style="color:var(--ok);font-weight:600">${ev.status === 'jeda' ? 'Dijeda' : 'Sedang diproses'}</span>`;
+    else if(!todo) act = `<span class="small muted">Selesai ✓</span>`;
+    else if(busy) act = `<span class="small muted">Mesin sibuk</span>`;
+    else if(canRunHere(a.id)) act = `<button class="btn pri sm" data-a="eng-start" data-id="${a.id}">Mulai proses</button>`;
+    else act = `<span class="small muted" title="Mesin butuh extension BAMBANG Helper">Mulai dari laptop</span>`;
+    return `<div class="acc-row">${pbadge(a.platform)}
+      <div><div class="nm">${esc(a.handle)}</div>
+        <div class="mini-bar" aria-hidden="true"><i class="s" style="width:${qs.selesai/tot*100}%"></i><i class="g" style="width:${qs.gagal/tot*100}%"></i><i class="l" style="width:${qs.lewati/tot*100}%"></i></div>
+        <div class="sm">${qs.selesai}/${qs.total} link selesai · ${qs.antri} antri${qs.gagal ? ` · <span style="color:var(--bad)">${qs.gagal} gagal</span>` : ''}${re ? ` · ${re} proses ulang` : ''}${wait ? ` · ${wait} menunggu tema` : ''}</div></div>
+      ${act}</div>`;
+  }).join('');
+}
+function actText(r){
+  const p = r.post_id ? postById(r.post_id) : null;
+  return `${esc(r.text)}${p ? ` <button class="link-btn" data-a="open-post" data-id="${p.id}">buka</button>` : ''}`;
+}
+const WHO = {mesin:'Mesin', claude:'Claude', kamu:'Kamu'};
+function renderFeed(){
+  const ul = $('#feed'); if(!ul) return;
+  const list = S.activity.slice(0, 50);
+  ul.innerHTML = list.length ? list.map(r => `<li><span class="who ${r.actor}">${WHO[r.actor] || r.actor}</span><span class="t ${r.level}">${actText(r)}</span><time datetime="${esc(r.created_at)}" title="${esc(fmtDT(r.created_at))}">${esc(ago(r.created_at))}</time></li>`).join('')
+    : '<li><span class="who">—</span><span class="t muted">Belum ada aktivitas. Semua yang dikerjakan mesin dan Claude akan muncul di sini.</span></li>';
+}
+function renderResults(){
+  const box = $('#results'); if(!box) return;
+  const list = S.posts.slice().sort((a,b) => (b.processed_at||'').localeCompare(a.processed_at||'')).slice(0, 8);
+  box.innerHTML = list.length ? list.map(p => { const a = accById(p.account_id);
+    return `<button type="button" data-a="open-post" data-id="${p.id}"><span class="rt">${esc(p.title || fileName(p))}</span>
+      <span class="rm">${pbadge(p.platform)}${esc(a ? a.handle : '?')} · ${fmtD(p.post_date)} ${(p.theme_ids||[]).length ? '' : '<span class="badge acc">menunggu tema</span>'}${p.reprocess ? '<span class="badge bad">proses ulang</span>' : ''}</span></button>`; }).join('')
+    : '<p class="small muted" style="margin:6px 0">Belum ada catatan.</p>';
+}
+
+/* ---------- Sasaran baru ---------- */
+let FOUND = null;
+function setNewOut(html){ const o = $('#newOut'); if(o) o.innerHTML = html; }
+async function findTarget(){
+  const raw = ($('#newIn').value || '').trim();
+  if(!raw){ toast('Tulis username dulu'); return; }
+  if(isYT(raw) || /tiktok|threads|twitter|x\.com|linkedin/i.test(raw)){ setNewOut(`<p class="status-line bad">Pengumpulan otomatis baru untuk Instagram. Link YouTube bisa ditempel satu per satu lewat Ruang kerja Claude → Antrian → + Tambah link.</p>`); return; }
+  if(!EXT.ready){ setNewOut(`<p class="status-line bad">Pengumpulan link butuh extension BAMBANG Helper, yang hanya ada di Chrome laptop. Buka BAMBANG dari laptop, atau tempel link manual di Antrian.</p>`); return; }
+  if(EXT.old){ setNewOut(`<p class="status-line bad">Extension masih v${esc(EXT.version)}. Pasang v0.2 dulu supaya bisa mengumpulkan link otomatis.</p>`); return; }
+  const btn = $('#newBtn'); btn.disabled = true; FOUND = null;
+  setNewOut(`<p class="status-line" id="newSt">Menghubungi Instagram…</p>`);
+  try {
+    const r = await extCall('ig-profile', {username: raw}, t => { const s = $('#newSt'); if(s) s.textContent = t; }, 600000);
+    if(!r.ok) throw new Error(r.error);
+    FOUND = r; renderFound();
+  } catch(e){ setNewOut(`<p class="status-line bad">${esc(e.message || e)}</p>`); }
+  finally { if($('#newBtn')) $('#newBtn').disabled = false; }
+}
+function foundAccount(){ return FOUND ? S.accounts.find(a => a.platform === 'Instagram' && lc(a.handle) === lc(FOUND.profile.username)) : null; }
+function renderFound(){
+  if(!FOUND) return;
+  const {profile:pf, items} = FOUND; const acc = foundAccount();
+  const fresh = items.filter(i => !qByUrl(i.url));
+  const done = fresh.filter(i => postByUrl(i.url)).length;
+  const pins = items.filter(i => i.pinned).length;
+  const first = items[0], last = items[items.length-1];
+  const gap = pf.post_count - items.length;
+  const qs = acc ? queueStats(acc.id) : null;
+  setNewOut(`<div class="found">
+    <div class="who">${pbadge('Instagram','lg')}<div><b>${esc(pf.username)}</b>${pf.full_name ? `<div class="small muted">${esc(pf.full_name)}</div>` : ''}</div></div>
+    <div class="nums"><span><b>${items.length}</b> link terkumpul</span>${pf.post_count ? `<span>dari <b>${pf.post_count}</b> postingan di profil</span>` : ''}${first ? `<span>${fmtD(first.taken_at)} – ${fmtD(last.taken_at)}</span>` : ''}${pins ? `<span><b>${pins}</b> di-pin</span>` : ''}</div>
+    <div class="nums"><span><b>${fresh.length}</b> link baru</span>${items.length - fresh.length ? `<span><b>${items.length - fresh.length}</b> sudah ada di antrian</span>` : ''}${done ? `<span><b>${done}</b> sudah jadi catatan</span>` : ''}</div>
+    ${gap > 0 ? `<p class="small muted" style="margin:0">Selisih ${gap} postingan biasanya reels yang disembunyikan dari grid profil. Kalau ketemu link-nya, tambahkan manual di Antrian.</p>` : ''}
+    <div class="acts">${fresh.length
+      ? `<button class="btn pri sm" data-a="found-add" data-start="1" ${canRunHere() ? '' : 'hidden'}>Masukkan ${fresh.length} link & mulai proses</button><button class="btn sm" data-a="found-add">Masukkan ke antrian saja</button>`
+      : `<span class="small muted">Semua link sudah ada di antrian.</span>${acc && qs && qs.antri && canRunHere(acc.id) ? `<button class="btn pri sm" data-a="eng-start" data-id="${acc.id}">Mulai proses</button>` : ''}`}</div>
+  </div>`);
+}
+async function addFoundToQueue(start){
+  if(!FOUND) return;
+  const {profile:pf, items} = FOUND;
+  let acc = foundAccount();
+  if(!acc){ acc = {id:uid(), handle:pf.username, platform:'Instagram', profile_url:pf.profile_url}; S.accounts.push(acc); }
+  const existing = queueOf(acc.id);
+  const recs = items.filter(i => !qByUrl(i.url)).map(i => { const post = postByUrl(i.url);
+    return {id:uid(), account_id:acc.id, url:i.url, position:0, pinned:!!i.pinned, status: post ? 'selesai' : 'antri', note:null, post_id: post ? post.id : null, _t: i.taken_at ? Date.parse(i.taken_at) : igTime(i.url)}; });
+  if(!recs.length){ toast('Tidak ada link baru'); return; }
+  const tOf = q => q._t != null ? q._t : igTime(q.url);
+  if([...existing, ...recs].every(q => tOf(q) != null)){
+    [...existing, ...recs].sort((a,b) => tOf(a) - tOf(b)).forEach((q,i) => { q.position = i + 1; });
+  } else {
+    let p = existing.reduce((m,q) => Math.max(m, q.position), 0); recs.forEach(r => { r.position = ++p; });
+  }
+  recs.forEach(r => delete r._t);
+  S.queue.push(...recs);
+  const ok = await save();
+  if(!ok){ toast('Gagal menyimpan antrian. Coba lagi.'); return; }
+  logAct('kamu', 'info', `Sasaran baru ${acc.handle}: ${recs.length} link masuk antrian.`, {account_id:acc.id});
+  FOUND = null; const inp = $('#newIn'); if(inp) inp.value = '';
+  setNewOut(`<p class="status-line">${recs.length} link ${esc(acc.handle)} masuk antrian.</p>`);
+  renderBerandaLive(); updateCounts();
+  if(start) engineStart(acc.id);
+}
+
+/* =========================================================
+   BERI TEMA — ruang kerja Claude
+   ========================================================= */
+const TEMA_SKIP = new Set();
+function themeTreeText(){
+  const tree = temas();
+  if(!tree.length) return '   (belum ada tema — silakan buat yang pertama)';
+  return tree.map(t => { const subs = subsOf(t.id); return `   - ${t.name}${t.description?` (${t.description})`:''}${subs.length ? ': ' + subs.map(s => s.name).join(', ') : ''}`; }).join('\n');
+}
+function buildThemePrompt(){
+  const url = location.href.split('#')[0] + '#tema';
+  return `Tugas: beri tema untuk catatan BAMBANG yang masih "menunggu tema".
+
+Buka: ${url}
+(tab "Beri tema" di bagian Ruang kerja Claude). Kalau diminta login, berhenti dan kabari Reyhan.
+
+UNTUK SETIAP KARTU "BERIKUTNYA":
+1. Baca judul, bagian Isi, dan bagian Caption sampai habis (scroll di dalam kartu).
+2. Tentukan tema (kamu yang memutuskan):
+   - Format: Tema > Subtema. Lebih dari satu dipisah titik koma. Contoh: UI > Hierarki Tombol; UX > Ergonomi Mobile
+   - Pakai tema/subtema dari pohon di bawah kalau cocok (ada juga tombol "Pilih dari tema yang sudah ada" di kartu). Buat baru HANYA kalau benar-benar tidak ada yang pas.
+   - Nama spesifik dan unik. Hindari "Umum", "Lainnya", "Tips", "Tutorial".
+   - Maksimal 2 tingkat (Tema > Subtema), maksimal 3 tema per catatan.
+3. Ketik di kolom "Tema". Cek label di bawahnya: "baru" berarti tema itu akan dibuat; label kuning berarti ada peringatan, baca dulu.
+4. Klik "Simpan tema & lanjut". Pastikan muncul notifikasi "Tema disimpan" dan kartu berikutnya muncul.
+5. Kalau isi catatan jelas rusak (Gemini bilang file tidak bisa dibuka, isinya tidak cocok dengan judul/caption, atau terpotong): klik "Tandai proses ulang" (mesin akan membacanya ulang), lalu lanjut ke kartu berikutnya.
+
+SELESAI kalau muncul tulisan "Semua catatan sudah bertema". Mesin bisa menambah catatan baru kapan saja. Kalau muncul tombol "Ada data baru" di pojok kanan bawah, klik, lalu lanjutkan.
+
+POHON TEMA SAAT INI (pakai yang sudah ada dulu)
+${themeTreeText()}
+
+Jangan menghapus atau mengubah hal lain di BAMBANG. Di akhir, tulis laporan singkat: jumlah catatan yang diberi tema, tema/subtema baru yang dibuat, dan catatan yang ditandai proses ulang.`;
+}
+function temaQueue(){
+  const w = waitingTheme().filter(p => !p.reprocess);
+  return [...w.filter(p => !TEMA_SKIP.has(p.id)), ...w.filter(p => TEMA_SKIP.has(p.id))];
+}
+function renderBeriTema(){
+  const list = temaQueue(); const p = list[0];
+  const ev = engView();
+  let h = `<div class="vh"><div><h2>Beri tema</h2><p>Catatan baru dari mesin tampil satu per satu, mulai dari postingan paling lama. Baca isinya, lalu pilih Tema › Subtema. Tugas ini biasanya dikerjakan Claude in Chrome.</p></div></div>
+    <details class="prompt"><summary>Perintah untuk Claude in Chrome</summary>
+      <div class="prompt-box"><pre id="tPrompt">${esc(buildThemePrompt())}</pre></div>
+      <div class="prompt-actions"><span class="small muted">Tempel ke sidebar Claude in Chrome saat tab ini terbuka.</span><button class="btn pri sm" id="copyTPrompt" type="button">Salin perintah</button></div>
+    </details>`;
+  if(!p){
+    h += `<div class="empty"><strong>Semua catatan sudah bertema</strong>${ev.status === 'jalan' ? 'Mesin masih jalan. Catatan baru akan muncul di sini, klik "Ada data baru" saat tombolnya muncul.' : 'Belum ada catatan baru yang menunggu.'}</div>`;
+    $('#view').innerHTML = h; bindTPrompt(); return;
+  }
+  const a = accById(p.account_id); const s = p.series_id ? serById(p.series_id) : null;
+  const body = splitFM(p.md_content).body;
+  h += `<article class="tnext" aria-labelledby="tTitle">
+    <div class="tnext-h"><span class="k">Berikutnya · 1 dari ${list.length} menunggu tema${TEMA_SKIP.has(p.id) ? ' · pernah dilewati' : ''}</span>
+      <h3 id="tTitle">${esc(p.title || fileName(p))}</h3>
+      <div class="m">${pbadge(p.platform)}<span>${esc(a ? a.handle : '?')} · ${fmtD(p.post_date)}${s ? ` · ${esc(s.name)}${p.part_number ? ` part ${p.part_number}` : ''}` : ''}</span>·<a href="${esc(p.original_url)}" target="_blank" rel="noopener">buka postingan ↗</a></div></div>
+    <div class="tnext-b"><div class="md">${mdToHtml(body)}</div></div>
+    <form class="tnext-f" id="tForm" novalidate>
+      ${themeFieldHTML('tTema','')}
+      <div class="acts"><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn sm danger" id="tRe">Tandai proses ulang</button>${list.length > 1 ? '<button type="button" class="btn sm ghost" id="tSkip">Lewati dulu</button>' : ''}</div>
+        <button type="submit" class="btn pri" id="tSave">Simpan tema &amp; lanjut</button></div>
+    </form>
+  </article>`;
+  if(list.length > 1) h += `<div class="wait-list panel"><div class="panel-h"><h3>Antrian tema</h3><span class="small muted">${list.length - 1} lagi</span></div><ol start="2">${list.slice(1, 11).map(x => `<li>${esc(x.title || fileName(x))} <span class="muted small">· ${fmtD(x.post_date)}</span></li>`).join('')}</ol>${list.length > 11 ? `<p class="small muted" style="margin:6px 0 0">+${list.length - 11} lainnya</p>` : ''}</div>`;
+  $('#view').innerHTML = h;
+  bindTPrompt();
+  $('#tTema').setAttribute('data-keep', '');
+  bindThemeField('tTema');
+  $('#tForm').onsubmit = async e => {
+    e.preventDefault();
+    const val = $('#tTema').value; const {ids, items} = resolveThemes(val);
+    if(!ids.length){ toast('Isi tema dulu'); $('#tTema').focus(); return; }
+    if(items.length > 3){ toast('Maksimal 3 tema per catatan'); return; }
+    const cur = postById(p.id); if(!cur){ toast('Catatan ini sudah tidak ada'); $('#tTema').value = ''; renderBeriTema(); return; }
+    const before = S.themes.length;
+    const res = resolveThemes(val, true);
+    cur.theme_ids = res.ids;
+    $('#tSave').disabled = true; $('#tSave').textContent = 'Menyimpan…';
+    const ok = await save();
+    if(!ok){ $('#tSave').disabled = false; $('#tSave').textContent = 'Simpan tema & lanjut'; toast('GAGAL menyimpan. Klik Simpan lagi.'); return; }
+    const created = S.themes.slice(before).map(t => t.name);
+    TEMA_SKIP.delete(cur.id);
+    logAct('claude', 'ok', `"${cur.title}" diberi tema ${res.items.map(i => i.label).join('; ')}${created.length ? ` (tema baru: ${created.join(', ')})` : ''}.`, {post_id:cur.id, account_id:cur.account_id});
+    toast('Tema disimpan');
+    $('#tTema').value = '';
+    updateCounts(); renderBeriTema();
+    const nx = $('#tTema'); if(nx) nx.focus();
+  };
+  $('#tRe').onclick = async () => {
+    const cur = postById(p.id); if(!cur) return;
+    cur.reprocess = true; cur.validated = false;
+    const ok = await save(); if(!ok){ toast('Gagal menyimpan'); return; }
+    logAct('claude', 'warn', `"${cur.title}" ditandai perlu diproses ulang (isi catatan bermasalah).`, {post_id:cur.id, account_id:cur.account_id});
+    toast('Ditandai proses ulang. Mesin akan membacanya lagi.');
+    $('#tTema').value = ''; updateCounts(); renderBeriTema();
+  };
+  const sk = $('#tSkip'); if(sk) sk.onclick = () => { TEMA_SKIP.add(p.id); $('#tTema').value = ''; renderBeriTema(); };
+}
+function bindTPrompt(){
+  $('#copyTPrompt').onclick = async () => toast(await copyText(buildThemePrompt()) ? 'Perintah disalin. Tempel ke Claude in Chrome.' : 'Gagal menyalin, blok teksnya lalu salin manual');
+}
+
+/* =========================================================
+   ANTRIAN — daftar link per kreator + tambah catatan manual
+   ========================================================= */
+let procAcc = null;
+function renderAntrian(opts={}){
+  const accs = S.accounts;
+  if(!accs.length){ $('#view').innerHTML = `<div class="vh"><div><h2>Antrian</h2></div></div><div class="empty"><strong>Belum ada kreator</strong>Mulai dari Beranda → Sasaran baru, atau tambah kreator di Katalog.<br><button class="btn pri" data-a="go-beranda">Ke Beranda</button></div>`; return; }
+  if(!procAcc || !accById(procAcc)) procAcc = accs[0].id;
+  $('#view').innerHTML = `
+  <div class="vh"><div><h2>Antrian</h2><p>Semua link postingan per kreator, urut dari paling lama. Mesin mengambil dari sini secara otomatis; link dicentang Selesai saat catatannya tersimpan.</p></div>
+    <label class="f" style="max-width:320px;width:100%"><span>Kreator</span><select id="pAcc">${accs.map(a => `<option value="${a.id}" ${a.id===procAcc?'selected':''}>${esc(a.handle)} · ${a.platform}</option>`).join('')}</select></label></div>
+  <div class="steps">
+    <section class="step"><div class="step-n">1</div><div class="step-b">
+      <h3>Antrian link</h3>
+      <p class="hint">Link yang gagal bisa diubah jadi "Antri" lagi lewat Lihat semua → Ubah.</p>
+      <div id="qPanel"></div>
+    </div></section>
+    <details class="step-more" id="manualBox" ${opts.manual ? 'open' : ''}>
+      <summary>Tambah catatan manual</summary>
+      <p class="hint">Cadangan kalau mesin gagal: klik "Pakai link ini" di atas, tempel hasil Gemini dari tempat lain, lalu simpan.</p>
+      <form id="addForm" class="fgrid" novalidate></form>
+    </details>
+  </div>`;
+  $('#pAcc').onchange = e => { procAcc = e.target.value; renderQueuePanel(); renderAddForm(); };
+  renderQueuePanel(); renderAddForm();
+}
+function renderQueuePanel(){
+  const a = accById(procAcc); const box = $('#qPanel'); if(!box || !a) return;
+  const qs = queueStats(a.id);
+  if(!qs.total){
+    box.innerHTML = `<div class="empty" style="padding:20px 16px"><strong>Antrian ${esc(a.handle)} masih kosong</strong>Untuk Instagram, pakai Beranda → Sasaran baru. Atau tempel daftar link (satu per baris).<br><button class="btn pri" data-q="add">+ Tambah link</button></div>`;
+    bindQueuePanel(); return;
+  }
+  const pct = n => (n / qs.total * 100).toFixed(2) + '%';
+  const nx = qs.next; const nd = nx ? igDate(nx.url) : '';
+  box.innerHTML = `
+    <div class="qbar" role="img" aria-label="${qs.selesai} dari ${qs.total} selesai"><i class="s" style="width:${pct(qs.selesai)}"></i><i class="g" style="width:${pct(qs.gagal)}"></i><i class="l" style="width:${pct(qs.lewati)}"></i></div>
+    <div class="qnums"><span><b>${qs.selesai}/${qs.total}</b>selesai</span><span><b>${qs.antri}</b>antri</span>${qs.gagal?`<span style="color:var(--bad)"><b style="color:var(--bad)">${qs.gagal}</b>gagal</span>`:''}${qs.lewati?`<span><b>${qs.lewati}</b>dilewati</span>`:''}</div>
+    ${nx ? `<div class="qnext">
+      <span class="k">Berikutnya · #${nx.position}</span>
+      <div class="u"><a href="${esc(nx.url)}" target="_blank" rel="noopener">${esc(shortUrl(nx.url))}</a></div>
+      <div class="m">${nd ? `Diposting ${fmtD(nd)}` : 'Tanggal posting belum diketahui'}${nx.pinned ? ' · di-pin di profil' : ''}${nx.note ? ` · ${esc(nx.note)}` : ''}</div>
+      <div class="qacts">${canRunHere(a.id) && engView().status === 'mati' ? `<button class="btn pri sm" data-a="eng-start" data-id="${a.id}">Proses otomatis</button>` : ''}<button class="btn sm" data-q="use" data-id="${nx.id}">Pakai link ini (manual)</button><button class="btn sm" data-q="lewati" data-id="${nx.id}">Lewati</button><button class="btn danger sm" data-q="gagal" data-id="${nx.id}">Gagal</button></div>
+    </div>` : `<div class="qnext"><span class="k">Antrian habis</span><div class="m">Semua link sudah diproses${qs.gagal ? `. Ada ${qs.gagal} link gagal, cek di "Lihat semua".` : '.'}</div></div>`}
+    <div class="qfoot"><button class="btn sm" data-q="list">Lihat semua (${qs.total})</button><button class="btn sm" data-q="add">+ Tambah link</button></div>`;
+  bindQueuePanel();
+}
+function bindQueuePanel(){
+  $$('#qPanel [data-q]').forEach(b => b.onclick = () => {
+    const q = S.queue.find(x => x.id === b.dataset.id);
+    switch(b.dataset.q){
+      case 'use': useQueueItem(q); break;
+      case 'lewati': case 'gagal': markDialog(q, b.dataset.q); break;
+      case 'list': openQueueList(); break;
+      case 'add': addLinksDialog(procAcc); break;
+    }
+  });
+}
+function useQueueItem(q){
+  if(!q) return;
+  procAcc = q.account_id;
+  if(view !== 'antrian' || !$('#addForm')) go('antrian', {scroll:false, manual:true});
+  else { $('#manualBox').open = true; if($('#pAcc').value !== q.account_id){ $('#pAcc').value = q.account_id; renderQueuePanel(); renderAddForm(); } }
+  const u = $('#fUrl'), d = $('#fDate');
+  u.value = q.url; u.dispatchEvent(new Event('input'));
+  const dt = igDate(q.url); if(dt){ d.value = dt; d.dispatchEvent(new Event('input')); }
+  $('#manualBox').scrollIntoView({behavior:'smooth', block:'start'});
+  toast(`Link #${q.position} dipakai${dt ? ` · tanggal ${fmtD(dt)}` : ' · isi tanggalnya manual'}`);
+}
+function markDialog(q, status){
+  if(!q) return;
+  const isFail = status === 'gagal';
+  openDialog({title: isFail ? `Tandai #${q.position} gagal` : `Lewati #${q.position}`, sub: esc(shortUrl(q.url)),
+    body:`<div class="fgrid"><label class="f"><span>Alasan${isFail ? '' : ' <em>(opsional)</em>'}</span><input name="note" value="${esc(q.note||'')}" placeholder="${isFail ? 'contoh: postingan sudah dihapus' : 'contoh: pengumuman giveaway, bukan materi'}"></label></div>`,
+    submit: isFail ? 'Tandai gagal' : 'Lewati',
+    onSubmit: fd => {
+      const note = (fd.get('note')||'').trim();
+      if(isFail && !note){ toast('Tulis alasannya dulu'); return false; }
+      Object.assign(q, {status, note: note || null});
+      save(); renderQueuePanel(); toast(isFail ? `#${q.position} ditandai gagal` : `#${q.position} dilewati`);
+    }});
+}
+let qFilter = 'semua';
+function openQueueList(filter){
+  if(filter) qFilter = filter;
+  const a = accById(procAcc); const qs = queueStats(a.id);
+  const rows = qs.list.filter(q => qFilter === 'semua' || q.status === qFilter);
+  const segBtn = (k, l, n) => `<button type="button" data-f="${k}" aria-pressed="${qFilter===k}">${l} <span class="cnt">${n}</span></button>`;
+  openDialog({title:`Antrian ${esc(a.handle)}`, sub:`${qs.selesai} dari ${qs.total} selesai`, wide:true, submit:null,
+    body:`<div class="seg" role="group" aria-label="Filter status" style="margin-bottom:10px;flex-wrap:wrap">${segBtn('semua','Semua',qs.total)}${segBtn('antri','Antri',qs.antri)}${segBtn('selesai','Selesai',qs.selesai)}${segBtn('gagal','Gagal',qs.gagal)}${segBtn('lewati','Dilewati',qs.lewati)}</div>
+      <div class="qlist" id="qList">${rows.length ? rows.map(q => {
+        const d = igDate(q.url); const isNx = qs.next && q.id === qs.next.id;
+        return `<div class="q-row${isNx ? ' is-next' : ''}" ${isNx ? 'id="qRowNext"' : ''}>
+          <span class="q-n">#${q.position}</span>
+          <div class="q-main"><a href="${esc(q.url)}" target="_blank" rel="noopener">${esc(shortUrl(q.url))}</a>
+            <div class="q-meta">${d ? fmtD(d) : 'tanggal ?'}${q.pinned ? ' · di-pin' : ''}${q.note ? ` · ${esc(q.note)}` : ''}</div></div>
+          <div class="q-side">${qBadge(q.status)}${q.status === 'antri' ? `<button type="button" class="icon-btn" data-qa="use" data-id="${q.id}">Pakai</button>` : ''}${q.post_id ? `<button type="button" class="icon-btn" data-qa="open" data-id="${q.id}">Catatan</button>` : ''}<button type="button" class="icon-btn" data-qa="edit" data-id="${q.id}">Ubah</button></div>
+        </div>`; }).join('') : '<div class="r-empty">Tidak ada link dengan status ini.</div>'}</div>`});
+  $$('[data-f]', dlg).forEach(b => b.onclick = () => openQueueList(b.dataset.f));
+  $('#qList').onclick = e => {
+    const b = e.target.closest('[data-qa]'); if(!b) return;
+    const q = S.queue.find(x => x.id === b.dataset.id); if(!q) return;
+    if(b.dataset.qa === 'use'){ dlg.close(); useQueueItem(q); }
+    else if(b.dataset.qa === 'open'){ dlg.close(); openPost(q.post_id); }
+    else queueItemDialog(q);
+  };
+  const nxRow = $('#qRowNext'); if(nxRow && qFilter === 'semua') nxRow.scrollIntoView({block:'center'});
+}
+function queueItemDialog(q){
+  openDialog({title:`Link #${q.position}`, sub: esc(shortUrl(q.url)),
+    body:`<div class="fgrid">
+      <label class="f c6"><span>Status</span><select name="status">${Object.entries(QSTAT).map(([k,[,l]]) => `<option value="${k}" ${k===q.status?'selected':''}>${l}</option>`).join('')}</select></label>
+      <label class="f c6"><span>Nomor urut</span><input name="position" type="number" min="1" value="${q.position}"></label>
+      <label class="f"><span>Catatan <em>(opsional)</em></span><input name="note" value="${esc(q.note||'')}"></label>
+      <label class="check f" style="flex-direction:row"><input type="checkbox" name="pinned" ${q.pinned?'checked':''}><span style="font-weight:500">Di-pin di profil kreator</span></label>
+      ${q.post_id ? '<p class="small muted" style="grid-column:span 12;margin:0">Link ini sudah punya catatan. Kalau statusnya diubah, catatannya tetap ada.</p>' : ''}</div>`,
+    danger:{label:'Hapus dari antrian', fn:() => {
+      if(!confirm(`Hapus link #${q.position} dari antrian? Catatan yang sudah tersimpan tidak ikut terhapus.`)) return false;
+      S.queue = S.queue.filter(x => x.id !== q.id); save(); renderQueuePanel(); toast('Link dihapus dari antrian');
+      setTimeout(() => openQueueList(), 0); }},
+    onSubmit: fd => {
+      const pos = Math.max(1, parseInt(fd.get('position'), 10) || q.position);
+      Object.assign(q, {status: fd.get('status'), note: (fd.get('note')||'').trim() || null, pinned: !!fd.get('pinned'), position: pos});
+      save(); renderQueuePanel(); toast('Antrian diperbarui');
+      setTimeout(() => openQueueList(), 0);
+    }});
+}
+function parseLinks(txt){
+  const out = []; const seen = new Set();
+  String(txt||'').split(/\r?\n/).forEach(line => {
+    const m = line.match(/https?:\/\/[^\s<>"'()\]]+/i); if(!m) return;
+    let u = m[0].replace(/[.,;]+$/,'');
+    if(!isYT(u)) u = u.replace(/[?#].*$/,'');
+    if(/instagram\.com/i.test(u) && !u.endsWith('/')) u += '/';
+    const k = ukey(u); if(seen.has(k)) return; seen.add(k);
+    out.push({url:u, pinned: /pin|📌/i.test(line.replace(m[0],''))});
+  });
+  return out;
+}
+function addLinksDialog(accId){
+  const a = accById(accId);
+  const form = openDialog({title:`Tambah link ke antrian ${esc(a.handle)}`, sub:'Tempel satu link per baris. Nomor urut, teks lain, dan tanda "(di-pin)" boleh ikut tertempel.', wide:true, submit:'Tambahkan',
+    body:`<div class="fgrid">
+      <label class="f"><span>Daftar link</span><textarea name="links" id="qLinks" placeholder="1. https://www.instagram.com/reel/.../&#10;2. https://www.youtube.com/watch?v=..."></textarea></label>
+      <div class="f"><span>Posisi di antrian</span><div class="radio">
+        <label><input type="radio" name="mode" value="end" checked><span>Taruh di akhir antrian, sesuai urutan yang ditempel</span></label>
+        <label id="qDateOpt"><input type="radio" name="mode" value="date"><span>Urutkan otomatis berdasarkan tanggal posting <em class="muted">(khusus Instagram, cocok untuk menyisipkan link yang terlewat)</em></span></label>
+      </div></div>
+      <label class="check f" style="flex-direction:row" id="qRevWrap"><input type="checkbox" name="rev"><span style="font-weight:500">Daftar yang ditempel urut dari paling BARU <span class="muted small">(akan dibalik jadi paling lama dulu)</span></span></label>
+      <div class="f"><div class="qprev" id="qPrev">Belum ada link terbaca.</div></div>
+    </div>`,
+    onSubmit: fd => {
+      const items = parseLinks(fd.get('links'));
+      const fresh = items.filter(i => !qByUrl(i.url));
+      if(!items.length){ toast('Tidak ada link yang terbaca'); return false; }
+      if(!fresh.length){ toast('Semua link ini sudah ada di antrian'); return false; }
+      const mode = fd.get('mode');
+      const existing = queueOf(accId);
+      if(mode === 'date' && [...existing, ...fresh].some(x => igTime(x.url) == null)){ toast('Ada link yang tanggalnya tidak terbaca. Pilih "Taruh di akhir antrian".'); return false; }
+      if(fd.get('rev')) fresh.reverse();
+      let firstPos = null;
+      const recs = fresh.map(i => { const post = postByUrl(i.url);
+        return {id:uid(), account_id:accId, url:i.url, position:0, pinned:i.pinned, status: post ? 'selesai' : 'antri', note:null, post_id: post ? post.id : null}; });
+      if(mode === 'date'){
+        const all = [...existing, ...recs].sort((x,y) => igTime(x.url) - igTime(y.url));
+        all.forEach((q,i) => { q.position = i + 1; });
+        firstPos = recs.map(r => r.position).sort((x,y) => x - y)[0];
+      } else {
+        let p = existing.reduce((m,q) => Math.max(m, q.position), 0);
+        recs.forEach(r => { r.position = ++p; }); firstPos = recs[0].position;
+      }
+      S.queue.push(...recs);
+      save(); renderQueuePanel();
+      logAct('kamu', 'info', `${recs.length} link ditambahkan manual ke antrian ${a.handle}.`, {account_id:accId});
+      toast(`${recs.length} link ditambahkan${mode === 'date' && recs.length === 1 ? ` di posisi #${firstPos}` : ''}${items.length - fresh.length ? ` · ${items.length - fresh.length} sudah ada, dilewati` : ''}`);
+    }});
+  const ta = $('#qLinks', form);
+  const live = () => {
+    const items = parseLinks(ta.value);
+    const dupQ = items.filter(i => qByUrl(i.url)).length;
+    const fresh = items.filter(i => !qByUrl(i.url));
+    const done = fresh.filter(i => postByUrl(i.url)).length;
+    const pins = fresh.filter(i => i.pinned).length;
+    const noDate = [...queueOf(accId), ...fresh].some(x => igTime(x.url) == null);
+    const dOpt = $('#qDateOpt', form); const dIn = $('input', dOpt);
+    dIn.disabled = noDate; dOpt.classList.toggle('off', noDate);
+    if(noDate && dIn.checked){ $('input[value="end"]', form).checked = true; }
+    $('#qRevWrap', form).hidden = $('input[name="mode"]:checked', form).value === 'date';
+    const times = fresh.map(i => igTime(i.url)).filter(Boolean).sort((x,y) => x - y);
+    $('#qPrev', form).innerHTML = items.length
+      ? `Terbaca <b>${items.length}</b> link · <b>${fresh.length}</b> baru${dupQ ? ` · ${dupQ} sudah ada di antrian (dilewati)` : ''}${done ? ` · ${done} sudah jadi catatan (langsung ditandai Selesai)` : ''}${pins ? ` · ${pins} di-pin` : ''}${times.length ? `<br><span class="muted">Rentang tanggal: ${fmtD(new Date(times[0]).toISOString())} – ${fmtD(new Date(times[times.length-1]).toISOString())}</span>` : ''}`
+      : 'Belum ada link terbaca.';
+  };
+  ta.addEventListener('input', live);
+  $$('input[name="mode"]', form).forEach(r => r.addEventListener('change', live));
+  live();
+}
+
+/* ---------- form tambah catatan manual ---------- */
+let parseT;
+function renderAddForm(){
+  const a = accById(procAcc); const sers = seriesOf(a.id);
+  const f = $('#addForm'); if(!f) return;
+  f.innerHTML = `
+    <label class="f"><span>Hasil dari Gemini</span><textarea name="md" id="fMd" data-keep placeholder="Tempel seluruh jawaban Gemini di sini, mulai dari --- judul: ... sampai 'Sudah dibuka sampai ...'"></textarea><span class="help" id="detectNote">Tempel hasil Gemini untuk mengisi otomatis</span></label>
+    <label class="f c8"><span>Link asli postingan</span><input name="url" id="fUrl" type="url" placeholder="https://…"><span class="help" id="qNote"></span></label>
+    <label class="f c4"><span>Tanggal postingan</span><input name="date" id="fDate" type="date" max="${today()}"></label>
+    <label class="f c8"><span>Judul</span><input name="judul" id="fTitle" placeholder="judul singkat isi konten"></label>
+    <label class="f c4"><span>Tag <em>(pisah koma)</em></span><input name="tags" id="fTags" placeholder="layout, warna"></label>
+    ${themeFieldHTML('fTema','')}
+    <label class="f c6"><span>Series <em>(opsional)</em></span><select name="series" id="fSeries">
+      <option value="">— bukan bagian dari series —</option>${sers.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}<option value="__new">+ Series baru…</option></select></label>
+    <label class="f c3"><span>Part</span><input name="part" id="fPart" type="number" min="1" inputmode="numeric" placeholder="—"></label>
+    <label class="f c3" id="fNewWrap" hidden><span>Nama series baru</span><input id="fSeriesNew" placeholder="Nama series"></label>
+    <label class="check f" style="flex-direction:row"><input type="checkbox" id="fVis"><span style="font-weight:500">Ada momen visual penting <span class="muted small">(bagian yang perlu dilihat langsung)</span></span></label>
+    <label class="f" id="fVisWrap" hidden><span>Catatan visual</span><input id="fVisNote"></label>
+    <div class="warnbox" id="dupBox" hidden></div>
+    <div class="f"><span>Nama file</span><div class="fname" id="fName">—</div></div>
+    <div class="form-foot"><button type="button" class="btn ghost" id="fClear">Kosongkan</button><button type="submit" class="btn pri" id="fSave">Simpan catatan</button></div>`;
+  const touched = new Set();
+  ['fTitle','fTags','fVisNote','fUrl','fDate','fPart','fTema'].forEach(id => $('#'+id).addEventListener('input', e => { if(e.isTrusted) touched.add(id); }));
+  $('#fVis').addEventListener('change', () => { touched.add('fVis'); $('#fVisWrap').hidden = !$('#fVis').checked; });
+  $('#fSeries').addEventListener('change', e => { if(e.isTrusted) touched.add('fSeries'); $('#fNewWrap').hidden = $('#fSeries').value !== '__new'; refresh(); });
+  bindThemeField('fTema', () => refresh());
+  function detect(){
+    const md = $('#fMd').value; if(!md.trim()){ $('#detectNote').textContent = 'Tempel hasil Gemini untuk mengisi otomatis'; refresh(); return; }
+    const m = parseMD(md); const found = [];
+    const set = (id, val, label) => { if(val == null || touched.has(id)) return; $('#'+id).value = val; found.push(label); };
+    set('fTitle', m.title, 'judul'); set('fTags', m.tags && m.tags.join(', '), 'tag'); set('fUrl', m.url, 'link'); set('fPart', m.part, 'part');
+    if(m.tema && !touched.has('fTema')){ $('#fTema').value = m.tema; $('#fTema').dispatchEvent(new Event('input')); found.push('tema'); }
+    if(m.series && !touched.has('fSeries')){
+      const ex = sers.find(s => lc(s.name) === lc(m.series));
+      if(ex){ $('#fSeries').value = ex.id; $('#fNewWrap').hidden = true; }
+      else { $('#fSeries').value = '__new'; $('#fNewWrap').hidden = false; $('#fSeriesNew').value = m.series; }
+      found.push('series');
+    }
+    if(m.has_visual !== undefined && !touched.has('fVis')){ $('#fVis').checked = m.has_visual; $('#fVisWrap').hidden = !m.has_visual; if(!touched.has('fVisNote')) $('#fVisNote').value = m.visual_notes || ''; found.push('momen visual'); }
+    if(autoDate()) found.push('tanggal');
+    $('#detectNote').textContent = found.length ? `Terisi otomatis: ${found.join(', ')}. Periksa sebelum simpan.` : 'Blok metadata (--- judul: ... ---) tidak ditemukan — isi manual.';
+    refresh();
+  }
+  function autoDate(){
+    if(touched.has('fDate')) return false;
+    const d = igDate($('#fUrl').value.trim()); if(!d || $('#fDate').value === d) return false;
+    $('#fDate').value = d; return true;
+  }
+  function current(){
+    const sv = $('#fSeries').value;
+    return {series_id: sv && sv !== '__new' ? sv : null, newName: sv === '__new' ? $('#fSeriesNew').value.trim() : '',
+      part_number: +$('#fPart').value || null, original_url: $('#fUrl').value.trim(), post_date: $('#fDate').value,
+      title: $('#fTitle').value.trim(), tags: $('#fTags').value.split(',').map(slugify).filter(Boolean),
+      tema: $('#fTema').value, has_visual: $('#fVis').checked, visual_notes: $('#fVis').checked ? $('#fVisNote').value.trim() : '', md_content: $('#fMd').value.trim()};
+  }
+  function refresh(){
+    const c = current();
+    const tmp = {account_id:a.id, series_id:c.series_id, part_number:c.part_number, post_date:c.post_date, title:c.title, title_slug: (parseMD(c.md_content).title_slug) || slugify(c.title).split('-').slice(0,6).join('-')};
+    if(c.newName){ S.series.push({id:'__tmp', account_id:a.id, name:c.newName}); tmp.series_id = '__tmp'; }
+    $('#fName').textContent = fileName(tmp);
+    S.series = S.series.filter(s => s.id !== '__tmp');
+    const qi = c.original_url ? qByUrl(c.original_url) : null;
+    const qa = qi ? accById(qi.account_id) : null;
+    $('#qNote').innerHTML = !c.original_url ? '' : qi
+      ? `Antrian #${qi.position}${qa && qa.id !== a.id ? ` (${esc(qa.handle)})` : ''} · ${qi.status === 'selesai' ? 'sudah Selesai' : 'akan dicentang Selesai saat disimpan'}`
+      : (queueOf(a.id).length ? '<span style="color:var(--warn)">Link ini tidak ada di antrian</span>' : '');
+    const box = $('#dupBox');
+    const dup = c.original_url ? postByUrl(c.original_url) : null;
+    box.hidden = !dup; box.className = 'warnbox'; $('#fSave').textContent = 'Simpan catatan';
+    if(dup){
+      const da = accById(dup.account_id);
+      if(dup.reprocess){ box.innerHTML = `Link ini sudah tersimpan dan <b>ditandai proses ulang</b>. Menyimpan akan <b>mengganti</b> catatan lamanya.`; $('#fSave').textContent = 'Ganti catatan lama'; }
+      else { box.className = 'warnbox bad'; box.innerHTML = `Link ini sudah tersimpan (${esc(da?da.handle:'')} · ${fmtD(dup.post_date)}). Kalau hasil lamanya kurang bagus, tandai dulu "Perlu diproses ulang" di tab Catatan. <button type="button" class="link-btn" id="openDup">Buka catatan lama</button>`; $('#openDup').onclick = () => openPost(dup.id); }
+    }
+    return dup;
+  }
+  $('#fMd').addEventListener('input', () => { clearTimeout(parseT); parseT = setTimeout(detect, 250); });
+  $('#fUrl').addEventListener('input', autoDate);
+  ['fUrl','fDate','fPart','fTitle','fSeriesNew'].forEach(id => $('#'+id).addEventListener('input', refresh));
+  $('#fClear').onclick = () => renderAddForm();
+  f.onsubmit = async e => {
+    e.preventDefault();
+    if($('#fSave').disabled) return;
+    clearTimeout(parseT); if($('#fMd').value.trim()) detect();
+    const c = current(); const errs = [];
+    if(!c.md_content) errs.push('hasil Gemini');
+    if(!/^https?:\/\//i.test(c.original_url)) errs.push('link asli');
+    if(!c.post_date) errs.push('tanggal postingan');
+    if(!c.title) errs.push('judul');
+    if($('#fSeries').value === '__new' && !c.newName) errs.push('nama series baru');
+    if(errs.length){ toast('Belum lengkap: ' + errs.join(', ')); return; }
+    const dup = refresh();
+    if(dup && !dup.reprocess){ toast('Link ini sudah tersimpan'); return; }
+    if(c.newName){
+      const ex = sers.find(s => lc(s.name) === lc(c.newName));
+      if(ex) c.series_id = ex.id; else { const ns = {id:uid(), account_id:a.id, name:c.newName, description:''}; S.series.push(ns); c.series_id = ns.id; }
+    }
+    const {ids, items} = resolveThemes(c.tema, true);
+    const m = parseMD(c.md_content);
+    const rec = {account_id:a.id, series_id:c.series_id, part_number:c.series_id ? c.part_number : null, platform:a.platform, post_date:c.post_date, processed_at:new Date().toISOString(),
+      original_url:c.original_url, title:c.title, title_slug: m.title_slug || slugify(c.title).split('-').slice(0,6).join('-'), tags:c.tags, theme_ids:ids,
+      has_visual:c.has_visual, visual_notes:c.visual_notes, md_content:c.md_content};
+    const newT = items.filter(i => i.isNew).length;
+    const backup = dup ? JSON.parse(JSON.stringify(dup)) : null; const newId = uid();
+    if(dup) Object.assign(dup, rec, {validated:false, reprocess:false});
+    else S.posts.push({id:newId, ...rec, validated:false, reprocess:false});
+    const qi = qByUrl(c.original_url); const qBackup = qi ? {...qi} : null;
+    if(qi) Object.assign(qi, {status:'selesai', post_id: dup ? dup.id : newId, note:null});
+    $('#fSave').disabled = true; $('#fSave').textContent = 'Menyimpan ke cloud…';
+    const ok = await save();
+    if(!ok){ if(dup) Object.assign(dup, backup); else S.posts = S.posts.filter(x => x.id !== newId); if(qi) Object.assign(qi, qBackup); updateCounts(); $('#fSave').disabled = false; $('#fSave').textContent = 'Simpan catatan'; toast('GAGAL menyimpan ke database — isi form tidak dihapus, klik Simpan lagi'); return; }
+    logAct('kamu', 'ok', `Catatan manual disimpan: "${c.title}".`, {post_id: dup ? dup.id : newId, account_id:a.id});
+    const qsNow = queueStats(a.id);
+    toast((dup ? 'Tersimpan: catatan lama diganti versi baru' : `Tersimpan: ${c.title}${newT ? ` · ${newT} tema baru` : ''}${ids.length ? '' : ' · menunggu tema'}`) + (qi ? ` · antrian #${qi.position} selesai (${qsNow.selesai}/${qsNow.total})` : ''));
+    renderQueuePanel(); renderAddForm();
+  };
+  refresh();
+}
+
+/* =========================================================
+   KATALOG — Kreator | Tema
    ========================================================= */
 function renderKatalog(){
-  const nT = temas().length, nS = S.themes.length - nT;
+  const nT = temas().length;
   const head = `<div class="vh"><div><h2>Katalog</h2><p>${katSub === 'kreator'
-      ? 'Siapa saja yang dipantau dan sudah sampai mana. Progress dihitung otomatis dari catatan terakhir yang tersimpan.'
+      ? 'Siapa saja yang dipantau dan sudah sampai mana. Progress dihitung otomatis dari catatan yang tersimpan.'
       : 'Semua ide dari berbagai kreator dan platform, dikelompokkan oleh Claude ke tema dan subtema.'}</p></div>
     <div class="seg" role="group" aria-label="Tampilan katalog">
       <button data-sub="kreator" aria-pressed="${katSub==='kreator'}">Kreator <span class="cnt">${S.accounts.length}</span></button>
@@ -854,13 +1528,13 @@ function renderKatalog(){
     </div></div>`;
   $('#view').innerHTML = head + '<div id="katBody"></div>';
   $$('[data-sub]').forEach(b => b.onclick = () => { katSub = b.dataset.sub; renderKatalog(); });
-  katSub === 'kreator' ? renderKreator() : renderTema();
+  katSub === 'kreator' ? renderKreator() : renderTemaTree();
 }
 function renderKreator(){
-  const ps = S.posts; const re = ps.filter(p => p.reprocess).length, unv = ps.filter(p => !p.validated).length;
-  let h = `<div class="stats"><span><b>${ps.length}</b>catatan</span><span><b>${unv}</b>belum divalidasi</span><span class="${re?'hot':''}"><b>${re}</b>perlu diproses ulang</span>
+  const ps = S.posts; const re = ps.filter(p => p.reprocess).length, unv = ps.filter(p => !p.validated).length, wt = waitingTheme().length;
+  let h = `<div class="stats"><span><b>${ps.length}</b>catatan</span><span><b>${wt}</b>menunggu tema</span><span><b>${unv}</b>belum divalidasi</span><span class="${re?'hot':''}"><b>${re}</b>perlu diproses ulang</span>
     <span style="margin-left:auto"><button class="btn pri sm" data-a="add-acc">+ Tambah kreator</button></span></div>`;
-  if(!S.accounts.length) h += `<div class="empty"><strong>Belum ada kreator</strong>Tambahkan akun sosmed pertama yang mau dipelajari.<br><button class="btn pri" data-a="add-acc">+ Tambah kreator</button></div>`;
+  if(!S.accounts.length) h += `<div class="empty"><strong>Belum ada kreator</strong>Cara paling cepat: Beranda → Sasaran baru.<br><button class="btn pri" data-a="go-beranda">Ke Beranda</button></div>`;
   else h += '<div class="list">' + S.accounts.map(accCard).join('') + '</div>';
   $('#katBody').innerHTML = h;
 }
@@ -868,7 +1542,7 @@ function accCard(a){
   const pg = progress(a.id);
   const prog = pg.last
     ? `<div class="prog-main"><span class="k">Postingan terakhir tersimpan</span><strong>${fmtD(pg.last.post_date)}</strong><a href="${esc(pg.last.original_url)}" target="_blank" rel="noopener">buka ↗</a></div>
-       <div class="prog-meta">${pg.count} catatan · diproses terakhir ${fmtDT(pg.lastProcessed)}${pg.unvalidated?` · ${pg.unvalidated} belum divalidasi`:''}${pg.reprocess.length?` · <span class="hot">${pg.reprocess.length} perlu diproses ulang</span>`:''}${pg.untagged?` · ${pg.untagged} tanpa tema`:''}</div>`
+       <div class="prog-meta">${pg.count} catatan · diproses terakhir ${fmtDT(pg.lastProcessed)}${pg.untagged?` · ${pg.untagged} menunggu tema`:''}${pg.unvalidated?` · ${pg.unvalidated} belum divalidasi`:''}${pg.reprocess.length?` · <span class="hot">${pg.reprocess.length} perlu diproses ulang</span>`:''}</div>`
     : `<div class="prog-main"><strong>Belum ada catatan</strong></div><div class="prog-meta">Proses pertama mulai dari postingan paling lama.</div>`;
   const qs = queueStats(a.id);
   const qline = qs.total
@@ -884,18 +1558,18 @@ function accCard(a){
   const tms = pg.topThemes.length ? `<div class="tcs">${pg.topThemes.map(({id,n}) => `<button class="tc" data-a="filter-theme" data-id="${id}"><b>${esc(thById(id).name)}</b> <span class="sep">${n}</span></button>`).join('')}</div>` : '<p class="small muted" style="margin:2px 0 0">Belum ada tema.</p>';
   return `<article class="card">
     <div class="card-h"><div class="who">${pbadge(a.platform,'lg')}<div><h3><a href="${esc(a.profile_url||'#')}" target="_blank" rel="noopener">${esc(a.handle)}</a></h3><small>${esc(a.platform)}</small></div></div>
-      <div class="card-actions"><button class="btn sm" data-a="edit-acc" data-id="${a.id}">Edit</button><button class="btn pri sm" data-a="start" data-id="${a.id}">Proses →</button></div></div>
+      <div class="card-actions"><button class="btn sm" data-a="edit-acc" data-id="${a.id}">Edit</button><button class="btn pri sm" data-a="start" data-id="${a.id}">Antrian →</button></div></div>
     <div class="prog">${prog}${qline}</div>
     <div class="sec"><div class="sec-h"><span>Tema</span></div>${tms}</div>
     <div class="sec"><div class="sec-h"><span>Series</span><button class="link-btn" data-a="add-series" data-id="${a.id}">+ Series</button></div>${series}</div>
   </article>`;
 }
-function renderTema(){
-  const tree = temas(); const orphan = S.posts.filter(p => !(p.theme_ids||[]).length).length;
+function renderTemaTree(){
+  const tree = temas(); const orphan = waitingTheme().length;
   let h = `<div class="stats"><span><b>${tree.length}</b>tema</span><span><b>${S.themes.length - tree.length}</b>subtema</span>
     <span style="margin-left:auto"><button class="btn pri sm" data-a="add-theme">+ Tema</button></span></div>`;
-  if(orphan) h += `<div class="orphan"><span><b>${orphan} catatan belum punya tema.</b> Claude biasanya mengisinya saat menyimpan. Catatan lama perlu diberi tema manual.</span><button class="btn sm" data-a="filter-theme" data-id="__none">Lihat</button></div>`;
-  if(!tree.length){ h += `<div class="empty"><strong>Belum ada tema</strong>Tema akan muncul otomatis saat Claude menyimpan catatan pertama.<br><button class="btn" data-a="add-theme">+ Buat tema manual</button></div>`; $('#katBody').innerHTML = h; return; }
+  if(orphan) h += `<div class="orphan"><span><b>${orphan} catatan menunggu tema.</b> Claude mengisinya di tab Beri tema.</span><button class="btn sm" data-a="go-tema">Buka Beri tema</button></div>`;
+  if(!tree.length){ h += `<div class="empty"><strong>Belum ada tema</strong>Tema muncul otomatis saat Claude memberi tema catatan pertama.<br><button class="btn" data-a="add-theme">+ Buat tema manual</button></div>`; $('#katBody').innerHTML = h; return; }
   h += '<div class="tree">' + tree.map(t => {
     const ps = postsInTheme(t.id); const accs = [...new Set(ps.map(p => p.account_id))].map(accById).filter(Boolean);
     const subs = subsOf(t.id);
@@ -922,8 +1596,7 @@ function themeDialog(t, parentId=null){
       <label class="f"><span>Nama</span><input name="name" required value="${esc(t?.name||'')}" placeholder="${isSub?'contoh: Hierarki Tombol':'contoh: UI'}"></label>
       <label class="f"><span>Deskripsi singkat <em>(opsional, membantu Claude memilih tema)</em></span><input name="description" value="${esc(t?.description||'')}"></label>
       <label class="f"><span>Posisi</span><select name="parent">
-        ${canBeSub || !t ? '' : ''}
-        <option value="" ${!(t?.parent_id || parentId)?'selected':''} ${canBeSub?'':''}>Tema utama</option>
+        <option value="" ${!(t?.parent_id || parentId)?'selected':''}>Tema utama</option>
         ${canBeSub ? parentOpts.map(x => `<option value="${x.id}" ${(t?.parent_id||parentId)===x.id?'selected':''}>Subtema di bawah ${esc(x.name)}</option>`).join('') : ''}
       </select>${!canBeSub?'<span class="help">Tema yang punya subtema tidak bisa dijadikan subtema.</span>':''}</label>
       ${t && mergeOpts.length ? `<div class="box"><div class="box-h"><b>Gabungkan ke tema lain</b><small>kalau ternyata duplikat</small></div>
@@ -970,12 +1643,12 @@ function accDialog(a){
       <label class="f"><span>Link profil <em>(opsional)</em></span><input name="profile_url" type="url" value="${esc(a?.profile_url||'')}" placeholder="https://www.instagram.com/namaakun/"></label></div>`,
     submit: isNew ? 'Tambah' : 'Simpan',
     danger: isNew ? null : {label:'Hapus kreator', fn:() => {
+      if(ENG.on && ENG.accId === a.id){ toast('Hentikan mesin dulu'); return false; }
       const n = S.posts.filter(p => p.account_id === a.id).length;
-      if(!confirm(`Hapus ${a.handle}? ${n} catatan, series, dan log kreator ini ikut terhapus.`)) return false;
+      if(!confirm(`Hapus ${a.handle}? ${n} catatan, series, antrian, dan log kreator ini ikut terhapus.`)) return false;
       S.accounts = S.accounts.filter(x => x.id !== a.id); S.series = S.series.filter(x => x.account_id !== a.id);
       S.posts = S.posts.filter(x => x.account_id !== a.id); S.runs = S.runs.filter(x => x.account_id !== a.id);
       S.queue = S.queue.filter(x => x.account_id !== a.id);
-      if(S.pendingRun && S.pendingRun.account_id === a.id) S.pendingRun = null;
       if(procAcc === a.id) procAcc = null;
       save(); rerender(); toast('Kreator dihapus'); }},
     onSubmit:fd => {
@@ -1011,485 +1684,7 @@ function seriesDialog(accId, s){
 }
 
 /* =========================================================
-   TAB PROSES — perintah Claude in Chrome + form catatan
-   ========================================================= */
-let procAcc = null;
-function themeTreeText(){
-  const tree = temas();
-  if(!tree.length) return '   (belum ada tema — silakan buat yang pertama)';
-  return tree.map(t => { const subs = subsOf(t.id); return `   - ${t.name}${t.description?` (${t.description})`:''}${subs.length ? ': ' + subs.map(s => s.name).join(', ') : ''}`; }).join('\n');
-}
-const UPLOAD = {drive:'Google Drive', hp:'Lewat HP', manual:'Manual (aku upload sendiri)'};
-function buildPrompt(a){
-  const pg = progress(a.id); const qs = queueStats(a.id);
-  const mode = UPLOAD[S.settings.upload_mode] ? S.settings.upload_mode : 'drive';
-  const isYT = a.platform === 'YouTube';
-  const dl = S.settings.downloader[a.platform] || 'situs downloader yang biasa dipakai';
-  const url = location.href.split('#')[0] + '#proses';
-  const seriesTxt = pg.series.length
-    ? pg.series.map(s => `   - "${s.name}": sudah sampai part ${s.max || '—'}${s.missing.length ? ` (part ${s.missing.join(', ')} belum ada — cek apakah terlewat)` : ''}`).join('\n')
-    : '   - Belum ada series tercatat';
-  const reTxt = pg.reprocess.length
-    ? `\n- Perlu DIPROSES ULANG dulu, sebelum antrian (download + Gemini lagi, lalu simpan dengan link yang sama — BAMBANG akan mengganti catatan lamanya):\n${pg.reprocess.map(p => `   - ${fmtD(p.post_date)} — ${p.original_url}`).join('\n')}`
-    : '';
-  const nextList = qs.list.filter(q => q.status === 'antri').slice(0, 10);
-  const queueTxt = qs.total
-    ? `- Progress: ${qs.selesai} dari ${qs.total} selesai · ${qs.antri} antri${qs.gagal ? ` · ${qs.gagal} gagal` : ''}${qs.lewati ? ` · ${qs.lewati} dilewati` : ''}
-${nextList.length ? `- ${nextList.length} link berikutnya:\n${nextList.map(q => `   #${q.position} · ${igDate(q.url) ? fmtD(igDate(q.url)) : 'tanggal ?'} · ${q.url}${q.pinned ? ' (di-pin)' : ''}`).join('\n')}` : '- Semua link di antrian sudah diproses.'}
-- Acuan utama tetap kotak "Antrian link" di BAMBANG (tab Proses, langkah 1). Link otomatis dicentang "Selesai" saat catatannya tersimpan, jadi selalu ambil dari bagian "Berikutnya" di sana.`
-    : `- BELUM ADA ANTRIAN. Buka profil kreator, kumpulkan SEMUA link postingan dari yang paling lama ke paling baru. Lalu di BAMBANG: tab Proses → langkah 1 "Antrian link" → "+ Tambah link" → tempel semua link (satu link per baris) → Simpan. Setelah itu baru mulai memproses.
-- Postingan terakhir yang tersimpan: ${pg.last ? `${fmtD(pg.last.post_date)} — ${pg.last.original_url}` : 'belum ada'}`;
-
-  const meta = `   sumber: <link postingan>
-   kreator: ${a.handle}
-   platform: ${a.platform}
-   series: <nama series atau ->
-   part: <nomor atau ->
-   caption:
-   <salin caption LENGKAP dari postingan, apa adanya>`;
-  const useDrive = mode === 'drive' && !isYT;
-  let stepDl, stepGem, stepClean = '';
-  if(isYT){
-    stepDl = `3. TIDAK PERLU DOWNLOAD. Gemini bisa membaca link YouTube secara langsung.`;
-    stepGem = `4. Buka Gem "${GEM_NAME}" (chat BARU untuk setiap postingan). Kirim link YouTube-nya di baris pertama, lalu di bawahnya:\n${meta}`;
-  } else if(mode === 'drive'){
-    stepDl = `3. Buka ${dl} → paste link → pilih kualitas TERBAIK → download. Carousel: download semua slide.
-   File otomatis masuk ke folder "${DRIVE_FOLDER}" di Google Drive. Buka tab drive.google.com → folder "${DRIVE_FOLDER}", lalu tunggu sampai filenya muncul (biasanya 10–60 detik, muat ulang halamannya kalau perlu).`;
-    stepGem = `4. Buka Gem "${GEM_NAME}" (chat BARU untuk setiap postingan). Klik tombol "+" di kolom chat → pilih "Drive" → buka folder "${DRIVE_FOLDER}" → pilih file postingan ini (carousel: semua slide) → Insert/Sisipkan. Lalu kirim pesan:
-${meta}
-   Kalau Gemini menolak file dari Drive, BERHENTI dan laporkan pesan error-nya. Jangan cari jalan lain sendiri.`;
-    stepClean = `\n8. Bersihkan: di drive.google.com → folder "${DRIVE_FOLDER}", klik kanan file postingan ini → "Pindahkan ke sampah". Salinan di komputer ikut terhapus otomatis.`;
-  } else if(mode === 'manual'){
-    stepDl = `3. Buka ${dl} → paste link → pilih kualitas TERBAIK → download. Carousel: download semua slide. Catat nama file yang ter-download.`;
-    stepGem = `4. Buka Gem "${GEM_NAME}" (chat BARU untuk setiap postingan). Ketik pesan di bawah ini ke kolom chat, tapi JANGAN dikirim dulu:
-${meta}
-   Lalu minta ke Reyhan: "Link #<nomor antrian> siap. Tolong upload file PALING BARU di folder Downloads (<jumlah> file, dari ${dl}) ke chat Gemini yang sudah terbuka, lalu klik kirim. Kabari aku kalau sudah." Tunggu sampai Reyhan membalas.
-   Setelah jawaban Gemini keluar, cek bagian awal "## Isi" benar-benar menjelaskan postingan ini (cocokkan dengan caption). Kalau Gemini bilang file tidak bisa dibuka atau isinya tidak cocok, minta Reyhan upload ulang di chat BARU.`;
-  } else {
-    stepDl = `3. TIDAK PERLU DOWNLOAD. Reyhan yang mengirim video postingan ini ke Gem dari HP.`;
-    stepGem = `4. Buka gemini.google.com → daftar chat (Recent/Terbaru) → cari chat Gem "${GEM_NAME}" yang pesannya berisi "sumber: <link postingan ini>". Buka chat itu.
-   Kalau chat-nya belum ada: tulis "menunggu dari HP" di laporan lalu BERHENTI. Jangan tandai Gagal.`;
-  }
-  const alat = [`- BAMBANG: ${url}`, `- Profil kreator: ${a.profile_url || `cari ${a.handle} di ${a.platform}`}`];
-  if(!isYT && mode !== 'hp') alat.push(`- Downloader ${a.platform}: ${dl}`);
-  alat.push(`- Gemini → Gem "${GEM_NAME}"`);
-  if(useDrive) alat.push(`- Google Drive: https://drive.google.com → folder "${DRIVE_FOLDER}" (hasil download masuk ke sini otomatis)`);
-  const persiapan = useDrive
-    ? `\nPERSIAPAN (sekali di awal)
-- Buka tab: BAMBANG, ${dl}, Gemini, dan Google Drive (folder "${DRIVE_FOLDER}").
-- Kalau di folder "${DRIVE_FOLDER}" masih ada file sisa sesi sebelumnya, pindahkan ke sampah dulu supaya tidak tertukar.\n`
-    : mode === 'hp' && !isYT
-    ? `\nCARA REYHAN MENGIRIM DARI HP (untuk referensi)
-- Reyhan membagikan video ke Gem "${GEM_NAME}" dengan pesan:
-${meta}\n`
-    : '';
-
-  return `Tugas: Proses antrian link kreator ${a.handle} (${a.platform}) satu per satu sampai jadi catatan di BAMBANG.
-Jalur upload ke Gemini: ${isYT ? 'link YouTube langsung' : UPLOAD[mode]}
-
-ALAT
-${alat.join('\n')}
-
-ANTRIAN (dari BAMBANG saat perintah ini dibuat)
-${queueTxt}
-
-SERIES BERJALAN
-${seriesTxt}${reTxt}
-
-POHON TEMA SAAT INI (pakai yang sudah ada dulu)
-${themeTreeText()}
-${persiapan}
-LANGKAH UNTUK TIAP LINK
-1. Di tab BAMBANG → tab "Proses" → langkah 1 "Antrian link" → bagian "Berikutnya" → klik "Pakai link ini". Link dan tanggal postingan langsung terisi di form "Tambah catatan".
-2. Buka link itu. Cek caption DAN thumbnail: apakah bagian dari series ("part", "day", "bagian", angka urutan, atau desain thumbnail seragam)? Catat nama series & nomor part.
-   Salin CAPTION LENGKAP-nya (klik "selengkapnya"/"more" dulu supaya tidak terpotong). Caption ini wajib ikut dikirim ke Gemini di langkah 4, karena banyak kreator menaruh penjelasan detailnya di caption, bukan di video.
-   Kalau postingan sudah dihapus/tidak bisa dibuka: di BAMBANG klik "Gagal", tulis alasannya, lalu lanjut ke link berikutnya.
-   Kalau jelas bukan konten (misalnya murni pengumuman giveaway atau iklan tanpa isi): klik "Lewati", tulis alasan singkat, lanjut ke link berikutnya.
-${stepDl}
-${stepGem}
-5. Tunggu sampai jawaban selesai. Cek ada blok --- judul: ... --- di atas dan baris "Sudah dibuka sampai ..." di bawah. Kalau tidak ada atau terpotong, minta Gemini mengulang.
-6. Baca jawaban Gemini, lalu TENTUKAN TEMA (kamu yang memutuskan):
-   - Format: Tema > Subtema. Lebih dari satu dipisah titik koma. Contoh: UI > Hierarki Tombol; UX > Ergonomi Mobile
-   - Pakai tema/subtema dari pohon di atas kalau cocok. Buat baru HANYA kalau benar-benar tidak ada yang pas.
-   - Nama harus spesifik dan unik. Hindari "Umum", "Lainnya", "Tips", "Tutorial".
-   - Maksimal 2 tingkat (Tema > Subtema), maksimal 3 tema per postingan.
-7. Kembali ke tab BAMBANG → tab "Proses" → langkah 4 "Tambah catatan":
-   a. Tempel SELURUH jawaban Gemini ke kolom "Hasil dari Gemini" (judul, tag, series, part, momen visual terisi otomatis).
-   b. Pastikan "Link asli postingan" sama dengan link dari antrian, dan "Tanggal postingan" sudah terisi. Tanggal Instagram terisi otomatis dari link; untuk platform lain, isi tanggal upload aslinya.
-   c. Isi kolom "Tema" sesuai langkah 6. Label "baru" berarti tema itu akan dibuat.
-   d. Cek series & part, klik "Simpan catatan", lalu pastikan muncul notifikasi "Tersimpan". Link di antrian otomatis berubah jadi "Selesai".${stepClean}
-${stepClean ? '9' : '8'}. Lanjut ke link berikutnya (kembali ke langkah 1).
-
-BERHENTI kalau: kena limit, downloader/Gemini error, atau antrian habis. Sebelum berhenti, tulis laporan:
-| No antrian | Tanggal post | Link | Series/Part | Tema | Status (tersimpan/gagal/dilewati) |
-Berhenti karena: selesai / limit / error — <keterangan>
-Link terakhir yang TERSIMPAN: <link>
-
-Jangan menghapus atau mengubah catatan lain di BAMBANG.`;
-}
-function renderProses(){
-  const accs = S.accounts;
-  if(!accs.length){ $('#view').innerHTML = `<div class="vh"><div><h2>Proses</h2></div></div><div class="empty"><strong>Belum ada kreator</strong>Tambahkan dulu di Katalog.<br><button class="btn pri" data-a="go-kat">Ke Katalog</button></div>`; return; }
-  if(!procAcc || !accById(procAcc)) procAcc = accs[0].id;
-  $('#view').innerHTML = `
-  <div class="vh"><div><h2>Proses</h2><p>Satu putaran kerja: isi antrian link, salin perintah ke Claude in Chrome, lalu Claude mengerjakan link satu per satu sampai catatannya tersimpan di sini.</p></div>
-    <label class="f" style="max-width:320px;width:100%"><span>Kreator</span><select id="pAcc">${accs.map(a => `<option value="${a.id}" ${a.id===procAcc?'selected':''}>${esc(a.handle)} · ${a.platform}</option>`).join('')}</select></label></div>
-  <div class="steps">
-    <section class="step"><div class="step-n">1</div><div class="step-b">
-      <h3>Antrian link</h3>
-      <p class="hint">Semua link postingan yang mau diproses, urut dari paling lama. Link otomatis dicentang saat catatannya tersimpan, jadi progress aman walau sesi terputus.</p>
-      <div id="qPanel"></div>
-    </div></section>
-    <section class="step"><div class="step-n">2</div><div class="step-b">
-      <h3>Salin perintah untuk Claude in Chrome</h3>
-      <p class="hint">Antrian, series, daftar proses ulang, dan pohon tema sudah terisi otomatis.</p>
-      <div id="pPanel"></div>
-    </div></section>
-    <section class="step"><div class="step-n">3</div><div class="step-b">
-      <h3>Claude mengerjakan</h3>
-      <ol class="flow" id="pFlow"></ol>
-    </div></section>
-    <section class="step"><div class="step-n">4</div><div class="step-b">
-      <h3>Tambah catatan</h3>
-      <p class="hint">Diisi Claude (atau kamu, kalau manual). Klik "Pakai link ini" di langkah 1, lalu tempel hasil Gemini. Sebagian besar kolom akan terisi sendiri.</p>
-      <form id="addForm" class="fgrid" novalidate></form>
-    </div></section>
-  </div>`;
-  $('#pAcc').onchange = e => { procAcc = e.target.value; renderQueuePanel(); renderPromptPanel(); renderAddForm(); };
-  renderQueuePanel(); renderPromptPanel(); renderAddForm();
-}
-function renderFlow(a){
-  const mode = S.settings.upload_mode; const isYT = a.platform === 'YouTube';
-  const up = isYT ? 'Kirim link YouTube langsung ke Gem'
-    : mode === 'drive' ? `Download → file masuk ke folder Drive "${DRIVE_FOLDER}" → pilih lewat + → Drive di Gem`
-    : mode === 'manual' ? 'Download, lalu minta kamu meng-upload file ke Gem'
-    : 'Ambil hasil Gem yang kamu kirim dari HP';
-  $('#pFlow').innerHTML = `<li>Ambil link berikutnya dari antrian</li><li>${up} <b>"${GEM_NAME}"</b></li><li>Baca hasil Gemini, lalu tentukan tema &amp; subtema</li><li>Simpan di langkah 4 → antrian tercentang otomatis${mode === 'drive' && !isYT ? ' → hapus file di Drive' : ''}</li>`;
-}
-
-/* ---------- panel antrian ---------- */
-function renderQueuePanel(){
-  const a = accById(procAcc); const qs = queueStats(a.id); const box = $('#qPanel'); if(!box) return;
-  if(!qs.total){
-    box.innerHTML = `<div class="empty" style="padding:20px 16px"><strong>Antrian ${esc(a.handle)} masih kosong</strong>Tempel daftar link postingan (satu per baris). Minta Claude in Chrome mengumpulkannya dari profil kreator.<br><button class="btn pri" data-q="add">+ Tambah link</button></div>`;
-    bindQueuePanel(); return;
-  }
-  const pct = n => (n / qs.total * 100).toFixed(2) + '%';
-  const nx = qs.next;
-  const nd = nx ? igDate(nx.url) : '';
-  box.innerHTML = `
-    <div class="qbar" role="img" aria-label="${qs.selesai} dari ${qs.total} selesai"><i class="s" style="width:${pct(qs.selesai)}"></i><i class="g" style="width:${pct(qs.gagal)}"></i><i class="l" style="width:${pct(qs.lewati)}"></i></div>
-    <div class="qnums"><span><b>${qs.selesai}/${qs.total}</b>selesai</span><span><b>${qs.antri}</b>antri</span>${qs.gagal?`<span style="color:var(--bad)"><b style="color:var(--bad)">${qs.gagal}</b>gagal</span>`:''}${qs.lewati?`<span><b>${qs.lewati}</b>dilewati</span>`:''}</div>
-    ${nx ? `<div class="qnext" id="qNext">
-      <span class="k">Berikutnya · #${nx.position}</span>
-      <div class="u"><a href="${esc(nx.url)}" target="_blank" rel="noopener">${esc(shortUrl(nx.url))}</a></div>
-      <div class="m">${nd ? `Diposting ${fmtD(nd)}` : 'Tanggal posting belum diketahui'}${nx.pinned ? ' · di-pin di profil' : ''}${nx.note ? ` · ${esc(nx.note)}` : ''}</div>
-      <div class="qacts"><button class="btn pri sm" data-q="use" data-id="${nx.id}">Pakai link ini</button><button class="btn sm" data-q="lewati" data-id="${nx.id}">Lewati</button><button class="btn danger sm" data-q="gagal" data-id="${nx.id}">Gagal</button></div>
-    </div>` : `<div class="qnext"><span class="k">Antrian habis</span><div class="m">Semua link sudah diproses${qs.gagal ? `. Ada ${qs.gagal} link gagal, cek di "Lihat semua".` : '.'}</div></div>`}
-    <div class="qfoot"><button class="btn sm" data-q="list">Lihat semua (${qs.total})</button><button class="btn sm" data-q="add">+ Tambah link</button></div>`;
-  bindQueuePanel();
-}
-function bindQueuePanel(){
-  $$('#qPanel [data-q]').forEach(b => b.onclick = () => {
-    const q = S.queue.find(x => x.id === b.dataset.id);
-    switch(b.dataset.q){
-      case 'use': useQueueItem(q); break;
-      case 'lewati': case 'gagal': markDialog(q, b.dataset.q); break;
-      case 'list': openQueueList(); break;
-      case 'add': addLinksDialog(procAcc); break;
-    }
-  });
-}
-function useQueueItem(q){
-  if(!q) return;
-  if(view !== 'proses' || !$('#addForm')){ procAcc = q.account_id; go('proses', {scroll:false}); }
-  else if(procAcc !== q.account_id){ procAcc = q.account_id; renderProses(); }
-  const u = $('#fUrl'), d = $('#fDate');
-  u.value = q.url; u.dispatchEvent(new Event('input'));
-  const dt = igDate(q.url); if(dt){ d.value = dt; d.dispatchEvent(new Event('input')); }
-  $('#addForm').scrollIntoView({behavior:'smooth', block:'start'});
-  toast(`Link #${q.position} dipakai${dt ? ` · tanggal ${fmtD(dt)}` : ' · isi tanggalnya manual'}`);
-}
-function markDialog(q, status){
-  if(!q) return;
-  const isFail = status === 'gagal';
-  openDialog({title: isFail ? `Tandai #${q.position} gagal` : `Lewati #${q.position}`, sub: esc(shortUrl(q.url)),
-    body:`<div class="fgrid"><label class="f"><span>Alasan${isFail ? '' : ' <em>(opsional)</em>'}</span><input name="note" id="qReason" value="${esc(q.note||'')}" placeholder="${isFail ? 'contoh: postingan sudah dihapus / downloader error' : 'contoh: pengumuman giveaway, bukan materi'}"></label></div>`,
-    submit: isFail ? 'Tandai gagal' : 'Lewati',
-    onSubmit: fd => {
-      const note = (fd.get('note')||'').trim();
-      if(isFail && !note){ toast('Tulis alasannya dulu'); return false; }
-      Object.assign(q, {status, note: note || null});
-      save(); renderQueuePanel(); renderPromptPanel(); toast(isFail ? `#${q.position} ditandai gagal` : `#${q.position} dilewati`);
-    }});
-}
-let qFilter = 'semua';
-function openQueueList(filter){
-  if(filter) qFilter = filter;
-  const a = accById(procAcc); const qs = queueStats(a.id);
-  const rows = qs.list.filter(q => qFilter === 'semua' || q.status === qFilter);
-  const segBtn = (k, l, n) => `<button type="button" data-f="${k}" aria-pressed="${qFilter===k}">${l} <span class="cnt">${n}</span></button>`;
-  openDialog({title:`Antrian ${esc(a.handle)}`, sub:`${qs.selesai} dari ${qs.total} selesai`, wide:true, submit:null,
-    body:`<div class="seg" role="group" aria-label="Filter status" style="margin-bottom:10px;flex-wrap:wrap">${segBtn('semua','Semua',qs.total)}${segBtn('antri','Antri',qs.antri)}${segBtn('selesai','Selesai',qs.selesai)}${segBtn('gagal','Gagal',qs.gagal)}${segBtn('lewati','Dilewati',qs.lewati)}</div>
-      <div class="qlist" id="qList">${rows.length ? rows.map(q => {
-        const d = igDate(q.url);
-        return `<div class="q-row${qs.next && q.id === qs.next.id ? ' is-next' : ''}" ${qs.next && q.id === qs.next.id ? 'id="qRowNext"' : ''}>
-          <span class="q-n">#${q.position}</span>
-          <div class="q-main"><a href="${esc(q.url)}" target="_blank" rel="noopener">${esc(shortUrl(q.url))}</a>
-            <div class="q-meta">${d ? fmtD(d) : 'tanggal ?'}${q.pinned ? ' · di-pin' : ''}${q.note ? ` · ${esc(q.note)}` : ''}</div></div>
-          <div class="q-side">${qBadge(q.status)}${q.status === 'antri' ? `<button type="button" class="icon-btn" data-qa="use" data-id="${q.id}">Pakai</button>` : ''}${q.post_id ? `<button type="button" class="icon-btn" data-qa="open" data-id="${q.id}">Catatan</button>` : ''}<button type="button" class="icon-btn" data-qa="edit" data-id="${q.id}">Ubah</button></div>
-        </div>`; }).join('') : '<div class="r-empty">Tidak ada link dengan status ini.</div>'}</div>`});
-  $$('[data-f]', dlg).forEach(b => b.onclick = () => openQueueList(b.dataset.f));
-  $('#qList').onclick = e => {
-    const b = e.target.closest('[data-qa]'); if(!b) return;
-    const q = S.queue.find(x => x.id === b.dataset.id); if(!q) return;
-    if(b.dataset.qa === 'use'){ dlg.close(); useQueueItem(q); }
-    else if(b.dataset.qa === 'open'){ dlg.close(); openPost(q.post_id); }
-    else queueItemDialog(q);
-  };
-  const nxRow = $('#qRowNext'); if(nxRow && qFilter === 'semua') nxRow.scrollIntoView({block:'center'});
-}
-function queueItemDialog(q){
-  openDialog({title:`Link #${q.position}`, sub: esc(shortUrl(q.url)),
-    body:`<div class="fgrid">
-      <label class="f c6"><span>Status</span><select name="status">${Object.entries(QSTAT).map(([k,[,l]]) => `<option value="${k}" ${k===q.status?'selected':''}>${l}</option>`).join('')}</select></label>
-      <label class="f c6"><span>Nomor urut</span><input name="position" type="number" min="1" value="${q.position}"></label>
-      <label class="f"><span>Catatan <em>(opsional)</em></span><input name="note" value="${esc(q.note||'')}"></label>
-      <label class="check f" style="flex-direction:row"><input type="checkbox" name="pinned" ${q.pinned?'checked':''}><span style="font-weight:500">Di-pin di profil kreator</span></label>
-      ${q.post_id ? '<p class="small muted" style="grid-column:span 12;margin:0">Link ini sudah punya catatan. Kalau statusnya diubah, catatannya tetap ada.</p>' : ''}</div>`,
-    danger:{label:'Hapus dari antrian', fn:() => {
-      if(!confirm(`Hapus link #${q.position} dari antrian? Catatan yang sudah tersimpan tidak ikut terhapus.`)) return false;
-      S.queue = S.queue.filter(x => x.id !== q.id); save(); renderQueuePanel(); renderPromptPanel(); toast('Link dihapus dari antrian');
-      setTimeout(() => openQueueList(), 0); }},
-    onSubmit: fd => {
-      const pos = Math.max(1, parseInt(fd.get('position'), 10) || q.position);
-      Object.assign(q, {status: fd.get('status'), note: (fd.get('note')||'').trim() || null, pinned: !!fd.get('pinned'), position: pos});
-      save(); renderQueuePanel(); renderPromptPanel(); toast('Antrian diperbarui');
-      setTimeout(() => openQueueList(), 0);
-    }});
-}
-
-/* ---------- tambah link ---------- */
-function parseLinks(txt){
-  const out = []; const seen = new Set();
-  String(txt||'').split(/\r?\n/).forEach(line => {
-    const m = line.match(/https?:\/\/[^\s<>"'()\]]+/i); if(!m) return;
-    let u = m[0].replace(/[?#].*$/,'').replace(/[.,;]+$/,'');
-    if(/instagram\.com/i.test(u) && !u.endsWith('/')) u += '/';
-    const k = norm(u); if(seen.has(k)) return; seen.add(k);
-    out.push({url:u, pinned: /pin|📌/i.test(line.replace(m[0],''))});
-  });
-  return out;
-}
-function addLinksDialog(accId){
-  const a = accById(accId);
-  const form = openDialog({title:`Tambah link ke antrian ${esc(a.handle)}`, sub:'Tempel satu link per baris. Nomor urut, teks lain, dan tanda "(di-pin)" boleh ikut tertempel.', wide:true, submit:'Tambahkan',
-    body:`<div class="fgrid">
-      <label class="f"><span>Daftar link</span><textarea name="links" id="qLinks" placeholder="1. https://www.instagram.com/reel/.../&#10;2. https://www.instagram.com/p/.../ (di-pin)"></textarea></label>
-      <div class="f"><span>Posisi di antrian</span><div class="radio">
-        <label><input type="radio" name="mode" value="end" checked><span>Taruh di akhir antrian, sesuai urutan yang ditempel</span></label>
-        <label id="qDateOpt"><input type="radio" name="mode" value="date"><span>Urutkan otomatis berdasarkan tanggal posting <em class="muted">(khusus Instagram, cocok untuk menyisipkan link yang terlewat)</em></span></label>
-      </div></div>
-      <label class="check f" style="flex-direction:row" id="qRevWrap"><input type="checkbox" name="rev" id="qRev"><span style="font-weight:500">Daftar yang ditempel urut dari paling BARU <span class="muted small">(akan dibalik jadi paling lama dulu)</span></span></label>
-      <div class="f"><div class="qprev" id="qPrev">Belum ada link terbaca.</div></div>
-    </div>`,
-    onSubmit: fd => {
-      const items = parseLinks(fd.get('links'));
-      const fresh = items.filter(i => !qByUrl(i.url));
-      if(!items.length){ toast('Tidak ada link yang terbaca'); return false; }
-      if(!fresh.length){ toast('Semua link ini sudah ada di antrian'); return false; }
-      const mode = fd.get('mode');
-      const existing = queueOf(accId);
-      if(mode === 'date' && [...existing, ...fresh].some(x => igTime(x.url) == null)){ toast('Ada link yang tanggalnya tidak terbaca. Pilih "Taruh di akhir antrian".'); return false; }
-      if(fd.get('rev')) fresh.reverse();
-      let firstPos = null;
-      const recs = fresh.map(i => { const post = S.posts.find(p => norm(p.original_url) === norm(i.url));
-        return {id:uid(), account_id:accId, url:i.url, position:0, pinned:i.pinned, status: post ? 'selesai' : 'antri', note:null, post_id: post ? post.id : null}; });
-      if(mode === 'date'){
-        const all = [...existing, ...recs].sort((x,y) => igTime(x.url) - igTime(y.url));
-        all.forEach((q,i) => { q.position = i + 1; });
-        firstPos = recs.map(r => r.position).sort((x,y) => x - y)[0];
-      } else {
-        let p = existing.reduce((m,q) => Math.max(m, q.position), 0);
-        recs.forEach(r => { r.position = ++p; }); firstPos = recs[0].position;
-      }
-      S.queue.push(...recs);
-      save(); renderQueuePanel(); renderPromptPanel(); renderKatalogIfOpen();
-      toast(`${recs.length} link ditambahkan${mode === 'date' && recs.length === 1 ? ` di posisi #${firstPos}` : ''}${items.length - fresh.length ? ` · ${items.length - fresh.length} sudah ada, dilewati` : ''}`);
-    }});
-  const ta = $('#qLinks', form);
-  const live = () => {
-    const items = parseLinks(ta.value);
-    const dupQ = items.filter(i => qByUrl(i.url)).length;
-    const fresh = items.filter(i => !qByUrl(i.url));
-    const done = fresh.filter(i => S.posts.some(p => norm(p.original_url) === norm(i.url))).length;
-    const pins = fresh.filter(i => i.pinned).length;
-    const noDate = [...queueOf(accId), ...fresh].some(x => igTime(x.url) == null);
-    const dOpt = $('#qDateOpt', form); const dIn = $('input', dOpt);
-    dIn.disabled = noDate; dOpt.classList.toggle('off', noDate);
-    if(noDate && dIn.checked){ $('input[value="end"]', form).checked = true; }
-    $('#qRevWrap', form).hidden = $('input[name="mode"]:checked', form).value === 'date';
-    const times = fresh.map(i => igTime(i.url)).filter(Boolean).sort((x,y) => x - y);
-    $('#qPrev', form).innerHTML = items.length
-      ? `Terbaca <b>${items.length}</b> link · <b>${fresh.length}</b> baru${dupQ ? ` · ${dupQ} sudah ada di antrian (dilewati)` : ''}${done ? ` · ${done} sudah jadi catatan (langsung ditandai Selesai)` : ''}${pins ? ` · ${pins} di-pin` : ''}${times.length ? `<br><span class="muted">Rentang tanggal: ${fmtD(new Date(times[0]).toISOString())} – ${fmtD(new Date(times[times.length-1]).toISOString())}</span>` : ''}`
-      : 'Belum ada link terbaca.';
-  };
-  ta.addEventListener('input', live);
-  $$('input[name="mode"]', form).forEach(r => r.addEventListener('change', live));
-  live();
-}
-function renderKatalogIfOpen(){ if(view === 'katalog') renderKatalog(); }
-
-function renderPromptPanel(){
-  const a = accById(procAcc); const pg = progress(a.id);
-  const dl = S.settings.downloader[a.platform] || '';
-  const mode = S.settings.upload_mode;
-  const running = S.pendingRun && S.pendingRun.account_id === a.id;
-  $('#pPanel').innerHTML = `
-    <div class="snap">
-      <div><span class="k">Series berjalan</span><span>${pg.series.length ? pg.series.map(s => `${esc(s.name)} (part ${s.max||'—'})${s.missing.length?` <span class="hot">· part ${s.missing.join(', ')} kosong</span>`:''}`).join('<br>') : '—'}</span></div>
-      <div><span class="k">Perlu diproses ulang</span><span class="${pg.reprocess.length?'hot':''}">${pg.reprocess.length ? `${pg.reprocess.length} postingan (ikut di perintah)` : '—'}</span></div>
-    </div>
-    <div class="fgrid" style="gap:10px">
-      <label class="f c6"><span>Jalur upload ke Gemini <em>(tersimpan)</em></span><select id="upMode">${Object.entries(UPLOAD).map(([k,l]) => `<option value="${k}" ${k===mode?'selected':''}>${l}</option>`).join('')}</select></label>
-      <label class="f c6"><span>Downloader ${esc(a.platform)} <em>(tersimpan per platform)</em></span><input id="dlInput" value="${esc(dl)}" placeholder="contoh: fastdl.app"></label>
-    </div>
-    ${a.platform === 'YouTube' ? '<p class="small muted" style="margin:8px 0 0">YouTube tidak perlu download: Gemini membaca link-nya langsung.</p>' : ''}
-    <div class="prompt-box"><pre id="promptTxt">${esc(buildPrompt(a))}</pre></div>
-    <div class="prompt-actions"><span class="small muted">${running ? 'Sesi untuk kreator ini sedang berjalan.' : 'Menyalin perintah akan memulai sesi (tercatat di Run Log).'}</span>
-      <button class="btn pri" id="copyPrompt">Salin perintah</button></div>`;
-  renderFlow(a);
-  $('#dlInput').oninput = e => { S.settings.downloader[a.platform] = e.target.value.trim(); $('#promptTxt').textContent = buildPrompt(a); };
-  $('#dlInput').onchange = () => save();
-  $('#upMode').onchange = e => { S.settings.upload_mode = e.target.value; save(); $('#promptTxt').textContent = buildPrompt(a); renderFlow(a); };
-  $('#copyPrompt').onclick = async () => {
-    const ok = await copyText(buildPrompt(a));
-    if(!ok){ toast('Gagal menyalin — blok teksnya lalu salin manual'); return; }
-    if(!S.pendingRun || S.pendingRun.account_id !== a.id){ S.pendingRun = {account_id:a.id, started_at:new Date().toISOString()}; save(); renderPromptPanel(); }
-    toast('Perintah disalin — tempel ke Claude in Chrome');
-  };
-}
-let parseT;
-function renderAddForm(){
-  const a = accById(procAcc); const sers = seriesOf(a.id);
-  const f = $('#addForm');
-  f.innerHTML = `
-    <label class="f"><span>Hasil dari Gemini</span><textarea name="md" id="fMd" placeholder="Tempel seluruh jawaban Gemini di sini, mulai dari --- judul: ... sampai 'Sudah dibuka sampai ...'"></textarea><span class="help" id="detectNote">Tempel hasil Gemini untuk mengisi otomatis</span></label>
-    <label class="f c8"><span>Link asli postingan</span><input name="url" id="fUrl" type="url" placeholder="https://…"><span class="help" id="qNote"></span></label>
-    <label class="f c4"><span>Tanggal postingan</span><input name="date" id="fDate" type="date" max="${today()}"></label>
-    <label class="f c8"><span>Judul</span><input name="judul" id="fTitle" placeholder="judul singkat isi konten"></label>
-    <label class="f c4"><span>Tag <em>(pisah koma)</em></span><input name="tags" id="fTags" placeholder="layout, warna"></label>
-    ${themeFieldHTML('fTema','')}
-    <label class="f c6"><span>Series <em>(opsional)</em></span><select name="series" id="fSeries">
-      <option value="">— bukan bagian dari series —</option>${sers.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}<option value="__new">+ Series baru…</option></select></label>
-    <label class="f c3"><span>Part</span><input name="part" id="fPart" type="number" min="1" inputmode="numeric" placeholder="—"></label>
-    <label class="f c3" id="fNewWrap" hidden><span>Nama series baru</span><input id="fSeriesNew" placeholder="Nama series"></label>
-    <label class="check f" style="flex-direction:row"><input type="checkbox" id="fVis"><span style="font-weight:500">Ada momen visual penting <span class="muted small">(bagian yang perlu dilihat langsung)</span></span></label>
-    <label class="f" id="fVisWrap" hidden><span>Catatan visual</span><input id="fVisNote"></label>
-    <div class="warnbox" id="dupBox" hidden></div>
-    <div class="f"><span>Nama file</span><div class="fname" id="fName">—</div></div>
-    <div class="form-foot"><button type="button" class="btn ghost" id="fClear">Kosongkan</button><button type="submit" class="btn pri" id="fSave">Simpan catatan</button></div>`;
-  const touched = new Set();
-  ['fTitle','fTags','fVisNote','fUrl','fDate','fPart','fTema'].forEach(id => $('#'+id).addEventListener('input', e => { if(e.isTrusted) touched.add(id); }));
-  $('#fVis').addEventListener('change', () => { touched.add('fVis'); $('#fVisWrap').hidden = !$('#fVis').checked; });
-  $('#fSeries').addEventListener('change', e => { if(e.isTrusted) touched.add('fSeries'); $('#fNewWrap').hidden = $('#fSeries').value !== '__new'; refresh(); });
-  bindThemeField('fTema', () => refresh());
-  function detect(){
-    const md = $('#fMd').value; if(!md.trim()){ $('#detectNote').textContent = 'Tempel hasil Gemini untuk mengisi otomatis'; refresh(); return; }
-    const m = parseMD(md); const found = [];
-    const set = (id, val, label) => { if(val == null || touched.has(id)) return; $('#'+id).value = val; found.push(label); };
-    set('fTitle', m.title, 'judul'); set('fTags', m.tags && m.tags.join(', '), 'tag'); set('fUrl', m.url, 'link'); set('fPart', m.part, 'part');
-    if(m.tema && !touched.has('fTema')){ $('#fTema').value = m.tema; $('#fTema').dispatchEvent(new Event('input')); found.push('tema'); }
-    if(m.series && !touched.has('fSeries')){
-      const ex = sers.find(s => lc(s.name) === lc(m.series));
-      if(ex){ $('#fSeries').value = ex.id; $('#fNewWrap').hidden = true; }
-      else { $('#fSeries').value = '__new'; $('#fNewWrap').hidden = false; $('#fSeriesNew').value = m.series; }
-      found.push('series');
-    }
-    if(m.has_visual !== undefined && !touched.has('fVis')){ $('#fVis').checked = m.has_visual; $('#fVisWrap').hidden = !m.has_visual; if(!touched.has('fVisNote')) $('#fVisNote').value = m.visual_notes || ''; found.push('momen visual'); }
-    if(autoDate()) found.push('tanggal');
-    $('#detectNote').textContent = found.length ? `Terisi otomatis: ${found.join(', ')}. Periksa sebelum simpan.` : 'Blok metadata (--- judul: ... ---) tidak ditemukan — isi manual.';
-    refresh();
-  }
-  /* tanggal Instagram diambil dari kode link, kecuali sudah diisi manual */
-  function autoDate(){
-    if(touched.has('fDate')) return false;
-    const d = igDate($('#fUrl').value.trim()); if(!d || $('#fDate').value === d) return false;
-    $('#fDate').value = d; return true;
-  }
-  function current(){
-    const sv = $('#fSeries').value;
-    return {series_id: sv && sv !== '__new' ? sv : null, newName: sv === '__new' ? $('#fSeriesNew').value.trim() : '',
-      part_number: +$('#fPart').value || null, original_url: $('#fUrl').value.trim(), post_date: $('#fDate').value,
-      title: $('#fTitle').value.trim(), tags: $('#fTags').value.split(',').map(slugify).filter(Boolean),
-      tema: $('#fTema').value, has_visual: $('#fVis').checked, visual_notes: $('#fVis').checked ? $('#fVisNote').value.trim() : '', md_content: $('#fMd').value.trim()};
-  }
-  function refresh(){
-    const c = current();
-    const tmp = {account_id:a.id, series_id:c.series_id, part_number:c.part_number, post_date:c.post_date, title:c.title, title_slug: (parseMD(c.md_content).title_slug) || slugify(c.title).split('-').slice(0,6).join('-')};
-    if(c.newName){ S.series.push({id:'__tmp', account_id:a.id, name:c.newName}); tmp.series_id = '__tmp'; }
-    $('#fName').textContent = fileName(tmp);
-    S.series = S.series.filter(s => s.id !== '__tmp');
-    const qi = c.original_url ? qByUrl(c.original_url) : null;
-    const qa = qi ? accById(qi.account_id) : null;
-    $('#qNote').innerHTML = !c.original_url ? '' : qi
-      ? `Antrian #${qi.position}${qa && qa.id !== a.id ? ` (${esc(qa.handle)})` : ''} · ${qi.status === 'selesai' ? 'sudah Selesai' : 'akan dicentang Selesai saat disimpan'}`
-      : (queueOf(a.id).length ? '<span style="color:var(--warn)">Link ini tidak ada di antrian</span>' : '');
-    const box = $('#dupBox');
-    const dup = c.original_url ? S.posts.find(p => norm(p.original_url) === norm(c.original_url)) : null;
-    box.hidden = !dup; box.className = 'warnbox'; $('#fSave').textContent = 'Simpan catatan';
-    if(dup){
-      const da = accById(dup.account_id);
-      if(dup.reprocess){ box.innerHTML = `Link ini sudah tersimpan dan <b>ditandai proses ulang</b>. Menyimpan akan <b>mengganti</b> catatan lamanya.`; $('#fSave').textContent = 'Ganti catatan lama'; }
-      else { box.className = 'warnbox bad'; box.innerHTML = `Link ini sudah tersimpan (${esc(da?da.handle:'')} · ${fmtD(dup.post_date)}). Kalau hasil lamanya kurang bagus, tandai dulu "Perlu diproses ulang" di tab Catatan. <button type="button" class="link-btn" id="openDup">Buka catatan lama</button>`; $('#openDup').onclick = () => openPost(dup.id); }
-    }
-    return dup;
-  }
-  $('#fMd').addEventListener('input', () => { clearTimeout(parseT); parseT = setTimeout(detect, 250); });
-  $('#fUrl').addEventListener('input', autoDate);
-  ['fUrl','fDate','fPart','fTitle','fSeriesNew'].forEach(id => $('#'+id).addEventListener('input', refresh));
-  $('#fClear').onclick = () => renderAddForm();
-  f.onsubmit = async e => {
-    e.preventDefault();
-    if($('#fSave').disabled) return;
-    clearTimeout(parseT); if($('#fMd').value.trim()) detect();
-    const c = current(); const errs = [];
-    if(!c.md_content) errs.push('hasil Gemini');
-    if(!/^https?:\/\//i.test(c.original_url)) errs.push('link asli');
-    if(!c.post_date) errs.push('tanggal postingan');
-    if(!c.title) errs.push('judul');
-    if($('#fSeries').value === '__new' && !c.newName) errs.push('nama series baru');
-    if(errs.length){ toast('Belum lengkap: ' + errs.join(', ')); return; }
-    const dup = refresh();
-    if(dup && !dup.reprocess){ toast('Link ini sudah tersimpan'); return; }
-    if(c.newName){
-      const ex = sers.find(s => lc(s.name) === lc(c.newName));
-      if(ex) c.series_id = ex.id; else { const ns = {id:uid(), account_id:a.id, name:c.newName, description:''}; S.series.push(ns); c.series_id = ns.id; }
-    }
-    const {ids, items} = resolveThemes(c.tema, true);
-    const m = parseMD(c.md_content);
-    const rec = {account_id:a.id, series_id:c.series_id, part_number:c.series_id ? c.part_number : null, platform:a.platform, post_date:c.post_date, processed_at:new Date().toISOString(),
-      original_url:c.original_url, title:c.title, title_slug: m.title_slug || slugify(c.title).split('-').slice(0,6).join('-'), tags:c.tags, theme_ids:ids,
-      has_visual:c.has_visual, visual_notes:c.visual_notes, md_content:c.md_content};
-    const newT = items.filter(i => i.isNew).length;
-    const backup = dup ? JSON.parse(JSON.stringify(dup)) : null; const newId = uid();
-    if(dup) Object.assign(dup, rec, {validated:false, reprocess:false});
-    else S.posts.push({id:newId, ...rec, validated:false, reprocess:false});
-    const qi = qByUrl(c.original_url); const qBackup = qi ? {...qi} : null;
-    if(qi) Object.assign(qi, {status:'selesai', post_id: dup ? dup.id : newId, note:null});
-    $('#fSave').disabled = true; $('#fSave').textContent = 'Menyimpan ke cloud…';
-    const ok = await save();
-    if(!ok){ if(dup) Object.assign(dup, backup); else S.posts = S.posts.filter(x => x.id !== newId); if(qi) Object.assign(qi, qBackup); updateCounts(); $('#fSave').disabled = false; $('#fSave').textContent = 'Simpan catatan'; toast('GAGAL menyimpan ke database — isi form tidak dihapus, klik Simpan lagi'); return; }
-    const qsNow = queueStats(a.id);
-    toast((dup ? 'Tersimpan: catatan lama diganti versi baru' : `Tersimpan: ${c.title}${newT ? ` · ${newT} tema baru` : ''}${ids.length ? '' : ' · tanpa tema'}`) + (qi ? ` · antrian #${qi.position} selesai (${qsNow.selesai}/${qsNow.total})` : ''));
-    renderQueuePanel(); renderPromptPanel(); renderAddForm();
-    $('#fMd').focus();
-  };
-  refresh();
-}
-
-/* =========================================================
-   TAB CATATAN
+   CATATAN
    ========================================================= */
 const F = {q:'',acc:'',tema:'',series:'',status:'',from:'',to:''};
 const resetF = () => Object.assign(F,{q:'',acc:'',tema:'',series:'',status:'',from:'',to:''});
@@ -1513,7 +1708,7 @@ function filtered(){
 }
 function filterLabel(){
   const parts = [];
-  if(F.tema) parts.push(F.tema === '__none' ? 'tanpa tema' : 'tema ' + thPath(thById(F.tema)));
+  if(F.tema) parts.push(F.tema === '__none' ? 'menunggu tema' : 'tema ' + thPath(thById(F.tema)));
   if(F.acc) parts.push('kreator ' + (accById(F.acc)||{}).handle);
   if(F.series) parts.push('series ' + (serById(F.series)||{}).name);
   if(F.status) parts.push({unvalidated:'belum divalidasi',validated:'tervalidasi',reprocess:'perlu diproses ulang',visual:'ada momen visual'}[F.status]);
@@ -1531,7 +1726,7 @@ function renderCatatan(){
   <div class="vh"><div><h2>Catatan</h2><p>Semua hasil Gemini. Pencarian membaca isi catatan, bukan cuma judul. Export ZIP menghasilkan paket siap dibaca Claude dan bisa dibuka di Obsidian.</p></div></div>
   <div class="filters">
     <label class="f search"><span>Cari isi catatan</span><input id="qIn" type="search" value="${esc(F.q)}" placeholder="contoh: kontras, thumb zone, lenis"></label>
-    <label class="f c4"><span>Tema</span><select data-f="tema"><option value="">Semua</option><option value="__none" ${F.tema==='__none'?'selected':''}>Tanpa tema</option>${temaOpts}</select></label>
+    <label class="f c4"><span>Tema</span><select data-f="tema"><option value="">Semua</option><option value="__none" ${F.tema==='__none'?'selected':''}>Menunggu tema</option>${temaOpts}</select></label>
     <label class="f c4"><span>Kreator</span><select data-f="acc"><option value="">Semua</option>${S.accounts.map(a => `<option value="${a.id}" ${a.id===F.acc?'selected':''}>${esc(a.handle)} · ${a.platform}</option>`).join('')}</select></label>
     <label class="f c4"><span>Series</span><select data-f="series"><option value="">Semua</option>${sers.map(s => `<option value="${s.id}" ${s.id===F.series?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label>
     <label class="f c4"><span>Status</span><select data-f="status">
@@ -1555,14 +1750,14 @@ function renderCatatan(){
 }
 function renderList(){
   const list = filtered();
-  [...sel].forEach(id => { if(!S.posts.find(p => p.id === id)) sel.delete(id); });
+  [...sel].forEach(id => { if(!postById(id)) sel.delete(id); });
   const nSel = list.filter(p => sel.has(p.id)).length;
   $('#selInfo').textContent = nSel ? `${nSel} dipilih dari ${list.length}` : `${list.length} catatan`;
   $('#selAll').checked = list.length > 0 && nSel === list.length;
   $('#selAll').indeterminate = nSel > 0 && nSel < list.length;
   $('#zipBtn').textContent = nSel ? `Export ZIP (${nSel})` : `Export ZIP (${list.length})`;
   $('#zipBtn').disabled = !list.length;
-  if(!list.length){ $('#rlist').innerHTML = `<div class="r-empty">${S.posts.length ? 'Tidak ada catatan yang cocok dengan filter.' : 'Belum ada catatan. Tambahkan dari tab Proses.'}</div>`; return; }
+  if(!list.length){ $('#rlist').innerHTML = `<div class="r-empty">${S.posts.length ? 'Tidak ada catatan yang cocok dengan filter.' : 'Belum ada catatan. Mulai dari Beranda.'}</div>`; return; }
   $('#rlist').innerHTML = list.map(p => {
     const a = accById(p.account_id); const s = p.series_id ? serById(p.series_id) : null;
     const b = [];
@@ -1572,14 +1767,14 @@ function renderList(){
     return `<div class="r"><input type="checkbox" data-sel="${p.id}" ${sel.has(p.id)?'checked':''} aria-label="Pilih ${esc(p.title)}">
       <div class="r-main" data-open="${p.id}" role="button" tabindex="0"><div class="r-title">${esc(p.title || fileName(p))}</div>
         <div class="r-meta">${pbadge(p.platform)}<span>${esc(a?a.handle:'?')} · ${fmtD(p.post_date)}${s?` · ${esc(s.name)}${p.part_number?` part ${p.part_number}`:''}`:''}</span></div>
-        <div class="tcs">${(p.theme_ids||[]).length ? p.theme_ids.map(themeChip).join('') : '<span class="tc warn">tanpa tema</span>'}</div></div>
+        <div class="tcs">${themeChips(p)}</div></div>
       <div class="badges">${b.join('')}</div></div>`;
   }).join('');
   $$('[data-sel]', $('#rlist')).forEach(c => c.onchange = () => { c.checked ? sel.add(c.dataset.sel) : sel.delete(c.dataset.sel); renderList(); });
   $$('[data-open]', $('#rlist')).forEach(el => { el.onclick = () => openPost(el.dataset.open); el.onkeydown = e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openPost(el.dataset.open); } }; });
 }
 function openPost(id, mode='rendered'){
-  const p = S.posts.find(x => x.id === id); if(!p) return;
+  const p = postById(id); if(!p){ toast('Catatan tidak ditemukan'); return; }
   const a = accById(p.account_id); const s = p.series_id ? serById(p.series_id) : null;
   const body = splitFM(p.md_content).body;
   dlg.className = 'wide';
@@ -1590,7 +1785,7 @@ function openPost(id, mode='rendered'){
         <dt>Kreator</dt><dd>${esc(a?a.handle:'')} · ${esc(p.platform)}</dd>
         <dt>Link asli</dt><dd><a href="${esc(p.original_url)}" target="_blank" rel="noopener">${esc(p.original_url)}</a></dd>
         <dt>Tanggal post</dt><dd>${fmtD(p.post_date)} <span class="muted">· diproses ${fmtDT(p.processed_at)}</span></dd>
-        <dt>Tema</dt><dd><div class="tcs">${(p.theme_ids||[]).length ? p.theme_ids.map(themeChip).join('') : '<span class="tc warn">tanpa tema</span>'}</div></dd>
+        <dt>Tema</dt><dd><div class="tcs">${themeChips(p)}</div></dd>
         <dt>Series</dt><dd>${s ? `${esc(s.name)}${p.part_number?` · part ${p.part_number}`:''}` : '—'}</dd>
         <dt>Tag</dt><dd>${(p.tags||[]).map(esc).join(', ') || '—'}</dd>
         <dt>Status</dt><dd>${statusOf(p)}</dd>
@@ -1608,13 +1803,15 @@ function openPost(id, mode='rendered'){
       </div></div></div>`;
   $$('[data-close]', dlg).forEach(b => b.onclick = () => dlg.close());
   $$('[data-mode]', dlg).forEach(b => b.onclick = () => openPost(id, b.dataset.mode));
-  const after = msg => { save(); rerender(); openPost(id, mode); toast(msg); };
+  const after = msg => { save(); updateCounts(); openPost(id, mode); toast(msg); };
   $('[data-act="val"]', dlg).onclick = () => { p.validated = !p.validated; if(p.validated) p.reprocess = false; after(p.validated ? 'Ditandai tervalidasi' : 'Validasi dibatalkan'); };
-  $('[data-act="re"]', dlg).onclick = () => { p.reprocess = !p.reprocess; if(p.reprocess) p.validated = false; after(p.reprocess ? 'Masuk antrian proses ulang — ikut di perintah Claude berikutnya' : 'Dikeluarkan dari antrian'); };
+  $('[data-act="re"]', dlg).onclick = () => { p.reprocess = !p.reprocess; if(p.reprocess){ p.validated = false; logAct('kamu', 'warn', `"${p.title}" ditandai perlu diproses ulang.`, {post_id:p.id, account_id:p.account_id}); } after(p.reprocess ? 'Masuk antrian proses ulang: mesin akan membacanya lagi' : 'Dikeluarkan dari proses ulang'); };
   $('[data-act="copy"]', dlg).onclick = async () => toast(await copyText(noteContent(p, fileName(p).replace(/\.md$/,''))) ? 'Catatan disalin' : 'Gagal menyalin');
   $('[data-act="dl"]', dlg).onclick = () => downloadBlob(new Blob([noteContent(p, fileName(p).replace(/\.md$/,''))],{type:'text/markdown;charset=utf-8'}), fileName(p));
   $('[data-act="edit"]', dlg).onclick = () => editPostDialog(p);
-  $('[data-act="del"]', dlg).onclick = () => { if(!confirm(`Hapus "${p.title}"? Tidak bisa dibatalkan.`)) return; S.posts = S.posts.filter(x => x.id !== id); sel.delete(id); save(); dlg.close(); rerender(); toast('Catatan dihapus'); };
+  $('[data-act="del"]', dlg).onclick = () => { if(!confirm(`Hapus "${p.title}"? Tidak bisa dibatalkan. Link-nya di antrian kembali jadi "Antri".`)) return;
+    S.queue.forEach(q => { if(q.post_id === id){ q.post_id = null; q.status = 'antri'; } });
+    S.posts = S.posts.filter(x => x.id !== id); sel.delete(id); save(); dlg.close(); rerender(); toast('Catatan dihapus'); };
   if(!dlg.open) dlg.showModal();
 }
 function editPostDialog(p){
@@ -1632,7 +1829,7 @@ function editPostDialog(p){
     onSubmit:fd => {
       const title = (fd.get('title')||'').trim(); if(!title){ toast('Judul belum diisi'); return false; }
       const url = (fd.get('url')||'').trim(); if(!/^https?:\/\//i.test(url)){ toast('Link harus diawali https://'); return false; }
-      const other = S.posts.find(x => x.id !== p.id && norm(x.original_url) === norm(url)); if(other){ toast('Link ini sudah dipakai catatan lain'); return false; }
+      const other = S.posts.find(x => x.id !== p.id && ukey(x.original_url) === ukey(url)); if(other){ toast('Link ini sudah dipakai catatan lain'); return false; }
       const {ids} = resolveThemes(fd.get('tema'), true);
       const sid = fd.get('series') || null;
       Object.assign(p, {title, post_date:fd.get('date'), original_url:url, theme_ids:ids, series_id:sid, part_number: sid ? (+fd.get('part')||null) : null, tags:(fd.get('tags')||'').split(',').map(slugify).filter(Boolean)});
@@ -1643,10 +1840,10 @@ function editPostDialog(p){
 }
 
 /* =========================================================
-   TAB PAKET
+   PAKET
    ========================================================= */
 function renderPaket(){
-  let h = `<div class="vh"><div><h2>Paket</h2><p>Kumpulan tema yang mau dibawa ke Claude — untuk ebook, konten, atau apa pun. Satu catatan bisa masuk ke banyak paket tanpa disalin.</p></div>
+  let h = `<div class="vh"><div><h2>Paket</h2><p>Kumpulan tema yang mau dibawa ke Claude, untuk ebook, konten, atau apa pun. Satu catatan bisa masuk ke banyak paket tanpa disalin.</p></div>
     <button class="btn pri" data-a="add-pkg">+ Paket baru</button></div>`;
   if(!S.packages.length) h += `<div class="empty"><strong>Belum ada paket</strong>Buat paket dari tema-tema yang ingin kamu lanjutkan jadi sesuatu.<br><button class="btn pri" data-a="add-pkg">+ Paket baru</button></div>`;
   else h += '<div class="list">' + S.packages.map(k => {
@@ -1703,52 +1900,44 @@ function pkgDialog(k){
 }
 
 /* =========================================================
-   TAB RUN LOG
+   RUN LOG
    ========================================================= */
 const REASON = {selesai:['ok','Selesai'], limit:['warn','Kena limit'], error:['bad','Error']};
 function renderLog(){
   const runs = S.runs.slice().sort((a,b) => b.started_at.localeCompare(a.started_at));
-  const pr = S.pendingRun && accById(S.pendingRun.account_id) ? S.pendingRun : null;
-  let h = `<div class="vh"><div><h2>Run Log</h2><p>Catatan tiap sesi kerja Claude in Chrome — berguna untuk tahu kenapa sesi terakhir berhenti.</p></div>
+  let h = `<div class="vh"><div><h2>Run Log</h2><p>Catatan tiap sesi mesin: kapan mulai, berapa catatan tersimpan, dan kenapa berhenti.</p></div>
     <button class="btn" data-a="add-run">+ Catat sesi manual</button></div>`;
-  if(pr){
-    const n = S.posts.filter(p => p.account_id === pr.account_id && p.processed_at >= pr.started_at).length;
-    h += `<div class="banner"><p>Sesi <b>${esc(accById(pr.account_id).handle)}</b> berjalan sejak ${fmtDT(pr.started_at)}<small>${n} catatan tersimpan selama sesi ini</small></p>
-      <div style="display:flex;gap:6px"><button class="btn ghost sm" data-a="cancel-run" style="color:#f3efe7">Batalkan</button><button class="btn sm" data-a="end-run">Akhiri &amp; catat</button></div></div>`;
-  }
   h += runs.length ? runs.map(r => {
-    const a = accById(r.account_id); const [cls, lbl] = REASON[r.reason] || ['warn', r.reason];
+    const a = accById(r.account_id); const running = !r.ended_at && ENG.on && ENG.runId === r.id;
+    const [cls, lbl] = running ? ['ok','Berjalan'] : !r.ended_at ? ['warn','Terputus'] : (REASON[r.reason] || ['warn', r.reason]);
     return `<article class="log"><div><h4>${a ? pbadge(a.platform) : ''}${esc(a?a.handle:'?')} <span class="badge ${cls}">${lbl}</span></h4>
       <div class="when">${fmtDT(r.started_at)} → ${r.ended_at ? fmtDT(r.ended_at) : '—'}${r.ended_at?` · ${dur(r.started_at, r.ended_at)}`:''}</div></div>
-      <div class="num"><b>${r.count}</b><span>postingan</span></div>
+      <div class="num"><b>${r.count}</b><span>catatan</span></div>
       ${r.notes?`<div class="note">${esc(r.notes)}</div>`:''}
       <div class="acts"><button class="link-btn" data-a="edit-run" data-id="${r.id}">Edit</button></div></article>`;
-  }).join('') : `<div class="empty"><strong>Belum ada log</strong>Sesi otomatis dimulai saat kamu menyalin perintah di tab Proses.</div>`;
+  }).join('') : `<div class="empty"><strong>Belum ada log</strong>Sesi tercatat otomatis setiap mesin dijalankan.</div>`;
   $('#view').innerHTML = h;
 }
-function openRunDialog(r, fromPending=false){
+function openRunDialog(r){
   if(!S.accounts.length){ toast('Belum ada kreator'); return; }
-  const pr = fromPending && S.pendingRun ? S.pendingRun : null;
   const nowIso = new Date().toISOString();
-  const v = r || (pr ? {account_id:pr.account_id, started_at:pr.started_at, ended_at:nowIso, reason:'selesai', count:S.posts.filter(p => p.account_id === pr.account_id && p.processed_at >= pr.started_at).length, notes:''}
-                     : {account_id:S.accounts[0].id, started_at:nowIso, ended_at:nowIso, reason:'selesai', count:0, notes:''});
-  openDialog({title: r ? 'Edit log sesi' : (pr ? 'Akhiri sesi' : 'Catat sesi'), sub: pr ? 'Jumlah postingan dihitung dari catatan yang tersimpan selama sesi. Ubah kalau perlu.' : '',
+  const v = r || {account_id:S.accounts[0].id, started_at:nowIso, ended_at:nowIso, reason:'selesai', count:0, notes:''};
+  openDialog({title: r ? 'Edit log sesi' : 'Catat sesi',
     body:`<div class="fgrid">
       <label class="f"><span>Kreator</span><select name="acc">${S.accounts.map(a => `<option value="${a.id}" ${a.id===v.account_id?'selected':''}>${esc(a.handle)} · ${a.platform}</option>`).join('')}</select></label>
       <label class="f c6"><span>Mulai</span><input type="datetime-local" name="start" value="${toLocalInput(v.started_at)}" required></label>
       <label class="f c6"><span>Selesai</span><input type="datetime-local" name="end" value="${toLocalInput(v.ended_at)}"></label>
       <label class="f c6"><span>Alasan berhenti</span><select name="reason">${Object.entries(REASON).map(([k,[,l]]) => `<option value="${k}" ${k===v.reason?'selected':''}>${l}</option>`).join('')}</select></label>
-      <label class="f c6"><span>Jumlah postingan diproses</span><input type="number" min="0" name="count" value="${v.count}"></label>
-      <label class="f"><span>Catatan <em>(opsional — tempel baris "Berhenti karena" dari laporan Claude)</em></span><input name="notes" value="${esc(v.notes||'')}" placeholder="contoh: limit setelah postingan 12 Sep"></label></div>`,
+      <label class="f c6"><span>Jumlah catatan</span><input type="number" min="0" name="count" value="${v.count}"></label>
+      <label class="f"><span>Catatan <em>(opsional)</em></span><input name="notes" value="${esc(v.notes||'')}"></label></div>`,
     submit: r ? 'Simpan' : 'Simpan log',
-    danger: r ? {label:'Hapus log', fn:() => { if(!confirm('Hapus log ini?')) return false; S.runs = S.runs.filter(x => x.id !== r.id); save(); rerender(); toast('Log dihapus'); }} : null,
+    danger: r ? {label:'Hapus log', fn:() => { if(ENG.on && ENG.runId === r.id){ toast('Sesi ini sedang berjalan'); return false; } if(!confirm('Hapus log ini?')) return false; S.runs = S.runs.filter(x => x.id !== r.id); save(); rerender(); toast('Log dihapus'); }} : null,
     onSubmit:fd => {
       const start = fd.get('start'); if(!start){ toast('Waktu mulai belum diisi'); return false; }
       const end = fd.get('end');
       if(end && new Date(end) < new Date(start)){ toast('Waktu selesai lebih awal dari waktu mulai'); return false; }
       const rec = {account_id:fd.get('acc'), started_at:new Date(start).toISOString(), ended_at:end ? new Date(end).toISOString() : null, reason:fd.get('reason'), count:Math.max(0, +fd.get('count')||0), notes:(fd.get('notes')||'').trim()};
       if(r) Object.assign(r, rec); else S.runs.push({id:uid(), ...rec});
-      if(pr) S.pendingRun = null;
       save(); rerender(); toast('Log sesi disimpan');
     }});
 }
@@ -1756,16 +1945,19 @@ function openRunDialog(r, fromPending=false){
 /* =========================================================
    AKSI GLOBAL
    ========================================================= */
-$('#view').addEventListener('click', e => {
-  const b = e.target.closest('[data-a]'); if(!b) return;
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if(!b || !(b.closest('#view') || b.closest('#dlg'))) return;
   const id = b.dataset.id;
   switch(b.dataset.a){
     case 'add-acc': accDialog(null); break;
     case 'edit-acc': accDialog(accById(id)); break;
     case 'add-series': seriesDialog(id, null); break;
     case 'edit-series': { const s = serById(id); seriesDialog(s.account_id, s); break; }
-    case 'start': procAcc = id; go('proses'); break;
-    case 'go-kat': go('katalog'); break;
+    case 'start': procAcc = id; go('antrian'); break;
+    case 'go-beranda': go('beranda'); break;
+    case 'go-tema': go('tema'); break;
+    case 'go-catatan': go('catatan'); break;
+    case 'open-post': openPost(id); break;
     case 'add-theme': themeDialog(null); break;
     case 'add-sub': themeDialog(null, id); break;
     case 'edit-theme': themeDialog(thById(id)); break;
@@ -1775,24 +1967,417 @@ $('#view').addEventListener('click', e => {
     case 'zip-pkg': { const k = S.packages.find(x => x.id === id); exportZip(pkgPosts(k), {name:k.name, description:k.description, filter:`tema ${k.theme_ids.map(t => thPath(thById(t))).join(', ')}${k.include_unvalidated?'':' (hanya yang tervalidasi)'}`}); break; }
     case 'add-run': openRunDialog(null); break;
     case 'edit-run': openRunDialog(S.runs.find(r => r.id === id)); break;
-    case 'end-run': openRunDialog(null, true); break;
-    case 'cancel-run': if(confirm('Batalkan sesi berjalan tanpa mencatat log?')){ S.pendingRun = null; save(); renderLog(); } break;
+    case 'found-add': addFoundToQueue(!!b.dataset.start); break;
+    case 'eng-start': engineStart(id); break;
+    case 'eng-pause': engineControl('jeda'); break;
+    case 'eng-resume': engineControl('lanjut'); break;
+    case 'eng-stop': engineControl('stop'); break;
   }
 });
 
 /* =========================================================
-   SUPABASE — login, muat data, sinkron otomatis
+   EXTENSION BAMBANG Helper — jembatan lewat window.postMessage
+   ========================================================= */
+const EXT = {ready:false, version:null, old:false, progress:{}};
+const verNum = v => String(v||'0').split('.').map(Number).reduce((s,n,i) => s + (n||0) * [10000,100,1][i], 0);
+window.addEventListener('message', e => {
+  if(e.source !== window || !e.data || e.data.source !== 'bambang-ext') return;
+  if(e.data.type === 'hello'){ EXT.ready = true; EXT.version = e.data.version; EXT.old = verNum(e.data.version) < verNum('0.2.0'); paintExt(); if(S) { renderBerandaLive(); if(view === 'antrian') renderQueuePanel(); } }
+  if(e.data.type === 'progress' && EXT.progress[e.data.id]) EXT.progress[e.data.id](e.data.text);
+});
+function extCall(type, payload, onProgress, timeout = 240000){
+  return new Promise((resolve, reject) => {
+    const id = uid(); payload = {...payload, progressId:id};
+    if(onProgress) EXT.progress[id] = onProgress;
+    const done = () => { window.removeEventListener('message', on); clearTimeout(t); delete EXT.progress[id]; };
+    const on = e => { if(e.source !== window || !e.data || e.data.source !== 'bambang-ext' || e.data.id !== id || e.data.type === 'progress') return; done(); resolve(e.data); };
+    window.addEventListener('message', on);
+    const t = setTimeout(() => { done(); reject(new Error(`Extension tidak menjawab (lebih dari ${Math.round(timeout/60000)} menit)`)); }, timeout);
+    window.postMessage({source:'bambang-page', id, type, payload}, location.origin);
+  });
+}
+function paintExt(){
+  const c = $('#extChip'); if(!c) return;
+  if(EXT.ready){ c.className = 'ext on'; c.textContent = EXT.old ? `Extension v${EXT.version} · perlu update` : `Extension v${EXT.version} aktif`; }
+  else { c.className = 'ext'; c.textContent = 'Mode pantau'; c.title = 'Extension BAMBANG Helper tidak ada di browser ini. Kamu tetap bisa memantau dan memberi perintah ke mesin di laptop.'; }
+}
+window.postMessage({source:'bambang-page', type:'ping'}, location.origin);
+setTimeout(paintExt, 1500);
+
+/* =========================================================
+   MESIN — ambil postingan → Gemini → simpan catatan, satu per satu
+   ========================================================= */
+const TAB_ID = uid();
+const DEVICE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'HP' : 'laptop';
+const GAP = [20000, 30000];          // jeda aman antar link (acak), supaya akun Instagram aman
+const BUSY_WAIT = [120000, 240000, 480000]; // Gemini penuh: tunggu 2, 4, 8 menit
+const QUOTA_WAIT = 30 * 60000;       // kuota Gemini habis: coba lagi tiap 30 menit
+const IG_LIMIT_WAIT = 15 * 60000;    // Instagram minta jeda
+const ENG = {on:false, paused:false, stop:false, accId:null, current:'', message:'', nextAt:null, busy:false, runId:null, saved:0, failed:0, failStreak:0, tries:{}, durs:[], skipRe:new Set(), wake:null, lastPush:0};
+const rand = (a, b) => a + Math.floor(Math.random() * (b - a));
+const clock = ms => new Date(ms).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+
+function canRunHere(accId){
+  if(ENG.on) return false;
+  const needExt = accId ? queueOf(accId).some(q => q.status === 'antri' && isIG(q.url)) || S.posts.some(p => p.account_id === accId && p.reprocess && isIG(p.original_url)) : true;
+  return !needExt || (EXT.ready && !EXT.old);
+}
+function engView(){
+  if(ENG.on) return {local:true, status:ENG.paused ? 'jeda' : 'jalan', account_id:ENG.accId, current:ENG.current, message:ENG.message, next_at:ENG.nextAt ? new Date(ENG.nextAt).toISOString() : null, heartbeat_at:new Date().toISOString(), device:'tab ini'};
+  const e = S && S.engine;
+  if(!e || e.status === 'mati' || e.tab_id === TAB_ID) return {status:'mati', message: e ? e.message : ''};
+  const age = e.heartbeat_at ? Date.now() - Date.parse(e.heartbeat_at) : Infinity;
+  if(age > 150000) return {...e, status:'mati', stale:true};
+  return {...e, local:false};
+}
+function avgSec(){ const d = ENG.durs.slice(-10); return d.length ? d.reduce((s,x) => s+x, 0) / d.length : 75; }
+function engNowText(ev){
+  const left = ev.next_at ? Math.ceil((Date.parse(ev.next_at) - Date.now()) / 1000) : 0;
+  if(left > 0) return `${ev.current || 'Menunggu'} · lanjut dalam ${left >= 90 ? Math.ceil(left/60) + ' menit' : left + ' detik'}`;
+  return ev.current || (ev.status === 'jeda' ? 'Dijeda' : 'Bekerja…');
+}
+function paintEngineBox(){
+  paintPill();
+  const box = $('#engineBox'); if(!box) return;
+  const ev = engView(); const a = ev.account_id ? accById(ev.account_id) : null;
+  if(ev.stale){
+    box.innerHTML = `<section class="engine" aria-live="polite"><div class="engine-h"><div class="ttl"><span class="dot dead"></span>Mesin tidak merespons${a ? ` · ${esc(a.handle)}` : ''}</div><small>terakhir aktif ${esc(ago(ev.heartbeat_at))}</small></div>
+      <p class="note">Mungkin tab BAMBANG di laptop tertutup, laptop tidur, atau internet putus. Progress aman karena tiap link sudah tersimpan. Buka BAMBANG di Chrome laptop, lalu klik Mulai proses.</p>
+      ${a && canRunHere(a.id) ? `<div class="eng-acts"><button class="btn pri sm" data-a="eng-start" data-id="${a.id}">Lanjutkan di sini</button></div>` : ''}</section>`;
+    return;
+  }
+  if(ev.status === 'mati'){
+    box.innerHTML = `<section class="engine"><div class="engine-h"><div class="ttl"><span class="dot"></span>Mesin istirahat</div><small>${EXT.ready ? 'Chrome ini siap menjalankan mesin' : 'Mesin dijalankan dari Chrome laptop yang ada extension-nya'}</small></div>${ev.message ? `<p class="note">Terakhir: ${esc(ev.message)}</p>` : ''}</section>`;
+    return;
+  }
+  const qs = a ? queueStats(a.id) : {total:0, selesai:0, antri:0, gagal:0, lewati:0};
+  const tot = qs.total || 1;
+  const wait = a ? S.posts.filter(p => p.account_id === a.id && !(p.theme_ids||[]).length).length : 0;
+  const eta = qs.antri ? durMin(qs.antri * (avgSec() + 25) / 60) : '';
+  box.innerHTML = `<section class="engine" aria-live="polite">
+    <div class="engine-h"><div class="ttl"><span class="dot ${ev.status === 'jeda' ? 'pause' : 'run'}"></span>${ev.status === 'jeda' ? 'Mesin dijeda' : 'Mesin jalan'}${a ? ` · ${esc(a.handle)}` : ''}</div>
+      <small>${ev.local ? 'di tab ini' : `di ${esc(ev.device || 'laptop')} · aktif ${esc(ago(ev.heartbeat_at))}`}</small></div>
+    <div class="engine-now"><b id="engNow">${esc(engNowText(ev))}</b></div>
+    ${ev.message ? `<div class="warnmsg">${esc(ev.message)}</div>` : ''}
+    <div class="eng-bar" aria-hidden="true"><i class="s" style="width:${qs.selesai/tot*100}%"></i><i class="g" style="width:${qs.gagal/tot*100}%"></i><i class="l" style="width:${qs.lewati/tot*100}%"></i></div>
+    <div class="eng-nums"><span><b>${qs.selesai}/${qs.total}</b>link selesai</span><span><b>${qs.antri}</b>antri</span>${qs.gagal ? `<span><b>${qs.gagal}</b>gagal</span>` : ''}<span><b>${wait}</b>menunggu tema</span>${eta && ev.status === 'jalan' ? `<span>perkiraan sisa ±${eta}</span>` : ''}</div>
+    <div class="eng-acts">${ev.status === 'jeda' ? '<button class="btn pri sm" data-a="eng-resume">Lanjutkan</button>' : '<button class="btn sm" data-a="eng-pause">Jeda</button>'}<button class="btn ghost sm" data-a="eng-stop">Hentikan</button></div>
+    <p class="note">${ev.local ? 'Biarkan tab ini tetap terbuka (boleh pindah ke tab lain) dan jangan biarkan laptop tidur. Pantau dari HP lewat Beranda.' : 'Tombol di sini mengirim perintah ke laptop. Berlaku dalam beberapa detik.'}</p>
+  </section>`;
+}
+function paintPill(){
+  const pill = $('#engPill'); if(!pill || !S) return;
+  const ev = engView();
+  const on = ev.status === 'jalan' || ev.status === 'jeda';
+  pill.classList.toggle('on', on); pill.classList.toggle('jeda', ev.status === 'jeda');
+  if(on){ const qs = ev.account_id ? queueStats(ev.account_id) : null; $('#engPillTxt').textContent = `Mesin ${ev.status === 'jeda' ? 'dijeda' : 'jalan'}${qs ? ` · ${qs.selesai}/${qs.total}` : ''}`; }
+}
+$('#engPill').onclick = () => go('beranda');
+let tickN = 0;
+setInterval(() => {
+  if(!S) return;
+  tickN++;
+  const ev = engView();
+  const el = $('#engNow'); if(el) el.textContent = engNowText(ev);
+  if(!ENG.on && tickN % 15 === 0 && view === 'beranda') { paintEngineBox(); renderFeed(); }
+}, 1000);
+
+function setNow(txt){ ENG.current = txt; const el = $('#engNow'); if(el) el.textContent = engNowText(engView()); pushEngine(); }
+/* claim = ambil alih baris status mesin (saat mulai). Selain itu hanya memperbarui kalau baris masih milik tab ini,
+   supaya tab lama tidak merebut kembali mesin yang sudah dipindah. */
+async function pushEngine(force = false, claim = false){
+  if(!USER) return;
+  if(!force && !claim && Date.now() - ENG.lastPush < 4000) return;
+  ENG.lastPush = Date.now();
+  const qs = ENG.accId ? queueStats(ENG.accId) : {selesai:0, total:0};
+  const row = {owner:USER.id, status: ENG.on ? (ENG.paused ? 'jeda' : 'jalan') : 'mati', account_id:ENG.accId, tab_id:TAB_ID, device:DEVICE,
+    current:ENG.current || null, message:ENG.message || null, done:qs.selesai, total:qs.total,
+    next_at: ENG.nextAt ? new Date(ENG.nextAt).toISOString() : null, heartbeat_at:new Date().toISOString(), updated_at:new Date().toISOString()};
+  S.engine = {...(S.engine || {}), ...row};
+  try {
+    if(claim){ await sb.from('engine_state').upsert({...row, command:null}, {onConflict:'owner'}); return; }
+    const {data, error} = await sb.from('engine_state').update(row).eq('owner', USER.id).eq('tab_id', TAB_ID).select('owner');
+    if(!error && data && !data.length && ENG.on){ ENG.stop = true; ENG.stopBy = 'Mesin dipindahkan ke tab/perangkat lain'; }
+  } catch(e){}
+}
+async function refreshEngineState(){
+  try { const {data} = await sb.from('engine_state').select('*').maybeSingle(); S.engine = data || null; } catch(e){}
+}
+function applyCmd(cmd, remote){
+  const src = remote ? ' dari perangkat lain' : '';
+  if(cmd === 'jeda' && !ENG.paused){ ENG.paused = true; ENG.message = `Dijeda${src}.`; logAct('kamu', 'info', `Mesin dijeda${src}.`, {account_id:ENG.accId}); }
+  else if(cmd === 'lanjut' && ENG.paused){ ENG.paused = false; ENG.message = ''; ENG.failStreak = 0; ENG.tries = {}; logAct('kamu', 'info', `Mesin dilanjutkan${src}.`, {account_id:ENG.accId}); }
+  else if(cmd === 'stop'){ ENG.stop = true; ENG.paused = false; ENG.stopBy = `Dihentikan${src}`; }
+  pushEngine(true); paintEngineBox();
+}
+async function checkCommand(){
+  try {
+    const {data, error} = await sb.from('engine_state').select('command,tab_id,status').maybeSingle();
+    if(error || !data) return;
+    if(data.tab_id && data.tab_id !== TAB_ID){ ENG.stop = true; ENG.stopBy = 'Mesin dipindahkan ke tab/perangkat lain'; return; }
+    if(data.command){
+      await sb.from('engine_state').update({command:null}).eq('owner', USER.id);
+      applyCmd(data.command, true);
+    }
+  } catch(e){}
+}
+async function engineControl(cmd){
+  if(ENG.on){ applyCmd(cmd, false); return; }
+  const ev = engView();
+  if(ev.status === 'mati'){ toast('Mesin tidak sedang jalan'); return; }
+  if(cmd === 'stop' && !confirm('Hentikan mesin di laptop?')) return;
+  const {error} = await sb.from('engine_state').update({command:cmd}).eq('owner', USER.id);
+  if(error){ toast('Gagal mengirim perintah: ' + error.message); return; }
+  logAct('kamu', 'info', `Perintah "${cmd === 'jeda' ? 'jeda' : cmd === 'lanjut' ? 'lanjutkan' : 'hentikan'}" dikirim ke mesin dari ${DEVICE}.`);
+  toast('Perintah terkirim. Berlaku dalam beberapa detik.');
+}
+async function holdWake(){ try { if('wakeLock' in navigator && document.visibilityState === 'visible' && !ENG.wake) { ENG.wake = await navigator.wakeLock.request('screen'); ENG.wake.addEventListener('release', () => { ENG.wake = null; }); } } catch(e){} }
+document.addEventListener('visibilitychange', () => { if(ENG.on) holdWake(); });
+
+async function engineStart(accId){
+  if(ENG.on){ toast('Mesin sudah jalan'); return; }
+  const a = accById(accId); if(!a) return;
+  if(!canRunHere(accId)){ toast(EXT.old ? 'Update extension ke v0.2 dulu' : 'Mesin butuh extension BAMBANG Helper di Chrome laptop'); return; }
+  await refreshEngineState();
+  const e = S.engine;
+  if(e && e.status !== 'mati' && e.tab_id !== TAB_ID && e.heartbeat_at && Date.now() - Date.parse(e.heartbeat_at) < 150000){
+    if(!confirm(`Mesin sepertinya sedang jalan di ${e.device || 'perangkat lain'}. Pindahkan ke tab ini? Mesin yang lama akan berhenti sendiri.`)) return;
+  }
+  const qs = queueStats(accId);
+  const re = S.posts.filter(p => p.account_id === accId && p.reprocess).length;
+  if(!qs.antri && !re){ toast('Tidak ada link yang perlu diproses'); return; }
+  Object.assign(ENG, {on:true, paused:false, stop:false, stopBy:'', accId, current:'Menyiapkan…', message:'', nextAt:null, busy:false, saved:0, failed:0, failStreak:0, tries:{}, skipRe:new Set()});
+  const run = {id:uid(), account_id:accId, started_at:new Date().toISOString(), ended_at:null, reason:'selesai', count:0, notes:'Mesin otomatis'};
+  S.runs.push(run); ENG.runId = run.id; save();
+  holdWake();
+  await pushEngine(true, true);
+  logAct('mesin', 'info', `Mesin mulai memproses ${a.handle}: ${qs.antri} link antri${re ? `, ${re} proses ulang` : ''}.`, {account_id:accId});
+  updateCounts(); renderBerandaLive(); if(view === 'antrian') renderQueuePanel();
+  engineLoop();
+}
+function nextJob(accId){
+  const re = S.posts.find(p => p.account_id === accId && p.reprocess && !ENG.skipRe.has(p.id));
+  if(re) return {kind:'re', id:re.id, key:'re:' + re.id};
+  const q = queueStats(accId).next;
+  return q ? {kind:'q', id:q.id, key:'q:' + q.id} : null;
+}
+async function waitFor(ms, label){
+  ENG.nextAt = Date.now() + ms; ENG.current = label; pushEngine(true); paintEngineBox();
+  let lastCmd = Date.now(), lastBeat = Date.now();
+  while(Date.now() < ENG.nextAt && !ENG.stop){
+    await sleep(1000);
+    if(Date.now() - lastCmd > 5000){ lastCmd = Date.now(); await checkCommand(); if(ENG.paused || ENG.stop) break; }
+    if(Date.now() - lastBeat > 20000){ lastBeat = Date.now(); pushEngine(true); }
+  }
+  ENG.nextAt = null;
+}
+async function engineLoop(){
+  let reason = 'selesai', note = '';
+  try {
+    while(!ENG.stop){
+      await checkCommand();
+      if(ENG.stop) break;
+      if(ENG.paused){
+        ENG.current = 'Dijeda'; pushEngine(true); paintEngineBox();
+        let n = 0;
+        while(ENG.paused && !ENG.stop){ await sleep(2000); n++; if(n % 3 === 0) await checkCommand(); if(n % 10 === 0) pushEngine(true); }
+        continue;
+      }
+      const job = nextJob(ENG.accId);
+      if(!job){ note = 'Antrian habis'; break; }
+      const res = await processJob(job);
+      paintEngineBox(); renderBerandaLive(); updateCounts();
+      if(res.action === 'stop'){ reason = res.reason || 'error'; note = res.msg; logAct('mesin', 'error', res.msg, {account_id:ENG.accId}); break; }
+      if(res.action === 'pause'){ ENG.paused = true; ENG.message = res.msg; logAct('mesin', 'warn', `Mesin dijeda: ${res.msg}`, {account_id:ENG.accId}); continue; }
+      if(res.action === 'retry'){ await waitFor(res.wait, res.label || 'Menunggu sebelum mencoba lagi'); continue; }
+      if(ENG.stop) break;
+      if(nextJob(ENG.accId)) await waitFor(rand(GAP[0], GAP[1]), 'Jeda aman sebelum link berikutnya');
+    }
+  } catch(e){ reason = 'error'; note = `Error tak terduga: ${e.message || e}`; console.error(e); logAct('mesin', 'error', note, {account_id:ENG.accId}); }
+  await engineFinish(reason, note || ENG.stopBy || 'Dihentikan');
+}
+async function engineFinish(reason, note){
+  const a = accById(ENG.accId);
+  const run = S.runs.find(r => r.id === ENG.runId);
+  if(run) Object.assign(run, {ended_at:new Date().toISOString(), reason, count:ENG.saved, notes:`Mesin otomatis · ${note}${ENG.failed ? ` · ${ENG.failed} gagal` : ''}`});
+  await save();
+  const msg = `${note}. ${ENG.saved} catatan baru${ENG.failed ? `, ${ENG.failed} link gagal` : ''}.`;
+  if(!/pindah/i.test(note)) logAct('mesin', reason === 'error' ? 'error' : 'info', `Mesin berhenti (${a ? a.handle : '?'}): ${msg}`, {account_id:ENG.accId});
+  const moved = /pindah/i.test(note);
+  Object.assign(ENG, {on:false, paused:false, busy:false, nextAt:null, current:'', message:msg});
+  try { if(ENG.wake) await ENG.wake.release(); } catch(e){}
+  if(!moved) await pushEngine(true);
+  else await refreshEngineState();
+  paintEngineBox(); renderBerandaLive(); updateCounts(); if(view === 'antrian') renderQueuePanel(); if(view === 'log') renderLog();
+}
+
+async function invokeGemini(body){
+  try {
+    const {data, error} = await sb.functions.invoke('gemini-read', {body});
+    if(error){
+      let d = null; try { d = await error.context.json(); } catch(_){}
+      const st = error.context && error.context.status;
+      return d && d.error ? d : {ok:false, stage:'server', kind: (!st || st >= 500) ? 'busy' : 'other', error: `${error.message}${st ? ` (HTTP ${st})` : ''}`};
+    }
+    return data;
+  } catch(e){ return {ok:false, stage:'server', kind:'busy', error:e.message || String(e)}; }
+}
+function markQueue(job, status, note){
+  if(job.kind !== 'q') { ENG.skipRe.add(job.id); return; }
+  const q = S.queue.find(x => x.id === job.id); if(q) Object.assign(q, {status, note: note || null});
+}
+async function failJob(job, label, why){
+  ENG.failed++; ENG.failStreak++;
+  markQueue(job, 'gagal', why.slice(0, 200));
+  await save();
+  logAct('mesin', 'error', `${label} gagal: ${why}`, {account_id:ENG.accId});
+  if(ENG.failStreak >= 3) return {action:'pause', msg:'3 link berturut-turut gagal. Kemungkinan ada masalah umum (login Instagram, koneksi, atau Gemini). Cek pesan di Aktivitas, lalu klik Lanjutkan.'};
+  return {action:'next'};
+}
+async function processJob(job){
+  const acc = accById(ENG.accId);
+  const post0 = job.kind === 're' ? postById(job.id) : null;
+  const q0 = job.kind === 'q' ? S.queue.find(x => x.id === job.id) : null;
+  if(!post0 && !q0) return {action:'next'};
+  const url = post0 ? post0.original_url : q0.url;
+  const dTxt = igDate(url) ? ` (${fmtD(igDate(url))})` : '';
+  const label = post0 ? `Proses ulang "${post0.title}"` : `#${q0.position}${dTxt}`;
+  const tries = ENG.tries[job.key] = ENG.tries[job.key] || {busy:0, other:0, model:0};
+  const t0 = Date.now();
+  ENG.busy = true;
+  let paths = [];
+  try {
+    const {data:{session}} = await sb.auth.getSession();
+    if(!session) return {action:'stop', reason:'error', msg:'Sesi login habis. Muat ulang halaman lalu login lagi.'};
+    let body = {source_url:url}, meta = null;
+    if(isIG(url)){
+      if(!EXT.ready) return {action:'pause', msg:'Extension BAMBANG Helper tidak terdeteksi. Pastikan terpasang dan aktif, muat ulang halaman ini, lalu klik Lanjutkan.'};
+      setNow(`${label} · mengambil dari Instagram…`);
+      let r;
+      try { r = await extCall('ig-fetch', {url, sb:{url:SB_URL, key:SB_KEY, token:session.access_token, uid:session.user.id}}, t => setNow(`${label} · ${t}`), 180000); }
+      catch(e){ r = {ok:false, error:e.message}; }
+      if(!r.ok){
+        const err = r.error || 'tidak ada keterangan';
+        if(/login/i.test(err)) return {action:'pause', msg:'Instagram minta login. Buka instagram.com di Chrome ini, login, lalu klik Lanjutkan.'};
+        if(/membatasi|terlalu cepat|HTTP 429|wait a few/i.test(err)){ logAct('mesin', 'warn', `Instagram meminta jeda. Mesin menunggu 15 menit (sampai ${clock(Date.now() + IG_LIMIT_WAIT)}).`, {account_id:ENG.accId}); return {action:'retry', wait:IG_LIMIT_WAIT, label:'Instagram meminta jeda'}; }
+        if(/diperbarui|tidak menjawab|Muat ulang/i.test(err)) return {action:'pause', msg:`Extension bermasalah: ${err}`};
+        if(/dihapus|tidak ditemukan|kosong|private|bukan link|tidak punya file/i.test(err)) return await failJob(job, label, err);
+        if(++tries.other < 2){ logAct('mesin', 'warn', `${label}: ${err}. Dicoba lagi 1 menit lagi.`, {account_id:ENG.accId}); return {action:'retry', wait:60000, label:'Mencoba lagi link yang sama'}; }
+        return await failJob(job, label, err);
+      }
+      meta = r.meta; paths = r.paths || [];
+      body = {...body, storage_paths:paths, kreator:meta.username || acc.handle, platform:'Instagram', caption:meta.caption || ''};
+    } else if(isYT(url)){
+      body = {...body, youtube_url:url, kreator:acc.handle, platform:'YouTube', caption:''};
+    } else {
+      return await failJob(job, label, 'platform ini belum didukung mesin (baru Instagram & YouTube)');
+    }
+    const ser = post0 && post0.series_id ? serById(post0.series_id) : null;
+    if(ser){ body.series = ser.name; if(post0.part_number) body.part = post0.part_number; }
+    setNow(`${label} · Gemini sedang membaca…`);
+    const res = await invokeGemini(body);
+    paths = []; // server menghapus file titipan setelah membacanya
+    if(!res || !res.ok){
+      const kind = res && res.kind || 'other'; const err = (res && res.error) || 'tidak ada jawaban';
+      if(res && res.stage === 'input' && /login|Sesi/i.test(err)) return {action:'stop', reason:'error', msg:'Sesi login habis. Muat ulang halaman lalu login lagi.'};
+      if(kind === 'busy'){
+        const w = BUSY_WAIT[tries.busy];
+        if(w == null) return {action:'pause', msg:'Gemini penuh terus setelah dicoba beberapa kali. Coba Lanjutkan beberapa saat lagi.'};
+        tries.busy++;
+        logAct('mesin', 'warn', `Gemini sedang penuh. ${label} dicoba lagi pukul ${clock(Date.now() + w)}.`, {account_id:ENG.accId});
+        return {action:'retry', wait:w, label:'Gemini penuh, menunggu'};
+      }
+      if(kind === 'quota'){
+        logAct('mesin', 'warn', `Kuota Gemini gratis habis. Mesin mencoba lagi tiap 30 menit (berikutnya pukul ${clock(Date.now() + QUOTA_WAIT)}). Biasanya pulih sekitar jam 14.00–15.00 WIB.`, {account_id:ENG.accId});
+        return {action:'retry', wait:QUOTA_WAIT, label:'Kuota Gemini habis, menunggu'};
+      }
+      if(kind === 'key' || (res && res.stage === 'config')) return {action:'stop', reason:'error', msg:`Masalah API key Gemini: ${err}`};
+      if(kind === 'model' && tries.model++ < 1) return {action:'retry', wait:5000, label:'Memperbarui daftar model Gemini'};
+      return await failJob(job, label, err);
+    }
+    return await saveResult(job, res, meta, label, (Date.now() - t0) / 1000);
+  } finally {
+    ENG.busy = false;
+    if(paths.length) sb.storage.from('tmp-media').remove(paths).catch(() => {});
+  }
+}
+async function saveResult(job, res, meta, label, secs){
+  const acc = accById(ENG.accId);
+  const md = res.md; const m = parseMD(md);
+  let series_id = null;
+  if(m.series){
+    let s = seriesOf(acc.id).find(x => lc(x.name) === lc(m.series));
+    if(!s){ s = {id:uid(), account_id:acc.id, name:m.series, description:''}; S.series.push(s); }
+    series_id = s.id;
+  }
+  const firstLine = String(meta && meta.caption || '').split('\n').map(x => x.trim()).find(Boolean) || '';
+  const title = m.title || firstLine.slice(0, 80) || 'Tanpa judul';
+  const title_slug = m.title_slug || slugify(title).split('-').slice(0,6).join('-');
+  let postId;
+  if(job.kind === 're'){
+    const p = postById(job.id); if(!p) return {action:'next'};
+    Object.assign(p, {md_content:md, title, title_slug, tags:m.tags || p.tags, has_visual:!!m.has_visual, visual_notes:m.visual_notes || '', processed_at:new Date().toISOString(), reprocess:false, validated:false});
+    if(!p.series_id && series_id){ p.series_id = series_id; p.part_number = m.part || null; }
+    if(meta && meta.post_date && !p.post_date) p.post_date = meta.post_date;
+    postId = p.id;
+  } else {
+    const q = S.queue.find(x => x.id === job.id);
+    const url = q ? q.url : '';
+    const dup = postByUrl(url);
+    if(dup) postId = dup.id;
+    else {
+      postId = uid();
+      S.posts.push({id:postId, account_id:acc.id, series_id, part_number: series_id ? (m.part || null) : null, platform:acc.platform,
+        post_date:(meta && meta.post_date) || igDate(url) || null, processed_at:new Date().toISOString(), original_url:url, title, title_slug,
+        tags:m.tags || [], theme_ids:[], has_visual:!!m.has_visual, visual_notes:m.visual_notes || '', md_content:md, validated:false, reprocess:false});
+    }
+    if(q) Object.assign(q, {status:'selesai', post_id:postId, note:null});
+  }
+  const ok = await save();
+  if(!ok) return {action:'pause', msg:'Gagal menyimpan ke database. Cek koneksi internet, lalu klik Lanjutkan.'};
+  ENG.saved++; ENG.failStreak = 0; ENG.durs.push(secs);
+  const run = S.runs.find(r => r.id === ENG.runId); if(run){ run.count = ENG.saved; save(); }
+  const p = postById(postId);
+  const audio = m.audio && /tidak terdengar/i.test(m.audio) ? ' · audio tidak terdengar' : '';
+  const themed = p && (p.theme_ids||[]).length;
+  logAct('mesin', 'ok', `${label} tersimpan: "${title}"${audio}. ${job.kind === 're' ? (themed ? 'Catatan lama diganti, tema lama dipertahankan.' : 'Catatan lama diganti, menunggu tema.') : 'Menunggu tema.'}`, {post_id:postId, account_id:acc.id});
+  return {action:'next'};
+}
+window.addEventListener('beforeunload', e => {
+  if(ENG.on || SYNC_STATE === 'saving' || SYNC_STATE === 'error'){ e.preventDefault(); e.returnValue = ''; }
+});
+
+/* =========================================================
+   AKTIVITAS
+   ========================================================= */
+async function logAct(actor, level, text, extra = {}){
+  if(!USER) return;
+  const row = {actor, level, text:String(text).slice(0, 600), account_id: extra.account_id && accById(extra.account_id) ? extra.account_id : null, post_id: extra.post_id || null};
+  try {
+    let {data, error} = await sb.from('activity').insert(row).select().single();
+    if(error && row.post_id){ row.post_id = null; ({data, error} = await sb.from('activity').insert(row).select().single()); }
+    if(!error && data) addActivity(data);
+  } catch(e){}
+}
+function addActivity(r){
+  if(!S || S.activity.some(x => x.id === r.id)) return;
+  S.activity.unshift(r);
+  S.activity.sort((a,b) => String(b.created_at).localeCompare(String(a.created_at)));
+  if(S.activity.length > 200) S.activity.length = 200;
+  renderFeed();
+}
+
+/* =========================================================
+   SUPABASE — login, muat data, sinkron otomatis, realtime
    Kunci publishable aman ditaruh di sini: data dilindungi RLS,
    hanya user yang login yang bisa membaca/menulis datanya sendiri.
    ========================================================= */
 const SB_URL = 'https://fzcupxgglpmstfvjltsq.supabase.co';
 const SB_KEY = 'sb_publishable_b30o10IIq-Inuj4e9V5ekg_Iv_kcEvY';
-const PENDING_KEY = 'bambang-pending-run';
-const DEFAULT_DL = {Instagram:'snapinsta.to',TikTok:'snaptik.app',YouTube:'y2mate.nu',Threads:'threadsdownloader.io',X:'twitsave.com',LinkedIn:'linkedinvideodownloader.com'};
 const sb = window.supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:true, autoRefreshToken:true}});
 let USER = null;
 
-const emptyState = () => ({settings:{downloader:{...DEFAULT_DL}, upload_mode:'drive'}, accounts:[], series:[], themes:[], posts:[], packages:[], runs:[], queue:[], pendingRun:null});
+const emptyState = () => ({accounts:[], series:[], themes:[], posts:[], packages:[], runs:[], queue:[], activity:[], engine:null});
 const isoTs = v => v ? new Date(v).toISOString() : null;
 
 /* bentuk data aplikasi → baris tabel database */
@@ -1806,18 +2391,16 @@ function rowsOf(st){
     tags:p.tags||[], md_content:p.md_content, has_visual:!!p.has_visual, visual_notes:p.visual_notes||null, validated:!!p.validated, reprocess:!!p.reprocess}));
   t.packages = st.packages.map(k => ({id:k.id, name:k.name, description:k.description||null, include_unvalidated:!!k.include_unvalidated}));
   t.run_logs = st.runs.map(r => ({id:r.id, account_id:r.account_id, started_at:isoTs(r.started_at), ended_at:isoTs(r.ended_at), stopped_reason:r.reason, posts_processed:r.count||0, notes:r.notes||null}));
-  t.settings = [{owner: USER ? USER.id : null, downloader: st.settings.downloader, upload_mode: st.settings.upload_mode || 'drive'}];
   const postIds = new Set(st.posts.map(p => p.id));
   t.link_queue = st.queue.map(q => ({id:q.id, account_id:q.account_id, url:q.url, position:q.position, pinned:!!q.pinned, status:q.status, note:q.note||null, post_id: q.post_id && postIds.has(q.post_id) ? q.post_id : null}));
   t.post_themes = []; st.posts.forEach(p => (p.theme_ids||[]).forEach(th => t.post_themes.push({post_id:p.id, theme_id:th})));
   t.package_themes = []; st.packages.forEach(k => (k.theme_ids||[]).forEach(th => t.package_themes.push({package_id:k.id, theme_id:th})));
   return t;
 }
-const keyOf = (table, r) => table === 'post_themes' ? r.post_id+'|'+r.theme_id : table === 'package_themes' ? r.package_id+'|'+r.theme_id : table === 'settings' ? 'me' : r.id;
+const keyOf = (table, r) => table === 'post_themes' ? r.post_id+'|'+r.theme_id : table === 'package_themes' ? r.package_id+'|'+r.theme_id : r.id;
 function snapshot(rows){ const s = {}; for(const [tb, arr] of Object.entries(rows)){ s[tb] = new Map(arr.map(r => [keyOf(tb,r), JSON.stringify(r)])); } return s; }
 let LAST = null;
 
-/* ambil semua baris (per 1000) */
 async function fetchAll(table, order){
   const out = []; const step = 1000;
   for(let from = 0; ; from += step){
@@ -1830,9 +2413,11 @@ async function fetchAll(table, order){
 }
 async function loadAll(){
   setSync('loading');
-  const [acc, ser, th, po, pt, pk, pkt, rl, st, lq] = await Promise.all([
+  const [acc, ser, th, po, pt, pk, pkt, rl, lq, act, eng] = await Promise.all([
     fetchAll('accounts','created_at'), fetchAll('series','created_at'), fetchAll('themes','created_at'), fetchAll('posts','processed_at'),
-    fetchAll('post_themes'), fetchAll('packages','created_at'), fetchAll('package_themes'), fetchAll('run_logs','started_at'), fetchAll('settings'), fetchAll('link_queue','position')]);
+    fetchAll('post_themes'), fetchAll('packages','created_at'), fetchAll('package_themes'), fetchAll('run_logs','started_at'), fetchAll('link_queue','position'),
+    sb.from('activity').select('*').order('created_at', {ascending:false}).limit(120),
+    sb.from('engine_state').select('*').maybeSingle()]);
   const s = emptyState();
   s.accounts = acc.map(a => ({id:a.id, handle:a.handle, platform:a.platform, profile_url:a.profile_url||''}));
   s.series = ser.map(x => ({id:x.id, account_id:x.account_id, name:x.name, description:x.description||''}));
@@ -1845,13 +2430,12 @@ async function loadAll(){
   const pkBy = {}; pkt.forEach(r => (pkBy[r.package_id] = pkBy[r.package_id] || []).push(r.theme_id));
   s.packages = pk.map(k => ({id:k.id, name:k.name, description:k.description||'', include_unvalidated:!!k.include_unvalidated, theme_ids: pkBy[k.id] || []}));
   s.runs = rl.map(r => ({id:r.id, account_id:r.account_id, started_at:isoTs(r.started_at), ended_at:isoTs(r.ended_at), reason:r.stopped_reason||'selesai', count:r.posts_processed||0, notes:r.notes||''}));
-  if(st[0] && st[0].downloader) s.settings.downloader = {...DEFAULT_DL, ...st[0].downloader};
-  if(st[0] && st[0].upload_mode) s.settings.upload_mode = st[0].upload_mode;
   s.queue = lq.map(q => ({id:q.id, account_id:q.account_id, url:q.url, position:q.position, pinned:!!q.pinned, status:q.status||'antri', note:q.note||null, post_id:q.post_id||null}));
-  try { const pr = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null'); if(pr && s.accounts.find(a => a.id === pr.account_id)) s.pendingRun = pr; } catch(e){}
+  s.activity = act.error ? (S ? S.activity : []) : (act.data || []);
+  s.engine = eng.error ? (S ? S.engine : null) : (eng.data || null);
+  if(ENG.on && s.engine) s.engine = {...s.engine, tab_id:TAB_ID};
   S = s;
   LAST = snapshot(rowsOf(S));
-  if(!st.length) LAST.settings = new Map(); // baris settings belum ada → akan dibuat saat sinkron pertama
   setSync('ok');
 }
 
@@ -1880,7 +2464,6 @@ async function doSync(){
     await up('link_queue', plan.link_queue.up);
     await up('packages', plan.packages.up);
     await up('run_logs', plan.run_logs.up);
-    if(plan.settings.up.length) await up('settings', plan.settings.up, 'owner');
     await delPairs('post_themes', 'post_id', plan.post_themes.del);
     await delPairs('package_themes', 'package_id', plan.package_themes.del);
     if(plan.post_themes.up.length) await up('post_themes', plan.post_themes.up, 'post_id,theme_id');
@@ -1905,8 +2488,7 @@ async function doSync(){
 }
 let syncChain = Promise.resolve(true);
 function save(){
-  try { S.pendingRun ? localStorage.setItem(PENDING_KEY, JSON.stringify(S.pendingRun)) : localStorage.removeItem(PENDING_KEY); } catch(e){}
-  updateCounts(); updateSession();
+  updateCounts(); paintPill();
   syncChain = syncChain.then(doSync, doSync);
   return syncChain;
 }
@@ -1919,7 +2501,33 @@ function setSync(state, msg=''){
   el.title = msg;
   if(state === 'error'){ $('#syncRetry').onclick = () => save(); toast('Gagal menyimpan ke database: ' + (msg || 'cek koneksi internet')); }
 }
-window.addEventListener('beforeunload', e => { if(SYNC_STATE === 'saving' || SYNC_STATE === 'error'){ e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------- realtime: perubahan dari perangkat lain langsung tampil ---------- */
+let RT = null, reloadT = null;
+function scheduleReload(delay = 2500){
+  clearTimeout(reloadT);
+  reloadT = setTimeout(async () => {
+    if(!USER) return;
+    if(SYNC_STATE !== 'ok' || ENG.busy){ scheduleReload(3000); return; }
+    try { await loadAll(); } catch(e){ setSync('error', e.message); return; }
+    updateCounts(); paintPill(); safeRerender();
+  }, delay);
+}
+function subscribeRealtime(){
+  if(RT) sb.removeChannel(RT);
+  RT = sb.channel('bambang-' + TAB_ID)
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'activity'}, p => { if(p.new) addActivity(p.new); })
+    .on('postgres_changes', {event:'*', schema:'public', table:'engine_state'}, p => {
+      if(!p.new || !p.new.owner || !S) return;
+      if(ENG.on && p.new.tab_id !== TAB_ID) { ENG.stop = true; ENG.stopBy = 'Mesin dipindahkan ke tab/perangkat lain'; }
+      if(!ENG.on) S.engine = p.new;
+      paintEngineBox(); if(view === 'beranda') renderAccList();
+    })
+    .on('postgres_changes', {event:'*', schema:'public', table:'link_queue'}, () => scheduleReload())
+    .on('postgres_changes', {event:'*', schema:'public', table:'posts'}, () => scheduleReload())
+    .on('postgres_changes', {event:'*', schema:'public', table:'post_themes'}, () => scheduleReload())
+    .subscribe();
+}
 
 /* ---------- login ---------- */
 function showAuth(on){
@@ -1935,12 +2543,13 @@ $('#authForm').onsubmit = async e => {
   if(error) msg.textContent = /invalid/i.test(error.message) ? 'Email atau password salah.' : /confirm/i.test(error.message) ? 'Email belum dikonfirmasi. Centang "Auto Confirm User" saat membuat user.' : error.message;
 };
 $('#logoutBtn').onclick = async () => {
+  if(ENG.on){ toast('Hentikan mesin dulu sebelum keluar'); return; }
   if(SYNC_STATE === 'saving'){ toast('Tunggu sampai selesai menyimpan'); return; }
   await sb.auth.signOut();
 };
 $('#reloadBtn').onclick = async () => {
-  if(SYNC_STATE === 'saving'){ toast('Tunggu sampai selesai menyimpan'); return; }
-  try { await loadAll(); updateCounts(); updateSession(); rerender(); toast('Data dimuat ulang dari cloud'); }
+  if(SYNC_STATE === 'saving' || ENG.busy){ toast('Tunggu sebentar, sedang menyimpan'); return; }
+  try { await loadAll(); updateCounts(); paintPill(); rerender(); toast('Data dimuat ulang dari cloud'); }
   catch(err){ setSync('error', err.message); }
 };
 let booted = false;
@@ -1951,12 +2560,13 @@ async function enterApp(session){
   $('#view').innerHTML = '<div class="empty"><strong>Memuat data…</strong>Mengambil catatan dari Supabase.</div>';
   try { await loadAll(); }
   catch(err){ setSync('error', err.message); $('#view').innerHTML = `<div class="empty"><strong>Gagal memuat data</strong>${esc(err.message)}<br><button class="btn" onclick="location.reload()">Coba lagi</button></div>`; return; }
-  updateCounts(); updateSession();
-  go((location.hash || '#katalog').slice(1));
+  updateCounts(); paintExt(); paintPill();
+  subscribeRealtime();
+  go((location.hash || '#beranda').slice(1));
   booted = true;
 }
 sb.auth.onAuthStateChange((event, session) => {
-  if(event === 'SIGNED_OUT' || !session){ USER = null; LAST = null; S = emptyState(); booted = false; showAuth(true); return; }
+  if(event === 'SIGNED_OUT' || !session){ USER = null; LAST = null; S = emptyState(); booted = false; if(RT){ sb.removeChannel(RT); RT = null; } showAuth(true); return; }
   if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && (!USER || USER.id !== session.user.id || !booted)) setTimeout(() => enterApp(session), 0);
 });
 </script>
