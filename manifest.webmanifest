@@ -1,0 +1,19 @@
+{
+  "name": "BAMBANG",
+  "short_name": "BAMBANG",
+  "description": "Pustakawan konten sosmed: kumpulkan, baca, rapikan, jadikan bacaan.",
+  "start_url": "./#mulai",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f1ea",
+  "theme_color": "#f4f1ea",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ],
+  "share_target": {
+    "action": "./?share=1",
+    "method": "GET",
+    "params": {"title": "title", "text": "t", "url": "u"}
+  }
+}
