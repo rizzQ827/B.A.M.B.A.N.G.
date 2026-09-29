@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<!-- BAMBANG index.html v0.6.3 · 2026-09-27 · single file (manifest.webmanifest + icon-192/512.png untuk tombol Bagikan) -->
+<!-- BAMBANG index.html v0.7.0 · 2026-09-29 · single file (+ manifest.webmanifest, sw.js, icon-192/512.png) -->
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="bambang-app" content="main">
 <meta name="theme-color" content="#f4f1ea">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>BAMBANG</title>
 <meta name="description" content="BAMBANG (Bot Analisis Materi Belajar, Awam Nan Gamblang) — pustakawan konten sosmed: kumpulkan, baca, rapikan, jadikan bacaan.">
 <link rel="manifest" href="manifest.webmanifest">
@@ -378,11 +380,37 @@ body.dark .task,body.dark .tech a{color:var(--bg)}
 .toc a{display:flex;align-items:center;gap:10px}
 .toc .no{font:500 12px var(--f-mono);color:var(--muted);width:22px}
 hr.sep{border:0;border-top:1px solid var(--line);margin:12px 0}
+
+/* ---------- v0.7: HP disederhanakan ---------- */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.fld textarea.add{border:1.5px solid var(--ink);border-radius:16px;font:16px/1.5 var(--f-body);min-height:150px;padding:14px 16px}
+.stat{display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+.stat .dot{width:12px;height:12px;border-radius:6px;background:#9a948a;flex:none;margin-top:8px}
+.stat.jalan .dot{background:var(--acc);box-shadow:0 0 0 5px var(--acc-soft2)}
+.stat.jeda .dot{background:#c9962c}
+.stat.stop .dot{background:var(--warn)}
+.stat b{display:block;font:700 22px/1.25 var(--f-title)}
+.stat .s{display:block;margin-top:4px;font-size:14px;color:var(--muted);line-height:1.5}
+.big-n{font:700 44px/1 var(--f-title);letter-spacing:-1px}
+.row.big{min-height:64px;padding-top:8px;padding-bottom:8px}
+.fold{border:1px solid var(--line);border-radius:18px}
+.fold > summary{min-height:48px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600;font-size:14px;cursor:pointer;list-style:none}
+.fold > summary::-webkit-details-marker{display:none}
+.fold > summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;margin:-4px 4px 0 0;flex:none}
+.fold[open] > summary::after{transform:rotate(-135deg);margin-top:4px}
+.fold > .fold-body{padding:0 12px 14px}
+@media (max-width:1023px){
+  #strip,#fab{display:none}
+  #main{padding-bottom:calc(var(--navh) + 28px)}
+  #bnav a{font-size:13px}
+  #toast{bottom:calc(var(--navh) + 16px)}
+}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-mulai" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5M6 10v10h4v-6h4v6h4V10"/></symbol>
   <symbol id="i-dash" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
   <symbol id="i-pustaka" viewBox="0 0 24 24"><path d="M5 4h4v16H5zM11 4h4v16h-4zM17 5l3 .8-3.5 14-3-.8z"/></symbol>
   <symbol id="i-ebook" viewBox="0 0 24 24"><path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5zM12 6.5v13"/></symbol>
@@ -452,12 +480,12 @@ hr.sep{border:0;border-top:1px solid var(--line);margin:12px 0}
 <script>
 const EXT_FILES = {"manifest.json": "{\n  \"manifest_version\": 3,\n  \"name\": \"BAMBANG Helper\",\n  \"version\": \"0.3.0\",\n  \"description\": \"Pembantu BAMBANG: mengambil postingan Instagram (video/foto, caption, tanggal, thumbnail), daftar postingan sebuah akun (grid + tab Reels), dan cek postingan baru, memakai login Instagram di Chrome ini.\",\n  \"permissions\": [\"scripting\"],\n  \"host_permissions\": [\n    \"https://www.instagram.com/*\",\n    \"https://*.cdninstagram.com/*\",\n    \"https://*.fbcdn.net/*\",\n    \"https://*.supabase.co/*\"\n  ],\n  \"background\": { \"service_worker\": \"background.js\" },\n  \"content_scripts\": [\n    {\n      \"matches\": [\"https://*.github.io/*\", \"http://localhost/*\", \"http://127.0.0.1/*\"],\n      \"js\": [\"bridge.js\"],\n      \"run_at\": \"document_start\"\n    }\n  ]\n}\n", "background.js": "// BAMBANG Helper — background (v0.3)\n// 1. ig-fetch     : ambil satu postingan Instagram (media asli + caption + tanggal) memakai login Instagram di Chrome,\n//                   lalu titipkan file medianya di Supabase Storage (bucket tmp-media) untuk dibaca server BAMBANG.\n//                   v0.3: sekalian simpan thumbnail kecil (+ foto profil kalau diminta) ke bucket thumbs.\n// 2. ig-profile   : kumpulkan SEMUA link postingan sebuah akun Instagram, diurutkan dari yang paling lama.\n//                   v0.3: + tab Reels (reels yang disembunyikan dari grid ikut terkumpul), + foto profil, + thumbnail.\n// 3. ig-check-new : (baru v0.3) cek postingan baru saja: baca halaman terbaru sampai ketemu link yang sudah ada.\n//                   Biasanya cukup 1–2 permintaan ke Instagram.\n\nconst IG_APP_ID = '936619743392459';\nconst ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';\nconst BUCKET = 'tmp-media';\nconst THUMBS = 'thumbs';\nconst MAX_FILE = 50 * 1024 * 1024; // batas file Supabase (paket gratis)\nconst MAX_THUMB = 2 * 1024 * 1024;\nconst IG_HEADERS = { 'x-ig-app-id': IG_APP_ID, 'x-requested-with': 'XMLHttpRequest', 'accept': 'application/json' };\n\n/* ---------- util ---------- */\nfunction shortcodeOf(url) {\n  const m = String(url || '').match(/instagram\\.com\\/(?:[\\w.]+\\/)?(?:p|reel|reels|tv)\\/([A-Za-z0-9_-]+)/i);\n  return m ? m[1] : null;\n}\nfunction mediaIdOf(shortcode) {\n  let n = 0n;\n  for (const ch of shortcode.slice(0, 11)) {\n    const i = ALPHA.indexOf(ch);\n    if (i < 0) throw new Error('Kode link Instagram tidak valid');\n    n = n * 64n + BigInt(i);\n  }\n  return n.toString();\n}\nfunction usernameOf(input) {\n  const s = String(input || '').trim();\n  const m = s.match(/instagram\\.com\\/([A-Za-z0-9_.]+)/i);\n  const u = (m ? m[1] : s).replace(/^@/, '').replace(/\\/.*$/, '').trim();\n  if (!u || /^(p|reel|reels|tv|stories|explore)$/i.test(u) || !/^[A-Za-z0-9_.]{1,30}$/.test(u)) return null;\n  return u.toLowerCase();\n}\nconst sleep = (ms) => new Promise((r) => setTimeout(r, ms));\nconst jitter = (a, b) => a + Math.floor(Math.random() * (b - a));\nfunction extOf(mime) {\n  if (/mp4/.test(mime)) return 'mp4';\n  if (/webm/.test(mime)) return 'webm';\n  if (/png/.test(mime)) return 'png';\n  if (/webp/.test(mime)) return 'webp';\n  if (/heic/.test(mime)) return 'heic';\n  return mime.startsWith('video/') ? 'mp4' : 'jpg';\n}\nconst best = (arr) => (arr || []).slice().sort((a, b) => (b.width * b.height) - (a.width * a.height))[0];\n// gambar kecil untuk thumbnail: yang paling kecil tapi lebarnya minimal 240 px\nfunction smallImage(item) {\n  const src = (item && item.image_versions2 && item.image_versions2.candidates && item.image_versions2.candidates.length)\n    ? item.image_versions2.candidates\n    : (item && item.carousel_media && item.carousel_media[0] && item.carousel_media[0].image_versions2\n      ? item.carousel_media[0].image_versions2.candidates : []);\n  const list = (src || []).filter((c) => c && c.url).sort((a, b) => a.width - b.width);\n  return (list.find((c) => c.width >= 240) || list[list.length - 1] || {}).url || null;\n}\nfunction typeOf(it) {\n  return it.media_type === 8 ? 'carousel' : it.media_type === 2 ? (it.product_type === 'clips' ? 'reels' : 'video') : 'gambar';\n}\nfunction linkOf(it) {\n  const isVideo = it.product_type === 'clips' || it.media_type === 2;\n  return `https://www.instagram.com/${isVideo ? 'reel' : 'p'}/${it.code}/`;\n}\n\n/* ---------- Instagram: permintaan data ---------- */\nfunction parseJson(text, status) {\n  let j;\n  try { j = JSON.parse(text); } catch { j = null; }\n  if (status === 429 || /please wait a few minutes/i.test(text || '')) throw new Error('Instagram membatasi permintaan (terlalu cepat). Tunggu 10–15 menit.');\n  if (!j) throw new Error(status === 404 ? 'Tidak ditemukan (mungkin sudah dihapus)' : `Instagram tidak mengembalikan data (HTTP ${status}). Pastikan kamu login Instagram di Chrome.`);\n  if (j.require_login || j.message === 'login_required') throw new Error('Instagram minta login. Buka instagram.com di Chrome dan login dulu.');\n  if (j.status === 'fail' && j.message) throw new Error(`Instagram: ${j.message}`);\n  return j;\n}\nasync function getDirect(path) {\n  const r = await fetch(`https://www.instagram.com${path}`, { credentials: 'include', headers: IG_HEADERS });\n  return parseJson(await r.text(), r.status);\n}\nfunction waitComplete(tabId, timeout = 20000) {\n  return new Promise((resolve) => {\n    const t = setTimeout(() => { chrome.tabs.onUpdated.removeListener(on); resolve(); }, timeout);\n    function on(id, info) { if (id === tabId && info.status === 'complete') { clearTimeout(t); chrome.tabs.onUpdated.removeListener(on); resolve(); } }\n    chrome.tabs.onUpdated.addListener(on);\n  });\n}\n// jalankan permintaan dari dalam tab instagram.com (pasti membawa login). body != null → POST (form) dengan csrftoken.\nasync function runInIgTab(path, body) {\n  let [tab] = await chrome.tabs.query({ url: 'https://www.instagram.com/*' });\n  let created = false;\n  if (!tab) { tab = await chrome.tabs.create({ url: 'https://www.instagram.com/', active: false }); created = true; await waitComplete(tab.id); }\n  try {\n    const [res] = await chrome.scripting.executeScript({\n      target: { tabId: tab.id }, world: 'MAIN',\n      func: async (p, headers, form) => {\n        try {\n          const h = Object.assign({}, headers);\n          const opt = { credentials: 'include', headers: h };\n          if (form != null) {\n            const m = document.cookie.match(/(?:^|;\\s*)csrftoken=([^;]+)/);\n            if (m) h['x-csrftoken'] = decodeURIComponent(m[1]);\n            h['content-type'] = 'application/x-www-form-urlencoded';\n            opt.method = 'POST';\n            opt.body = form;\n          }\n          const r = await fetch(p, opt);\n          return { status: r.status, text: await r.text() };\n        } catch (e) { return { status: 0, text: '', error: String(e) }; }\n      },\n      args: [path, IG_HEADERS, body == null ? null : body],\n    });\n    const out = res && res.result;\n    if (!out || out.error) throw new Error(out && out.error ? out.error : 'Gagal menjalankan permintaan di tab Instagram');\n    return parseJson(out.text, out.status);\n  } finally {\n    if (created) chrome.tabs.remove(tab.id).catch(() => {});\n  }\n}\n// coba langsung dulu; kalau gagal, lewat tab instagram.com. Pilihan yang berhasil diingat selama satu tugas.\nasync function igGet(path, ctx, report) {\n  if (!ctx.viaTab) {\n    try { return await getDirect(path); }\n    catch (e1) {\n      if (/membatasi|dihapus|Tidak ditemukan/i.test(e1.message)) throw e1;\n      ctx.viaTab = true;\n      if (report) report('Mencoba lewat tab Instagram…');\n      try { return await runInIgTab(path, null); }\n      catch (e2) {\n        const friendly = (m) => /error page|Cannot access|No tab/i.test(m) ? 'instagram.com tidak bisa dibuka di Chrome (cek koneksi internet)' : m;\n        throw new Error(`${friendly(e1.message)}. Cara cadangan juga gagal: ${friendly(e2.message)}`);\n      }\n    }\n  }\n  return runInIgTab(path, null);\n}\n\n/* ---------- Supabase Storage ---------- */\nfunction needSb(sb) {\n  if (!sb || !sb.url || !sb.key || !sb.token || !sb.uid) throw new Error('Data login Supabase tidak dikirim oleh halaman BAMBANG');\n}\nasync function uploadTo(sb, bucket, path, buf, mime) {\n  const r = await fetch(`${sb.url}/storage/v1/object/${bucket}/${path}`, {\n    method: 'POST',\n    headers: { 'Authorization': `Bearer ${sb.token}`, 'apikey': sb.key, 'Content-Type': mime, 'x-upsert': 'true', 'cache-control': 'max-age=31536000' },\n    body: buf,\n  });\n  if (!r.ok) throw new Error(`Gagal menitipkan file ke Supabase (HTTP ${r.status}): ${(await r.text()).slice(0, 200)}`);\n}\nasync function fetchMedia(url, max = MAX_FILE) {\n  const r = await fetch(url, { credentials: 'omit' });\n  if (!r.ok) throw new Error(`Gagal mengunduh media (HTTP ${r.status})`);\n  const mime = (r.headers.get('content-type') || '').split(';')[0] || 'application/octet-stream';\n  const buf = await r.arrayBuffer();\n  if (buf.byteLength > max) throw new Error(`File terlalu besar (${(buf.byteLength / 1048576).toFixed(1)} MB)`);\n  return { buf, mime };\n}\n// simpan gambar kecil ke bucket thumbs. Gagal = tidak apa-apa (thumbnail hanya pelengkap).\nasync function saveImage(sb, url, path) {\n  if (!url) return null;\n  try {\n    const { buf, mime } = await fetchMedia(url, MAX_THUMB);\n    const m = /png/.test(mime) ? 'image/png' : /webp/.test(mime) ? 'image/webp' : 'image/jpeg';\n    await uploadTo(sb, THUMBS, path, buf, m);\n    return path;\n  } catch { return null; }\n}\nconst thumbPath = (sb, code) => `${sb.uid}/t/${code}.jpg`;\nconst ppPath = (sb, username) => `${sb.uid}/pp/${String(username).replace(/^@/, '')}.jpg`;\n\n/* ---------- ig-fetch: satu postingan ---------- */\nfunction normalize(item, shortcode) {\n  const pick = (m) => {\n    if (m.video_versions && m.video_versions.length) { const v = best(m.video_versions); return { kind: 'video', url: v.url }; }\n    const img = best(m.image_versions2 && m.image_versions2.candidates);\n    return img ? { kind: 'image', url: img.url } : null;\n  };\n  const media = (item.carousel_media && item.carousel_media.length ? item.carousel_media.map(pick) : [pick(item)]).filter(Boolean);\n  const d = item.taken_at ? new Date(item.taken_at * 1000) : null;\n  const pad = (n) => String(n).padStart(2, '0');\n  const user = item.user || {};\n  return {\n    platform: 'Instagram',\n    shortcode,\n    username: user.username ? '@' + user.username : '',\n    full_name: user.full_name || '',\n    user_id: user.pk || user.id ? String(user.pk || user.id) : '',\n    caption: (item.caption && item.caption.text) || '',\n    taken_at: d ? d.toISOString() : null,\n    post_date: d ? `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` : null,\n    type: typeOf(item),\n    duration: item.video_duration || null,\n    media,\n    _thumb: smallImage(item),\n    _pp: user.profile_pic_url || null,\n  };\n}\nasync function igFetch(payload, report) {\n  const shortcode = shortcodeOf(payload.url);\n  if (!shortcode) throw new Error('Ini bukan link postingan Instagram (/p/, /reel/, atau /tv/)');\n  const id = mediaIdOf(shortcode);\n  const ctx = {};\n\n  report('Membaca data postingan dari Instagram…');\n  const j = await igGet(`/api/v1/media/${id}/info/`, ctx, report);\n  if (!j.items || !j.items.length) throw new Error(j.message ? `Instagram: ${j.message}` : 'Data postingan kosong (mungkin sudah dihapus atau akun private)');\n  const meta = normalize(j.items[0], shortcode);\n  if (!meta.media.length) throw new Error('Postingan tidak punya file video/foto yang bisa diambil');\n  const thumbUrl = meta._thumb; const ppUrl = meta._pp;\n  delete meta._thumb; delete meta._pp;\n  if (payload.metaOnly) { meta.media = meta.media.map(({ kind }) => ({ kind })); return { ok: true, meta, paths: [] }; }\n\n  const sb = payload.sb; needSb(sb);\n  let thumb_path = null; let pp_path = null;\n  if (payload.thumb !== false) thumb_path = await saveImage(sb, thumbUrl, thumbPath(sb, shortcode));\n  if (payload.pp && meta.username) pp_path = await saveImage(sb, ppUrl, ppPath(sb, meta.username));\n  if (payload.thumbOnly) { meta.media = meta.media.map(({ kind }) => ({ kind })); return { ok: true, meta, paths: [], thumb_path, pp_path }; }\n\n  const paths = []; let bytes = 0;\n  for (let i = 0; i < meta.media.length; i++) {\n    report(`Mengunduh file ${i + 1} dari ${meta.media.length}…`);\n    const { buf, mime } = await fetchMedia(meta.media[i].url);\n    const path = `${sb.uid}/${shortcode}-${Date.now()}-${String(i + 1).padStart(2, '0')}.${extOf(mime)}`;\n    report(`Menitipkan file ${i + 1} dari ${meta.media.length}…`);\n    await uploadTo(sb, BUCKET, path, buf, mime);\n    paths.push(path); bytes += buf.byteLength;\n    if (i < meta.media.length - 1) await sleep(400);\n  }\n  meta.media = meta.media.map(({ kind }) => ({ kind })); // link CDN tidak perlu dikirim balik\n  return { ok: true, meta, paths, bytes, mb: +(bytes / 1048576).toFixed(2), thumb_path, pp_path };\n}\n\n/* ---------- bersama: ubah item Instagram jadi baris link ---------- */\nfunction toLink(it, userId) {\n  const pinned = [].concat(it.timeline_pinned_user_ids || [], it.clips_tab_pinned_user_ids || []).map(String).includes(String(userId));\n  return {\n    code: it.code,\n    url: linkOf(it),\n    taken_at: it.taken_at ? new Date(it.taken_at * 1000).toISOString() : null,\n    type: typeOf(it),\n    pinned,\n    _thumb: smallImage(it),\n  };\n}\nasync function profileInfo(username, ctx, report) {\n  const pj = await igGet(`/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`, ctx, report);\n  const u = pj && pj.data && pj.data.user;\n  if (!u || !u.id) throw new Error(`Akun @${username} tidak ditemukan`);\n  if (u.is_private && !u.followed_by_viewer) throw new Error(`Akun @${username} private dan kamu belum mengikutinya`);\n  return u;\n}\nfunction profileOut(u, username, pp_path) {\n  return {\n    username: '@' + (u.username || username),\n    full_name: u.full_name || '',\n    id: String(u.id),\n    post_count: (u.edge_owner_to_timeline_media && u.edge_owner_to_timeline_media.count) || 0,\n    is_private: !!u.is_private,\n    profile_url: `https://www.instagram.com/${u.username || username}/`,\n    pp_path: pp_path || null,\n  };\n}\n// tab Reels: reels yang disembunyikan dari grid hanya ada di sini\nasync function clipsPage(userId, maxId) {\n  const form = `target_user_id=${encodeURIComponent(userId)}&page_size=12&include_feed_video=true${maxId ? `&max_id=${encodeURIComponent(maxId)}` : ''}`;\n  const j = await runInIgTab('/api/v1/clips/user/', form);\n  const items = (j.items || []).map((x) => x && x.media).filter((m) => m && m.code);\n  const p = j.paging_info || {};\n  return { items, more: !!p.more_available, next: p.max_id || '' };\n}\nasync function saveThumbs(sb, links, skip, report) {\n  const todo = links.filter((l) => l._thumb && !skip.has(l.code));\n  let n = 0;\n  for (const l of todo) {\n    n++;\n    // report() juga menjaga service worker tetap hidup selama tugas panjang\n    if (n % 5 === 1) report(`Menyimpan thumbnail ${n} dari ${todo.length}…`);\n    l.thumb_path = await saveImage(sb, l._thumb, thumbPath(sb, l.code));\n    await sleep(120);\n  }\n  for (const l of links) delete l._thumb;\n}\n\n/* ---------- ig-profile: semua link postingan satu akun ---------- */\nasync function igProfile(payload, report) {\n  const username = usernameOf(payload.username || payload.url);\n  if (!username) throw new Error('Tulis username Instagram (contoh: @ux.anjar) atau link profilnya');\n  const ctx = {};\n  report(`Membuka profil @${username}…`);\n  const u = await profileInfo(username, ctx, report);\n  const expected = (u.edge_owner_to_timeline_media && u.edge_owner_to_timeline_media.count) || 0;\n  const sb = payload.sb;\n  let pp_path = null;\n  if (sb && payload.thumbs !== false) { needSb(sb); pp_path = await saveImage(sb, u.profile_pic_url, ppPath(sb, u.username || username)); }\n\n  const seen = new Map();\n  let maxId = '';\n  let pages = 0;\n  const limit = Math.max(1, Math.min(+payload.limit || 5000, 5000));\n  while (pages < 250) {\n    const j = await igGet(`/api/v1/feed/user/${u.id}/?count=33${maxId ? `&max_id=${encodeURIComponent(maxId)}` : ''}`, ctx, report);\n    pages++;\n    for (const it of j.items || []) {\n      if (!it.code || seen.has(it.code)) continue;\n      seen.set(it.code, toLink(it, u.id));\n    }\n    report(`Mengumpulkan link… ${seen.size}${expected ? ` dari ${expected}` : ''}`);\n    if (seen.size >= limit || !j.more_available || !j.next_max_id) break;\n    maxId = j.next_max_id;\n    await sleep(jitter(1500, 2800)); // pelan supaya akun Instagram aman\n  }\n\n  // tab Reels (v0.3)\n  let reelsAdded = 0; let reelsError = null;\n  if (payload.reels !== false && seen.size < limit) {\n    try {\n      let next = ''; let rp = 0;\n      while (rp < 120) {\n        await sleep(jitter(1500, 2800));\n        const page = await clipsPage(u.id, next);\n        rp++;\n        for (const it of page.items) {\n          if (seen.has(it.code)) continue;\n          seen.set(it.code, toLink(it, u.id)); reelsAdded++;\n        }\n        report(`Memeriksa tab Reels… +${reelsAdded} reels yang tidak ada di grid`);\n        if (!page.more || !page.next) break;\n        next = page.next;\n      }\n    } catch (e) { reelsError = e && e.message ? e.message : String(e); }\n  }\n\n  const items = [...seen.values()].sort((a, b) => (a.taken_at || '').localeCompare(b.taken_at || ''));\n  if (sb && payload.thumbs !== false) await saveThumbs(sb, items, new Set(payload.skipThumbs || []), report);\n  else for (const l of items) delete l._thumb;\n  return { ok: true, profile: profileOut(u, username, pp_path), items, reels_added: reelsAdded, reels_error: reelsError };\n}\n\n/* ---------- ig-check-new: hanya postingan terbaru ---------- */\nasync function igCheckNew(payload, report) {\n  const username = usernameOf(payload.username || payload.url);\n  if (!username) throw new Error('Username Instagram tidak valid');\n  const known = new Set(payload.known || []);\n  const ctx = {};\n  let userId = payload.user_id ? String(payload.user_id) : '';\n  let u = null; let pp_path = null;\n  const sb = payload.sb;\n  if (!userId || payload.refreshProfile) {\n    report(`Membuka profil @${username}…`);\n    u = await profileInfo(username, ctx, report);\n    userId = String(u.id);\n    if (sb && payload.pp) { needSb(sb); pp_path = await saveImage(sb, u.profile_pic_url, ppPath(sb, u.username || username)); }\n  }\n  const found = new Map();\n  let requests = 0;\n  // grid: berhenti begitu ketemu link yang sudah ada (postingan yang dipin bisa lama, jadi dilewati)\n  let maxId = ''; let stop = false;\n  for (let p = 0; p < 4 && !stop; p++) {\n    const j = await igGet(`/api/v1/feed/user/${userId}/?count=12${maxId ? `&max_id=${encodeURIComponent(maxId)}` : ''}`, ctx, report);\n    requests++;\n    for (const it of j.items || []) {\n      if (!it.code) continue;\n      const l = toLink(it, userId);\n      if (known.has(it.code)) { if (!l.pinned) { stop = true; break; } continue; }\n      if (!found.has(it.code)) found.set(it.code, l);\n    }\n    if (stop || !j.more_available || !j.next_max_id) break;\n    maxId = j.next_max_id;\n    await sleep(jitter(1200, 2200));\n  }\n  // tab Reels halaman pertama saja\n  let reelsError = null;\n  if (payload.reels !== false) {\n    try {\n      await sleep(jitter(1200, 2200));\n      const page = await clipsPage(userId, '');\n      requests++;\n      for (const it of page.items) {\n        if (known.has(it.code) || found.has(it.code)) continue;\n        found.set(it.code, toLink(it, userId));\n      }\n    } catch (e) { reelsError = e && e.message ? e.message : String(e); }\n  }\n  const items = [...found.values()].sort((a, b) => (a.taken_at || '').localeCompare(b.taken_at || ''));\n  if (sb && items.length) { needSb(sb); await saveThumbs(sb, items, new Set(), report); }\n  else for (const l of items) delete l._thumb;\n  report(items.length ? `${items.length} postingan baru` : 'Tidak ada postingan baru');\n  return { ok: true, items, requests, user_id: userId, profile: u ? profileOut(u, username, pp_path) : null, reels_error: reelsError };\n}\n\n/* ---------- pesan dari halaman BAMBANG ---------- */\nchrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {\n  const tabId = sender.tab && sender.tab.id;\n  const pid = msg && msg.payload && msg.payload.progressId;\n  const report = (text) => { if (tabId != null) chrome.tabs.sendMessage(tabId, { type: 'progress', id: pid, text }).catch(() => {}); };\n  (async () => {\n    try {\n      if (msg.type === 'ig-fetch') return sendResponse(await igFetch(msg.payload || {}, report));\n      if (msg.type === 'ig-profile') return sendResponse(await igProfile(msg.payload || {}, report));\n      if (msg.type === 'ig-check-new') return sendResponse(await igCheckNew(msg.payload || {}, report));\n      if (msg.type === 'version') return sendResponse({ ok: true, version: chrome.runtime.getManifest().version });\n      sendResponse({ ok: false, error: `Perintah tidak dikenal: ${msg.type}` });\n    } catch (e) {\n      sendResponse({ ok: false, error: e && e.message ? e.message : String(e) });\n    }\n  })();\n  return true; // jawaban dikirim belakangan\n});\n", "bridge.js": "// BAMBANG Helper — jembatan halaman ↔ extension (tidak berubah sejak v0.2)\n// Hanya aktif di halaman yang punya <meta name=\"bambang-app\"> (BAMBANG dan halaman tesnya).\n// Halaman mengirim: window.postMessage({source:'bambang-page', id, type, payload})\n// Extension menjawab: window.postMessage({source:'bambang-ext', id, ...hasil})\n// Kabar progres:      window.postMessage({source:'bambang-ext', type:'progress', id, text})\n(() => {\n  const VERSION = chrome.runtime.getManifest().version;\n  let enabled = false;\n  const queue = [];\n\n  const post = (data) => window.postMessage({ source: 'bambang-ext', ...data }, window.location.origin);\n  const hello = () => post({ type: 'hello', version: VERSION });\n\n  function handle(msg) {\n    if (msg.type === 'ping') { hello(); return; }\n    if (!msg.id) return;\n    try {\n      chrome.runtime.sendMessage({ type: msg.type, payload: msg.payload || {} }, (res) => {\n        const err = chrome.runtime.lastError;\n        if (err) post({ id: msg.id, ok: false, error: `Extension tidak menjawab: ${err.message}. Muat ulang halaman ini.` });\n        else post({ id: msg.id, ...(res || { ok: false, error: 'Jawaban kosong dari extension' }) });\n      });\n    } catch (e) {\n      // terjadi kalau extension baru di-update/di-reload sementara halaman masih terbuka\n      post({ id: msg.id, ok: false, error: 'Extension baru saja diperbarui. Muat ulang halaman ini (Ctrl+Shift+R).' });\n    }\n  }\n\n  window.addEventListener('message', (e) => {\n    if (e.source !== window || !e.data || e.data.source !== 'bambang-page') return;\n    if (enabled) handle(e.data); else queue.push(e.data);\n  });\n\n  chrome.runtime.onMessage.addListener((msg) => {\n    if (enabled && msg && msg.type === 'progress') post({ type: 'progress', id: msg.id, text: msg.text });\n  });\n\n  function init() {\n    if (!document.querySelector('meta[name=\"bambang-app\"]')) return; // bukan halaman BAMBANG\n    enabled = true;\n    hello();\n    while (queue.length) handle(queue.shift());\n  }\n  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });\n  else init();\n})();\n"};
 /* =========================================================
-   BAMBANG v0.6.3 — pustakawan konten sosmed
-   Ranah Reyhan: Mulai · Dashboard · Pustaka · Ebook  |  Ranah Claude: Ruang Claude (#claude)
+   BAMBANG v0.7.0 — pustakawan konten sosmed
+   HP: Beranda · Tambah · Baca (+ Lainnya)  |  Laptop: Tambah · Dashboard · Pustaka · Ebook  |  Ranah Claude: Ruang Claude (#claude)
    Mesin (laptop + extension BAMBANG Helper): kumpulkan link → ambil postingan → Gemini → simpan catatan
    Data: Supabase (RLS pemilik saja). Isi MD hanya diunduh saat catatan dibuka (muat ringan).
    ========================================================= */
-const APP_VERSION = '0.6.3';
+const APP_VERSION = '0.7.0';
 const EXT_LATEST = '0.3.0';
 const SB_URL = 'https://fzcupxgglpmstfvjltsq.supabase.co';
 const SB_KEY = 'sb_publishable_b30o10IIq-Inuj4e9V5ekg_Iv_kcEvY';
@@ -489,7 +517,7 @@ const todayWIB = () => new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Jakarta'
 const hourWIB = () => +new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Jakarta', hour:'2-digit', hour12:false}).format(new Date()) % 24;
 const icon = (n, cls = '') => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 const WHO_ICON = {mesin:'robot', claude:'claude', kamu:'user'};
-const WHO_LABEL = {mesin:'Mesin', claude:'Claude', kamu:'Kamu'};
+const WHO_LABEL = {mesin:'Laptop', claude:'Claude', kamu:'Kamu'};
 const whoIcon = (w, size = 30) => `<span class="who ${esc(w)}" style="width:${size}px;height:${size}px" role="img" aria-label="${esc(WHO_LABEL[w] || w)}"><svg class="i f" style="width:${Math.round(size * .6)}px;height:${Math.round(size * .6)}px"><use href="#i-${WHO_ICON[w] || 'robot'}"/></svg></span>`;
 const isMobile = () => window.matchMedia('(max-width:1023px)').matches;
 const isWide = () => window.matchMedia('(min-width:1200px)').matches;
@@ -569,7 +597,7 @@ const STATUS = {belum:['Belum Dicek','belum'], revisi:['Perlu Revisi','revisi'],
 const statusBadge = p => p.is_revision_result && p.check_status === 'belum' ? '<span class="badge hasil">Hasil revisi</span>' : `<span class="badge ${STATUS[p.check_status]?.[1] || 'belum'}">${p.check_status === 'sudah' ? 'Sudah' : p.check_status === 'revisi' ? 'Perlu Revisi' : 'Belum'}</span>`;
 const hasCopy = p => !!(p.video_paths && p.video_paths.length);
 const RISK_ORDER = ['versi_lama', 'audio', 'tidak_yakin', 'buram'];
-const RISK_LABEL = {versi_lama:'versi prompt lama', audio:'audio tidak terdengar', tidak_yakin:'ada (tidak yakin)', buram:'buram/terlalu cepat', cek_laptop:'cek di laptop'};
+const RISK_LABEL = {versi_lama:'format catatan lama', audio:'audio tidak terdengar', tidak_yakin:'ada (tidak yakin)', buram:'buram/terlalu cepat', cek_laptop:'cek di laptop'};
 const riskScore = p => { const r = p.risk || []; let s = 0; RISK_ORDER.forEach((k, i) => { if(r.includes(k)) s += 10 ** (RISK_ORDER.length - i); }); return s; };
 function queueStats(accId){
   const list = S.queue.filter(q => accId === undefined ? true : q.account_id === accId).sort((a, b) => a.position - b.position);
@@ -1811,11 +1839,19 @@ window.addEventListener('pagehide', () => {
    KERANGKA: navigasi, strip status, render ulang yang sopan
    ========================================================= */
 const MENUS = [
-  {id:'mulai', label:'Mulai', icon:'mulai'},
+  {id:'mulai', label:'Tambah', icon:'mulai'},
   {id:'dashboard', label:'Dashboard', icon:'dash'},
   {id:'pustaka', label:'Pustaka', icon:'pustaka'},
   {id:'ebook', label:'Ebook', icon:'ebook'}];
 const MENU_OF = {mulai:'mulai', share:'mulai', dashboard:'dashboard', pengaturan:'pengaturan', checklist:'pengaturan', pustaka:'pustaka', catatan:'pustaka', versi:'pustaka', banding:'pustaka', cek:'pustaka', sesi:'pustaka', ebook:'ebook'};
+/* v0.7: HP hanya punya 3 tab (Beranda · Tambah · Baca). Sisanya lewat Beranda › Lainnya. */
+const MOBILE_MENUS = [
+  {id:'beranda', label:'Beranda', icon:'home', href:'#beranda'},
+  {id:'tambah', label:'Tambah', icon:'mulai', href:'#tambah'},
+  {id:'baca', label:'Baca', icon:'pustaka', href:'#pustaka'}];
+const MENU_OF_M = {beranda:'beranda', lainnya:'beranda', dashboard:'beranda', pengaturan:'beranda', checklist:'beranda', mulai:'beranda', tambah:'tambah', share:'tambah',
+  pustaka:'baca', catatan:'baca', versi:'baca', banding:'baca', cek:'baca', sesi:'baca', ebook:'baca'};
+const homeHash = () => isMobile() ? '#lainnya' : '#dashboard';
 const FULL = new Set(['cek', 'claude']);
 const VIEWS = {};
 const ACTIONS = {};
@@ -1833,14 +1869,28 @@ function parseHash(){
 }
 function go(hash){ if(location.hash === hash) render(); else location.hash = hash; }
 function defaultRoute(){
+  if(isMobile()) return 'beranda';
   const ev = engView();
   if(!S.accounts.length && !S.posts.length) return 'mulai';
   return ev.status === 'jalan' || ev.status === 'jeda' ? 'dashboard' : 'mulai';
+}
+/* halaman HP dan laptop beda: alamat yang salah perangkat dialihkan ke padanannya */
+function routeFix(){
+  const n = ROUTE.name;
+  if(isMobile()){
+    if(n === 'mulai' && ROUTE.parts[0] !== 'lanjut') return '#tambah';
+    if(n === 'share' && ROUTE.q.get('u') === null && ROUTE.q.get('t') === null) return '#tambah';
+  } else {
+    if(n === 'beranda' || n === 'lainnya') return '#dashboard';
+    if(n === 'tambah') return '#mulai';
+  }
+  return null;
 }
 function render(keepScroll = false){
   if(!BOOTED) return;
   ROUTE = parseHash();
   if(!ROUTE.name || !VIEWS[ROUTE.name]){ history.replaceState(null, '', '#' + defaultRoute()); ROUTE = parseHash(); }
+  const fx = routeFix(); if(fx){ history.replaceState(null, '', fx); ROUTE = parseHash(); }
   const y = window.scrollY;
   document.body.classList.toggle('full', FULL.has(ROUTE.name));
   document.body.classList.toggle('dark', ROUTE.name === 'claude');
@@ -1856,14 +1906,14 @@ function render(keepScroll = false){
 let NAV_DEPTH = 0;   // berapa kali pindah halaman di dalam BAMBANG (supaya "Kembali" tidak keluar ke situs lain)
 window.addEventListener('hashchange', () => { NAV_DEPTH++; if(sheet.open) sheet.close(); render(); window.scrollTo(0, 0); });
 /* tombol Kembali: mundur di riwayat hanya kalau sebelumnya pindah halaman di dalam BAMBANG (bukan keluar ke situs lain) */
-ACTIONS.back = b => { if(NAV_DEPTH > 0){ NAV_DEPTH -= 2; history.back(); } else go(b.dataset.to || '#dashboard'); };
+ACTIONS.back = b => { if(NAV_DEPTH > 0){ NAV_DEPTH -= 2; history.back(); } else go(b.dataset.to || homeHash()); };
 let resizeT; window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if(BOOTED && VIEW_LIVE && !isBusy()) render(true); }, 250); });
 
 /* data berubah → cat ulang strip/nav sekarang, halaman menyusul (kecuali sedang mengetik) */
 /* data apa yang ditampilkan tiap halaman: perubahan data lain cukup mengecat strip, halaman tidak dirender ulang
    (dulu setiap catatan tersimpan/aktivitas baru membuat halaman baca melompat ke atas) */
 const VIEW_DEPS = {
-  dashboard:'*',
+  dashboard:'*', beranda:'*', lainnya:'*', tambah:[],
   mulai:['accounts', 'link_queue', 'posts', 'settings', 'engine', 'ext'], share:['accounts', 'link_queue', 'posts', 'settings', 'engine', 'ext'],
   pengaturan:['settings', 'accounts', 'posts', 'engine', 'ext'], checklist:['settings', 'engine', 'ext'],
   pustaka:['accounts', 'series', 'themes', 'posts', 'post_themes'], catatan:['accounts', 'series', 'themes', 'posts', 'post_themes'],
@@ -1918,13 +1968,13 @@ function stripInfo(){
   const acc = ev.account_id ? accById(ev.account_id) : null;
   const prog = ev.total ? ` ${ev.done || 0}/${ev.total}` : '';
   if(SYNC_STATE === 'error') return {cls:'stop', txt:`${syncLabel} · ${syncMsg || 'cek koneksi'}`};
-  if(ev.status === 'jalan') return {cls:'jalan', txt:`Mesin jalan${acc ? ' · ' + acc.handle : ''}${prog}`};
-  if(ev.status === 'jeda') return {cls:'jeda', txt:`Mesin dijeda${acc ? ' · ' + acc.handle : ''}${prog}`};
-  if(ev.status === 'hilang') return {cls:'stop', txt:`Mesin tidak merespons${sinceTxt(ev.heartbeat_at) ? ' · sejak ' + sinceTxt(ev.heartbeat_at) : ''}`};
-  if(ev.status === 'siaga') return {cls:'', txt:`Mesin istirahat · laptop siaga${ev.local ? ' (tab ini)' : ''}`};
+  if(ev.status === 'jalan') return {cls:'jalan', txt:`Laptop bekerja${acc ? ' · ' + acc.handle : ''}${prog}`};
+  if(ev.status === 'jeda') return {cls:'jeda', txt:`Laptop dijeda${acc ? ' · ' + acc.handle : ''}${prog}`};
+  if(ev.status === 'hilang') return {cls:'stop', txt:`Laptop tidak memberi kabar${sinceTxt(ev.heartbeat_at) ? ' · sejak ' + sinceTxt(ev.heartbeat_at) : ''}`};
+  if(ev.status === 'siaga') return {cls:'', txt:`Laptop siap${ev.local ? ' (tab ini)' : ''}`};
   if(S.engine && S.engine.command) return {cls:'jeda', txt:'Menunggu laptop · perintah tersimpan'};
-  if(ENG.other && canHost()) return {cls:'', txt:'Mesin lama tidak memberi kabar · tab ini segera mengambil alih'};
-  return {cls:'', txt:'Mesin istirahat · laptop belum siaga'};
+  if(ENG.other && canHost()) return {cls:'', txt:'Laptop lama tidak memberi kabar · tab ini segera mengambil alih'};
+  return {cls:'', txt:'Laptop belum menyala'};
 }
 function paintChrome(){
   if(!USER) return;
@@ -1932,8 +1982,11 @@ function paintChrome(){
   const strip = $('#strip'); strip.className = si.cls; $('#stripTxt').textContent = si.txt + (EXT.ready && EXT.old ? ' · extension perlu update' : '');
   strip.href = SYNC_STATE === 'error' ? '#dashboard' : (EXT.ready && EXT.old ? '#pengaturan' : '#dashboard');
   const cur = MENU_OF[ROUTE.name] || '';
-  const items = MENUS.map(m => `<a href="#${m.id}" ${cur === m.id ? 'aria-current="page"' : ''}>${icon(m.icon)}<span>${m.label}</span></a>`).join('');
-  const bn = $('#bnav'); if(bn.dataset.cur !== cur){ bn.innerHTML = items; bn.dataset.cur = cur; }
+  const mob = isMobile();
+  const curM = MENU_OF_M[ROUTE.name] || '';
+  const bnKey = mob ? 'm:' + curM : 'd:' + cur;
+  const items = (mob ? MOBILE_MENUS : MENUS).map(m => `<a href="${m.href || '#' + m.id}" ${(mob ? curM : cur) === m.id ? 'aria-current="page"' : ''}>${icon(m.icon)}<span>${m.label}</span></a>`).join('');
+  const bn = $('#bnav'); if(bn.dataset.cur !== bnKey){ bn.innerHTML = items; bn.dataset.cur = bnKey; }
   const sn = $('#sideNav'); if(sn.dataset.cur !== cur){ sn.innerHTML = MENUS.map(m => `<a class="m" href="#${m.id}" ${cur === m.id ? 'aria-current="page"' : ''}>${icon(m.icon)}<span>${m.label}</span></a>`).join(''); sn.dataset.cur = cur; }
   const setA = $('#side [data-m="pengaturan"]'); if(cur === 'pengaturan') setA.setAttribute('aria-current', 'page'); else setA.removeAttribute('aria-current');
   const ev = engView();
@@ -1987,7 +2040,7 @@ function engineCard(){
     const left = Math.max(0, (ev.total || 0) - (ev.done || 0));
     const eta = left && ev.status === 'jalan' ? `selesai ± ${clock(Date.now() + left * (avg + 25) * 1000)}` : (ev.status === 'jeda' ? 'dijeda' : '');
     return `<div class="dark-card" aria-live="polite">
-      <div style="display:flex;justify-content:space-between" class="lbl"><span>MESIN ${ev.local ? '· LAPTOP INI' : '· ' + esc((ev.device || 'laptop').toUpperCase())}</span><span>${esc(eta)}</span></div>
+      <div style="display:flex;justify-content:space-between" class="lbl"><span>LAPTOP${ev.local ? ' · TAB INI' : ''}</span><span>${esc(eta)}</span></div>
       <div style="font-size:15px;line-height:1.4" id="engNow">${esc(engNowText(ev))}</div>
       ${ev.message ? `<div class="note">${esc(ev.message)}</div>` : ''}
       <div class="pbar"><i style="width:${pct}%"></i></div>
@@ -1996,15 +2049,15 @@ function engineCard(){
     </div>`;
   }
   if(ev.status === 'hilang'){
-    return `<div class="dark-card"><div class="lbl">MESIN BERHENTI</div>
+    return `<div class="dark-card"><div class="lbl">LAPTOP BERHENTI</div>
       <div style="font-size:15px;line-height:1.45">Laptop tidak memberi kabar${sinceTxt(ev.heartbeat_at) ? ' sejak ' + sinceTxt(ev.heartbeat_at) : ''}${ev.total ? ` (${ev.done}/${ev.total})` : ''}.</div>
-      <div class="xs" style="color:#bdb6a8;line-height:1.5">Kemungkinan laptop tertidur, tab BAMBANG tertutup, atau internet putus. Progress aman: setiap catatan sudah tersimpan. Buka BAMBANG di Chrome laptop, mesin siaga lagi, lalu tekan Lanjutkan.</div>
+      <div class="xs" style="color:#bdb6a8;line-height:1.5">Kemungkinan laptop tertidur, tab BAMBANG tertutup, atau internet putus. Progress aman: setiap catatan sudah tersimpan. Buka BAMBANG di Chrome laptop sampai statusnya siap lagi, lalu tekan Lanjutkan.</div>
       ${canHost() ? '<button class="btn light" data-act="eng-take">Jadikan tab ini mesin</button>' : ''}</div>`;
   }
   const lines = [];
   if(cmd) lines.push(`<div class="note">Perintah <b>${esc(cmd === 'mulai' ? 'mulai proses' : cmd === 'cek_baru' ? 'cek postingan baru' : cmd)}</b> menunggu laptop siaga. <button class="link" style="color:inherit" data-act="eng-cancel">Batalkan perintah</button></div>`);
-  const status = ev.status === 'siaga' ? `Laptop siaga${ev.local ? ' (tab ini)' : ` · aktif ${ago(ev.heartbeat_at)}`}. Siap diberi pekerjaan.` : ENG.other ? `${ENG.other}. Tab ini hanya memantau.` : 'Laptop belum siaga. Buka BAMBANG di Chrome laptop yang ada extension-nya.';
-  return `<div class="dark-card"><div class="lbl" style="display:flex;justify-content:space-between"><span>MESIN</span><span>istirahat</span></div>
+  const status = ev.status === 'siaga' ? `Laptop siaga${ev.local ? ' (tab ini)' : ` · aktif ${ago(ev.heartbeat_at)}`}. Siap menerima pekerjaan.` : ENG.other ? `${ENG.other}. Tab ini hanya memantau.` : 'Laptop belum siaga. Buka BAMBANG di Chrome laptop yang ada extension-nya.';
+  return `<div class="dark-card"><div class="lbl" style="display:flex;justify-content:space-between"><span>LAPTOP</span><span>istirahat</span></div>
     <div style="font-size:14px;line-height:1.45">${esc(status)}</div>${ev.message && ev.status === 'siaga' ? `<div class="xs" style="color:#bdb6a8">Terakhir: ${esc(ev.message)}</div>` : ''}
     ${lines.join('')}${ENG.other && canHost() ? '<button class="btn light" data-act="eng-take">Jadikan tab ini mesin</button>' : ''}</div>`;
 }
@@ -2094,7 +2147,7 @@ function sasaranBaruHtml(share){
       <span class="help">@username, link profil, link postingan (Instagram/YouTube), atau banyak baris sekaligus.</span></div>
     <div id="smartPrev">${smartPreview(items)}</div>
     <p class="xs muted" style="line-height:1.5;margin:12px 0 0">Jeda antar akun (${S.settings ? S.settings.account_gap_min : 30} menit) dan batas harian (${S.settings ? S.settings.ig_daily_limit : 150} postingan) aktif supaya akun Instagram aman. ${ENG.role !== 'none' ? 'Tab ini adalah mesin.' : 'HP/tab ini hanya menyimpan; laptop yang mengumpulkan.'}${ev.status === 'mati' && ENG.role === 'none' ? ' Laptop belum siaga, jadi pekerjaan menunggu sampai BAMBANG dibuka di laptop.' : ''}</p>
-    <div class="btns mt12"><button class="btn pri lg grow" id="smartSave">Masukkan &amp; mulai</button><button class="btn lg" id="smartOnly">Simpan saja</button></div>`;
+    <div class="btns mt12"><button class="btn pri lg grow" id="smartSave">Simpan &amp; proses</button><button class="btn lg" id="smartOnly">Simpan saja</button></div>`;
 }
 function bindSmart(){
   const ta = $('#smartIn'); if(!ta) return;
@@ -2110,19 +2163,20 @@ function lanjutHtml(){
   const loose = S.queue.filter(q => !q.account_id && q.status === 'antri');
   const all = pendingCount({kind:'semua'});
   const ev = engView(); const busy = ev.status === 'jalan' || ev.status === 'jeda';
+  const mob = isMobile();   // HP hanya memantau: pekerjaan dijalankan laptop
   let h = `<div class="card mt16" style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="h2" style="font-size:16px">Semua antrean</div><div class="xs muted">${all} pekerjaan lintas kreator${loose.length ? ` · ${loose.length} link satuan` : ''}</div></div>
-    <button class="btn pri" data-act="eng-start" ${!all || busy ? 'disabled' : ''}>${icon('play')} Proses semua</button></div>`;
+    ${mob ? '' : `<button class="btn pri" data-act="eng-start" ${!all || busy ? 'disabled' : ''}>${icon('play')} Proses semua</button>`}</div>`;
   if(ENG.lastCheck){
     const lc2 = ENG.lastCheck;
     h += `<div class="card mt12"><div class="lbl">Hasil cek postingan baru · ${esc(ago(lc2.at))}</div>
       <div class="mt8" style="font:700 22px/1.2 var(--f-title)">${lc2.total ? `${lc2.total} postingan baru masuk antrean` : 'Tidak ada postingan baru'}</div>
       ${lc2.results.map(r => `<div class="kv mt8"><span>${esc(handleOf(r.account_id))}</span><span class="${r.error ? 'warn-t' : ''}">${r.error ? 'gagal: ' + esc(r.error.slice(0, 60)) : '+' + r.n}</span></div>`).join('')}
-      ${lc2.total && !busy ? '<button class="btn pri block mt12" data-act="eng-start">Proses postingan baru</button>' : ''}</div>`;
+      ${lc2.total && !busy && !mob ? '<button class="btn pri block mt12" data-act="eng-start">Proses postingan baru</button>' : ''}</div>`;
   }
   if(waiting.length) h += `<div class="card flush mt12"><div class="cardhd"><span class="lbl">Daftar tunggu sasaran · ${waiting.length}</span></div>${waiting.map(a => `<div class="row">${ppHtml(a, 'sm')}<span class="grow"><b style="font-weight:600">${esc(a.handle)}</b><br><span class="xs ${a.collect_status === 'gagal' ? 'warn-t' : 'muted'}">${a.collect_status === 'mengumpulkan' ? 'sedang mengumpulkan link…' : a.collect_status === 'gagal' ? 'gagal: ' + esc(a.collect_note || '') : 'menunggu giliran'}</span></span>${a.collect_status === 'gagal' ? `<button class="btn" data-act="acc-retry" data-id="${a.id}">Coba lagi</button>` : ''}${a.collect_status !== 'mengumpulkan' ? `<button class="btn icon ghost" data-act="acc-cancel" data-id="${a.id}" aria-label="Batalkan ${esc(a.handle)}">${icon('x')}</button>` : ''}</div>`).join('')}</div>`;
-  if(!accs.length) return h + `<div class="empty"><b>Belum ada kreator</b>Tempel @username di tab Sasaran baru.</div>`;
+  if(!accs.length) return h + `<div class="empty"><b>Belum ada kreator</b>Tempel @username di menu Tambah.</div>`;
   const cekAll = S.accounts.some(a => a.watched && a.platform === 'Instagram');
-  h += `<div class="card flush mt12"><div class="cardhd"><span class="lbl">Kreator · ${accs.length}</span>${cekAll ? '<button class="link" data-act="check-new">Cek semua yang dipantau</button>' : ''}</div>`;
+  h += `<div class="card flush mt12"><div class="cardhd"><span class="lbl">Kreator · ${accs.length}</span>${cekAll && !mob ? '<button class="link" data-act="check-new">Cek semua yang dipantau</button>' : ''}</div>`;
   h += accs.map(a => {
     const qs = queueStats(a.id); const tot = qs.total || 1;
     const todo = qs.antri + S.posts.filter(p => p.account_id === a.id && p.job).length;
@@ -2130,8 +2184,8 @@ function lanjutHtml(){
       <a href="#pustaka/k/${a.id}" style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;color:inherit;text-decoration:none">${ppHtml(a)}<span class="grow" style="min-width:0"><b style="font-weight:600">${esc(a.handle)}</b>
         <span class="bar3 mt8" style="display:flex"><i class="s" style="width:${qs.selesai / tot * 100}%"></i><i class="r" style="width:${qs.gagal / tot * 100}%"></i></span>
         <span class="xs muted">${qs.selesai}/${qs.total} selesai · ${qs.antri} antri${qs.gagal ? ` · <span class="warn-t">${qs.gagal} gagal</span>` : ''}${a.last_checked_at ? ` · dicek ${esc(ago(a.last_checked_at))}` : ''}</span></span></a>
-      ${a.platform === 'Instagram' ? `<button class="btn icon" data-act="check-new" data-id="${a.id}" aria-label="Cek postingan baru ${esc(a.handle)}" title="Cek postingan baru">${icon('refresh')}</button>` : ''}
-      <button class="btn icon ${todo ? 'pri' : ''}" data-act="eng-start" data-id="${a.id}" ${!todo || busy ? 'disabled' : ''} aria-label="Proses antrean ${esc(a.handle)}" title="Proses">${icon('play')}</button></div>`;
+      ${a.platform === 'Instagram' && !mob ? `<button class="btn icon" data-act="check-new" data-id="${a.id}" aria-label="Cek postingan baru ${esc(a.handle)}" title="Cek postingan baru">${icon('refresh')}</button>` : ''}
+      ${mob ? '' : `<button class="btn icon ${todo ? 'pri' : ''}" data-act="eng-start" data-id="${a.id}" ${!todo || busy ? 'disabled' : ''} aria-label="Proses antrean ${esc(a.handle)}" title="Proses">${icon('play')}</button>`}</div>`;
   }).join('') + '</div>';
   return h;
 }
@@ -2156,21 +2210,19 @@ function firstTimeHtml(){
     <ol class="small" style="margin:8px 0 0;padding-left:20px;line-height:1.7">
       <li>Di Chrome laptop, pasang extension BAMBANG Helper lalu buka halaman ini (laptop jadi <b>siaga</b>).</li>
       <li>Tempel @username kreator di kotak di bawah. Boleh dari HP.</li>
-      <li>Mesin mengumpulkan link, Gemini membaca tiap postingan, Claude merapikan rak.</li>
+      <li>Laptop mengumpulkan link, Gemini membaca tiap postingan, Claude merapikan rak.</li>
     </ol>
     <div class="btns mt12"><a class="btn" href="#checklist">${icon('check')} Checklist laptop</a><button class="btn" data-act="ext-dl">${icon('down')} Unduh extension</button></div></div>`;
 }
 function renderMulai(r, share = false){
-  const tab = r.parts[0] === 'lanjut' && !share ? 'lanjut' : 'baru';
-  const wide = !isMobile();
-  const first = !S.accounts.length && !S.posts.length;
-  let h = `<div class="hd"><div><h1>Mulai</h1><div class="sub">Masukkan bahan baru untuk rak.</div></div></div>`;
-  if(wide){
-    h += `<div class="page">${first ? firstTimeHtml() : ''}<div class="cols two mt16"><section><div class="h2">Sasaran baru</div>${sasaranBaruHtml(share)}</section><section><div class="h2">Lanjutkan sasaran</div>${lanjutHtml()}</section></div></div>`;
-  } else {
-    h += `<div class="page"><div class="pills mt12" role="tablist"><a href="#mulai" ${tab === 'baru' ? 'aria-current="page"' : ''}>Sasaran baru</a><a href="#mulai/lanjut" ${tab === 'lanjut' ? 'aria-current="page"' : ''}>Lanjutkan sasaran</a></div>
-      ${tab === 'baru' ? (first ? firstTimeHtml() : '') + sasaranBaruHtml(share) : lanjutHtml()}</div>`;
+  if(isMobile()){
+    // HP: "Tambah" punya halaman sendiri (#tambah); di sini hanya daftar antrean
+    $('#view').innerHTML = `<a class="back" href="#lainnya">${icon('back')}Lainnya</a><div class="hd" style="padding-top:4px"><div><h1>Antrean</h1><div class="sub">Yang menunggu diproses laptop.</div></div></div><div class="page">${lanjutHtml()}</div>`;
+    return;
   }
+  const first = !S.accounts.length && !S.posts.length;
+  let h = `<div class="hd"><div><h1>Tambah</h1><div class="sub">Masukkan bahan baru untuk rak.</div></div></div>`;
+  h += `<div class="page">${first ? firstTimeHtml() : ''}<div class="cols two mt16"><section><div class="h2">Tambah</div>${sasaranBaruHtml(share)}</section><section><div class="h2">Antrean</div>${lanjutHtml()}</section></div></div>`;
   $('#view').innerHTML = h;
   bindSmart();
 }
@@ -2181,9 +2233,156 @@ VIEWS.share = r => {
     const txt = [q.get('u'), q.get('t')].filter(Boolean).join('\n');
     const links = txt.match(/https?:\/\/\S+/g) || [];
     SMART_TXT = links.length ? links.join('\n') : txt; SMART_SRC = 'share';
+    if(isMobile()){
+      // HP: kiriman dari Bagikan langsung disimpan, tanpa langkah periksa-lalu-tekan
+      history.replaceState(null, '', '#tambah'); ROUTE = parseHash();
+      const t = SMART_TXT; SMART_TXT = ''; SMART_SRC = 'satuan';
+      ADD.msg = '<span class="spin"></span> Menyimpan kiriman dari Bagikan…';
+      shareAuto(t);
+      VIEWS.tambah();
+      return;
+    }
     history.replaceState(null, '', '#share');
   }
   renderMulai({parts:[]}, true);
+};
+
+/* =========================================================
+   HP (v0.7) — Beranda · Tambah · Lainnya
+   ========================================================= */
+let ADD = {msg:null};
+function laptopLine(){
+  const ev = engView(); const cmd = S.engine && S.engine.command; const left = pendingCount({kind:'semua'});
+  const prog = ev.total ? `${ev.done || 0} dari ${ev.total} pekerjaan selesai.` : '';
+  if(ev.status === 'jalan') return {cls:'jalan', big:'Laptop sedang bekerja', sub:prog || 'Membaca postingan satu per satu.'};
+  if(ev.status === 'jeda') return {cls:'jeda', big:'Laptop sedang dijeda', sub:prog || 'Lanjut kalau sudah dilanjutkan dari laptop.'};
+  if(ev.status === 'hilang') return {cls:'stop', big:'Laptop berhenti memberi kabar', sub:'Yang sudah selesai aman. Buka BAMBANG di laptop untuk melanjutkan.'};
+  if(ev.status === 'siaga') return {cls:'', big:'Laptop siap', sub:left ? `${left} pekerjaan menunggu diproses.` : 'Tidak ada yang menunggu.'};
+  return {cls:'', big:'Laptop belum menyala', sub:left || cmd ? `${left} pekerjaan tersimpan. Diproses begitu BAMBANG dibuka di laptop.` : 'Yang kamu tambah tetap aman dan diproses begitu BAMBANG dibuka di laptop.'};
+}
+const recentNotes = n => S.posts.slice().sort((a, b) => String(b.processed_at || b.post_date || '').localeCompare(String(a.processed_at || a.post_date || ''))).slice(0, n);
+function lanjutBaca(){
+  let id = null; try { id = localStorage.getItem('bambang-last-note'); } catch(e){}
+  const p = id && postById(id);
+  if(p) return {p, label:'Lanjut baca'};
+  const n = S.posts.filter(x => x.check_status === 'belum').sort((a, b) => String(b.processed_at || '').localeCompare(String(a.processed_at || '')))[0];
+  return n ? {p:n, label:'Mulai baca'} : null;
+}
+function berandaAttention(){
+  const out = [];
+  if(SYNC_STATE === 'error') out.push('Belum bisa menyimpan ke database. Cek internet, lalu buka ulang BAMBANG.');
+  const hb = S.engine && S.engine.heartbeat_at ? Date.now() - Date.parse(S.engine.heartbeat_at) : null;
+  if(hb != null && hb > 3 * 864e5) out.push(`Laptop sudah ${Math.floor(hb / 864e5)} hari tidak dibuka. Buka BAMBANG di laptop sesekali supaya databasenya tidak dijeda otomatis.`);
+  const errN = S.activity.filter(a => a.level === 'error' && a.actor === 'mesin' && Date.parse(a.created_at) > Date.now() - 864e5).length;
+  if(errN) out.push(`${errN} pekerjaan gagal dalam 24 jam terakhir. Rinciannya di Lainnya › Rincian teknis.`);
+  const hasil = S.posts.filter(p => p.is_revision_result && p.check_status === 'belum').length;
+  if(hasil) out.push(`${hasil} hasil revisi siap kamu bandingkan. <a href="#pustaka?f=hasil">Lihat</a>`);
+  return out.slice(0, 2);
+}
+VIEWS.beranda = () => {
+  const ll = laptopLine();
+  const first = !S.accounts.length && !S.posts.length;
+  const t = claudeTasks();
+  const tot = S.posts.length, sudah = S.posts.filter(p => p.check_status === 'sudah').length, belum = S.posts.filter(p => p.check_status === 'belum').length;
+  const lb = lanjutBaca();
+  const recent = recentNotes(3);
+  $('#view').innerHTML = `<div class="hd"><h1>Beranda</h1><a class="btn ghost" href="#lainnya" style="color:var(--ink)">${icon('dots')}Lainnya</a></div>
+    <div class="page mt12 stack">
+      <div class="stat ${ll.cls}" role="status"><span class="dot"></span><div><b>${esc(ll.big)}</b><span class="s">${esc(ll.sub)}</span></div></div>
+      ${berandaAttention().map(x => `<div class="note">${x}</div>`).join('')}
+      ${first ? `<div class="card"><div class="h2">Rak masih kosong</div><p class="small muted" style="margin:6px 0 12px;line-height:1.55">Tempel @username atau link postingan Instagram. Laptop yang membacanya, kamu tinggal membaca hasilnya di sini.</p><a class="btn pri lg block" href="#tambah">Tambah yang pertama</a></div>` : `
+      ${lb ? `<div><a class="btn pri lg block" href="#catatan/${lb.p.id}">${lb.label}</a><div class="xs muted" style="text-align:center;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(titleOf(lb.p))}</div></div>` : ''}
+      <div class="card"><div style="display:flex;align-items:baseline;gap:10px"><span class="big-n">${num(tot)}</span><span class="small muted">catatan di rak</span></div>
+        <div class="bar3 mt12" aria-hidden="true"><i class="s" style="width:${tot ? sudah / tot * 100 : 0}%"></i></div>
+        <div class="xs muted mt8">${num(sudah)} sudah kamu cek · ${num(belum)} belum</div></div>
+      ${recent.length ? `<div><div class="lbl" style="margin:8px 0">Terbaru</div><div class="card flush plist">${recent.map(p => prow(p, {risk:false, tema:false})).join('')}</div></div>` : ''}`}
+      ${t.total ? `<a class="row" href="#claude" style="border:1px solid var(--line);border-radius:18px;background:var(--card);min-height:56px"><span class="grow">Ada ${t.total} tugas untuk Claude</span><span class="end">Buka ›</span></a>` : ''}
+    </div>`;
+};
+
+/* Tambah (HP): satu kotak, satu tombol. Setelah tersimpan, laptop otomatis diminta memproses. */
+async function addFromText(txt, src){
+  const items = parseSmart(txt);
+  const targets = items.filter(x => x.kind === 'target' && (x.state === 'baru' || x.state === 'jadikan'));
+  const posts = items.filter(x => x.kind === 'post' && x.state === 'baru');
+  const dup = items.filter(x => (x.kind === 'target' || x.kind === 'post') && !targets.includes(x) && !posts.includes(x)).length;
+  const bad = items.filter(x => x.kind === 'bad').length;
+  if(!targets.length && !posts.length) return {ok:false, dup, bad, empty:!items.length};
+  for(const tg of targets){
+    const ok = tg.acc
+      ? await dbUpdate('accounts', tg.acc.id, {watched:true, collect_status:'menunggu', collect_note:null})
+      : await dbInsert('accounts', {handle:'@' + tg.user, platform:'Instagram', profile_url:`https://www.instagram.com/${tg.user}/`, watched:true, collect_status:'menunggu'}, 'Gagal menyimpan akun');
+    if(!ok) return {ok:false, failed:true, dup, bad};
+  }
+  if(posts.length){
+    const ok = await dbInsert('link_queue', posts.map(p => ({account_id:null, url:p.url, position:0, status:'antri', source:src, ig_code:p.code || null, platform:p.platform, make_target:false})), 'Gagal menyimpan link');
+    if(!ok) return {ok:false, failed:true, dup, bad};
+  }
+  const parts = []; if(targets.length) parts.push(`${targets.length} akun`); if(posts.length) parts.push(`${posts.length} link`);
+  logAct('kamu', 'info', `Masuk ke BAMBANG: ${parts.join(' + ')}${src === 'share' ? ' (dari Bagikan)' : ''}.`);
+  // tersimpan → laptop diminta memproses (kalau laptop mati, perintah menunggu sampai laptop siap)
+  if(!(S.engine && S.engine.command) && !ENG.on){ try { await startProcessing(null); } catch(e){} }
+  return {ok:true, targets:targets.length, posts:posts.length, dup, bad};
+}
+function addMsgHtml(res){
+  const parts = []; if(res.targets) parts.push(`${res.targets} akun`); if(res.posts) parts.push(`${res.posts} link`);
+  return `<span style="display:flex;gap:8px;align-items:flex-start">${icon('check')}<span><b>Tersimpan:</b> ${parts.join(' dan ')}. ${laptopReady() ? 'Laptop akan memprosesnya.' : 'Laptop belum menyala; diproses begitu BAMBANG dibuka di laptop.'}${res.dup ? ` ${res.dup} yang sudah ada dilewati.` : ''}</span></span>`;
+}
+function finishAdd(res, txt){
+  if(res.ok){ SMART_TXT = ''; ADD.msg = addMsgHtml(res); }
+  else if(res.failed){ SMART_TXT = txt; ADD.msg = null; }   // pesan gagal sudah ditampilkan oleh dbInsert/dbUpdate
+  else if(res.dup){ SMART_TXT = ''; ADD.msg = 'Semuanya sudah ada di BAMBANG, tidak ada yang baru.'; }
+  else { SMART_TXT = txt; ADD.msg = null; toast('Tidak ada link atau @username yang dikenali. Coba tempel ulang.', 4200); }
+  if(ROUTE.name === 'tambah') render();
+}
+async function shareAuto(txt){ finishAdd(await addFromText(txt, 'share'), txt); }
+function addHint(txt){
+  const items = parseSmart(txt);
+  if(!items.length) return '';
+  const a = items.filter(x => x.kind === 'target' && (x.state === 'baru' || x.state === 'jadikan')).length;
+  const l = items.filter(x => x.kind === 'post' && x.state === 'baru').length;
+  const dup = items.filter(x => (x.kind === 'target' || x.kind === 'post') && !((x.kind === 'target' && (x.state === 'baru' || x.state === 'jadikan')) || (x.kind === 'post' && x.state === 'baru'))).length;
+  const bad = items.filter(x => x.kind === 'bad').length;
+  const bits = []; if(a) bits.push(`${a} akun`); if(l) bits.push(`${l} link`);
+  return (bits.length ? 'Terbaca: ' + bits.join(', ') : 'Belum ada yang baru') + (dup ? ` · ${dup} sudah ada` : '') + (bad ? ` · ${bad} baris tidak dikenali` : '');
+}
+VIEWS.tambah = () => {
+  const ll = laptopLine();
+  $('#view').innerHTML = `<div class="hd"><div><h1>Tambah</h1><div class="sub">Tempel link atau @username. Laptop yang mengurus sisanya.</div></div></div>
+    <div class="page mt16">
+      <div id="addMsg" class="note info" role="status" ${ADD.msg ? '' : 'hidden'}>${ADD.msg || ''}</div>
+      <div class="fld mt12"><label for="addIn" class="sr">Link atau @username</label>
+        <textarea id="addIn" class="add" data-keep autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="@username atau link Instagram / YouTube&#10;boleh banyak sekaligus">${esc(SMART_TXT)}</textarea></div>
+      <div class="xs muted mt8" id="addHint" aria-live="polite" style="min-height:18px">${esc(addHint(SMART_TXT))}</div>
+      <button class="btn pri lg block mt12" id="addSave" type="button">Simpan</button>
+      <p class="small muted mt16" style="line-height:1.55">${esc(ll.big)}. ${esc(ll.sub)}</p>
+    </div>`;
+  const ta = $('#addIn');
+  ta.addEventListener('input', () => {
+    SMART_TXT = ta.value; $('#addHint').textContent = addHint(SMART_TXT);
+    if(ADD.msg){ ADD.msg = null; $('#addMsg').hidden = true; }
+  });
+  $('#addSave').onclick = async () => {
+    const txt = ta.value;
+    if(!txt.trim()){ toast('Tempel link atau @username dulu'); ta.focus(); return; }
+    const b = $('#addSave'); b.disabled = true; b.innerHTML = '<span class="spin"></span> Menyimpan…';
+    let res; try { res = await addFromText(txt, 'satuan'); } catch(e){ console.error(e); res = {ok:false, failed:true}; toast('Gagal menyimpan: ' + (e && e.message ? e.message : 'cek internet'), 4500); }
+    finishAdd(res, txt);
+    const b2 = $('#addSave'); if(b2){ b2.disabled = false; b2.textContent = 'Simpan'; }
+  };
+};
+
+/* Lainnya (HP): semua yang bukan tugas harian */
+VIEWS.lainnya = () => {
+  const t = claudeTasks();
+  const row = (href, title, sub, end = '') => `<a class="row big" href="${href}"><span class="grow"><b style="font-weight:600">${title}</b><br><span class="xs muted">${sub}</span></span>${end}${icon('next')}</a>`;
+  $('#view').innerHTML = `<a class="back" href="#beranda">${icon('back')}Beranda</a><div class="hd" style="padding-top:4px"><h1>Lainnya</h1></div>
+    <div class="page mt12"><div class="card flush">
+      ${row('#claude', 'Ruang Claude', 'Minta Claude merapikan catatan dan menulis ebook', t.total ? `<span class="badge cl">${t.total}</span>` : '')}
+      ${row('#mulai/lanjut', 'Antrean', 'Akun dan link yang menunggu diproses')}
+      ${row('#dashboard', 'Rincian teknis', 'Status laptop, Gemini, riwayat kerja')}
+      ${row('#pengaturan', 'Pengaturan', 'Notifikasi, batas harian, akun')}
+    </div><p class="xs muted mt16">BAMBANG v${APP_VERSION}</p></div>`;
 };
 
 /* =========================================================
@@ -2243,7 +2442,7 @@ function dashWarnings(){
   const todayErr = S.activity.filter(a => a.level === 'error' && Date.parse(a.created_at) > Date.now() - 864e5);
   if(todayErr.length) w.push(`${todayErr.length} gagal dalam 24 jam terakhir. Terakhir: ${esc(todayErr[0].text.slice(0, 120))} <a href="#claude/log">Lihat log</a>`);
   if(ev.status === 'jeda' && ev.message) w.push(esc(ev.message));
-  return w.map(t => `<div class="note mt8">${t}</div>`).join('');
+  return w;
 }
 function hasilCard(){
   const d = todayWIB();
@@ -2256,9 +2455,9 @@ function hasilCard(){
   return `<div class="card flush"><div class="cardhd"><span class="lbl">Hasil</span></div>
     ${row('#pustaka?f=baru', 'Baru hari ini', today)}
     ${row('#sesi', 'Belum Dicek', `${belum} · Mulai sesi cek`)}
-    ${row('#pustaka?f=revisi', 'Perlu Revisi', `${rev.length}${rev.length ? (revQueued === rev.length ? ' · menunggu mesin' : ' · Revisi semua') : ''}`, 'warn-t')}
+    ${row('#pustaka?f=revisi', 'Perlu Revisi', `${rev.length}${rev.length ? (revQueued === rev.length ? ' · menunggu laptop' : ' · Revisi semua') : ''}`, 'warn-t')}
     ${row(hasil.length ? `#banding/${hasil[0].id}` : '#pustaka?f=hasil', 'Hasil revisi', `${hasil.length}${hasil.length ? ' · Bandingkan' : ''}`)}
-    ${row('#pustaka?f=tema', 'Menunggu tema (Katalogis)', untagged().length)}</div>`;
+    ${row('#pustaka?f=tema', 'Menunggu diberi tema', untagged().length)}</div>`;
 }
 function antreanCard(){
   const by = {}; S.queue.filter(q => q.status === 'antri').forEach(q => { const k = q.account_id || '_'; by[k] = (by[k] || 0) + 1; });
@@ -2301,15 +2500,24 @@ function kesehatanCard(){
     ${kv('Supabase', SYNC_STATE === 'error' ? 'gagal menyimpan' : 'aktif', SYNC_STATE !== 'error')}
     ${kv('Notifikasi HP (ntfy)', !st.ntfy_topic ? 'belum dipasang' : (ntfyLastInfo(st) || {}).state === 'fail' ? 'gagal terakhir kali' : 'aktif', !st.ntfy_topic ? null : (ntfyLastInfo(st) || {}).state !== 'fail')}</div>`;
 }
+let DASH_FOLD = false;
 VIEWS.dashboard = () => {
   const wide = !isMobile();
-  const head = `<div class="hd"><h1>Dashboard</h1><a class="btn icon ghost" href="#pengaturan" aria-label="Pengaturan" style="color:var(--ink)">${icon('gear')}</a></div>`;
-  const warn = `<div class="page">${dashWarnings()}</div>`;
+  const gear = `<a class="btn icon ghost" href="#pengaturan" aria-label="Pengaturan" style="color:var(--ink)">${icon('gear')}</a>`;
+  const head = wide ? `<div class="hd"><h1>Dashboard</h1>${gear}</div>`
+    : `<a class="back" href="#lainnya">${icon('back')}Lainnya</a><div class="hd" style="padding-top:4px"><h1>Rincian teknis</h1>${gear}</div>`;
+  const w = dashWarnings();
+  const noteHtml = list => list.map(t => `<div class="note mt8">${t}</div>`).join('');
+  const warn = w.length ? `<div class="page mt12"><div class="lbl">Perlu perhatian</div>${noteHtml(w.slice(0, 2))}</div>` : '';
   if(wide){
-    $('#view').innerHTML = head + warn + `<div class="page mt12"><div class="cols three">
-      <div class="stack">${engineCard()}${hasilCard()}${antreanCard()}</div>
-      <div class="stack">${geminiCard(true)}</div>
-      <div class="stack">${aktivitasCard()}${kesehatanCard()}</div></div></div>`;
+    // laptop: yang penting di depan, rincian teknis dilipat (status lipatan diingat supaya tidak menutup sendiri saat data berubah)
+    const rest = w.length > 2 ? noteHtml(w.slice(2)) : '';
+    $('#view').innerHTML = head + warn + `<div class="page mt12"><div class="cols two">
+      <div class="stack">${engineCard()}${antreanCard()}</div>
+      <div class="stack">${hasilCard()}</div></div>
+      <details class="fold mt16" id="techFold" ${DASH_FOLD ? 'open' : ''}><summary>Rincian teknis: Gemini, aktivitas, kesehatan</summary>
+        <div class="fold-body">${rest}<div class="cols two mt12"><div class="stack">${geminiCard(true)}</div><div class="stack">${aktivitasCard()}${kesehatanCard()}</div></div></div></details></div>`;
+    const f = $('#techFold'); if(f) f.addEventListener('toggle', () => { DASH_FOLD = f.open; });
   } else {
     $('#view').innerHTML = head + warn + `<div class="page mt12 stack">${engineCard()}${geminiCard(false)}${antreanCard()}${hasilCard()}${aktivitasCard()}${kesehatanCard()}</div>`;
   }
@@ -2318,7 +2526,7 @@ VIEWS.dashboard = () => {
 /* =========================================================
    PENGATURAN
    ========================================================= */
-const NTFY_EV = [['berhenti', 'Mesin berhenti / tidak merespons'], ['jeda', 'Mesin dijeda'], ['selesai', 'Antrean selesai'], ['revisi', 'Revisi selesai']];
+const NTFY_EV = [['berhenti', 'Laptop berhenti / tidak merespons'], ['jeda', 'Laptop dijeda'], ['selesai', 'Antrean selesai'], ['revisi', 'Revisi selesai']];
 VIEWS.pengaturan = () => {
   const st = S.settings || {};
   const topic = st.ntfy_topic || '';
@@ -2326,7 +2534,7 @@ VIEWS.pengaturan = () => {
   const watched = S.accounts.filter(a => a.watched && a.platform === 'Instagram');
   const ev = engView();
   const sec = (title, body) => `<section class="card mt12"><h2 class="lbl" style="margin:0 0 10px">${title}</h2>${body}</section>`;
-  $('#view').innerHTML = `<a class="back" href="#dashboard">${icon('back')}Dashboard</a><div class="hd" style="padding-top:4px"><h1>Pengaturan</h1></div><div class="page" style="max-width:720px">
+  $('#view').innerHTML = `<a class="back" href="${homeHash()}">${icon('back')}${isMobile() ? 'Lainnya' : 'Dashboard'}</a><div class="hd" style="padding-top:4px"><h1>Pengaturan</h1></div><div class="page" style="max-width:720px">
     ${sec('Notifikasi HP (ntfy)', topic ? `
       <div class="fld"><span>Topik</span><div class="btns"><code class="inp mono" id="ntfyShow" style="flex:1;display:flex;align-items:center;background:var(--bg);border-color:var(--bg)">${esc(masked)}</code><button class="btn" data-act="copy" data-text="${esc(topic)}">Salin</button></div>
       <span class="help">Topik disimpan di database, tidak ada di halaman publik. Di HP: pasang aplikasi <b>ntfy</b> (Play Store / App Store) › tombol <b>+</b> › tempel topik › <b>Subscribe</b>.</span></div>
@@ -2334,7 +2542,7 @@ VIEWS.pengaturan = () => {
       <div class="btns mt8"><button class="btn grow" data-act="ntfy-test" ${NTFY_BUSY ? 'disabled' : ''}>${NTFY_BUSY ? '<span class="spin"></span> Mengirim…' : icon('bell') + ' Kirim notifikasi tes'}</button><button class="btn ghost" data-act="ntfy-off">Matikan</button></div>
       <div id="ntfyRes" class="note ${({ok:'info', fail:'', unknown:'plain'})[(ntfyLastInfo(st) || {}).state] ?? 'plain'} mt8" ${ntfyLastInfo(st) ? '' : 'hidden'}>${esc((ntfyLastInfo(st) || {}).txt || '')}</div>
       <div class="kv mt8" style="align-items:center"><span>Token ntfy <span class="xs muted">(opsional, untuk kiriman lewat server)</span></span><span style="display:flex;gap:10px;align-items:center">${st.ntfy_token ? '<span class="ok-t small">terpasang</span>' : '<span class="small muted">belum</span>'}<button class="link" data-act="ntfy-token">${st.ntfy_token ? 'Ubah' : 'Pasang'}</button></span></div>`
-      : `<p class="small" style="margin:0 0 10px;line-height:1.5">Dapat kabar di HP saat mesin berhenti, dijeda, antrean selesai, atau revisi selesai. Gratis lewat aplikasi ntfy.</p><button class="btn pri block" data-act="ntfy-make">${icon('bell')} Buat topik notifikasi</button>`)}
+      : `<p class="small" style="margin:0 0 10px;line-height:1.5">Dapat kabar di HP saat laptop berhenti, dijeda, antrean selesai, atau revisi selesai. Gratis lewat aplikasi ntfy.</p><button class="btn pri block" data-act="ntfy-make">${icon('bell')} Buat topik notifikasi</button>`)}
     ${sec('Instagram', `
       <div class="kv" style="align-items:center"><label for="igLim">Batas harian</label><span style="display:flex;gap:8px;align-items:center"><input id="igLim" class="inp" type="number" min="10" max="1000" value="${st.ig_daily_limit || 150}" style="width:90px"><span class="small muted">postingan</span></span></div>
       <div class="kv mt8" style="align-items:center"><label for="igGap">Jeda antar akun</label><select id="igGap" class="inp" style="width:auto">${[15, 30, 60, 120].map(m => `<option value="${m}" ${+st.account_gap_min === m ? 'selected' : ''}>${m < 60 ? m + ' menit' : m / 60 + ' jam'}</option>`).join('')}</select></div>
@@ -2351,7 +2559,7 @@ VIEWS.pengaturan = () => {
     ${sec('Ruang Cek', `<label class="chk"><input type="checkbox" id="autoNext" ${st.session_auto_next ? 'checked' : ''}>Buka catatan berikutnya otomatis setelah Cek Selesai / Minta Revisi</label>`)}
     ${sec('Ebook &amp; tulisan', `<label class="chk"><input type="checkbox" id="ebChk" ${st.ebook_checked_only ? 'checked' : ''}>Hanya pakai catatan Sudah Dicek (bawaan form Minta tulisan)</label>`)}
     ${sec('Perangkat &amp; versi', `
-      <div class="kv"><span>Laptop mesin</span><span>${ev.local ? 'tab ini' : ev.status === 'mati' ? 'belum siaga' : `${esc(ev.device || 'laptop')} · ${esc(ago(ev.heartbeat_at))}`}</span></div>
+      <div class="kv"><span>Laptop</span><span>${ev.local ? 'tab ini' : ev.status === 'mati' ? 'belum siaga' : `${esc(ev.device || 'laptop')} · ${esc(ago(ev.heartbeat_at))}`}</span></div>
       <div class="kv"><span>Extension di Chrome ini</span><span class="${EXT.ready && !EXT.old ? 'ok-t' : EXT.ready ? 'warn-t' : ''}">${EXT.ready ? `v${esc(EXT.version)}${EXT.old ? ` · ada v${EXT_LATEST}` : ' · terbaru'}` : 'tidak terpasang'}</span></div>
       <div class="btns mt8"><button class="btn pri grow" data-act="ext-dl">${icon('down')} Unduh extension v${EXT_LATEST}</button><button class="btn" data-act="ext-guide">Cara pasang</button></div>
       <a class="link" href="#checklist">Checklist kesiapan laptop ›</a>
@@ -2474,7 +2682,7 @@ function prow(p, opt = {}){
   return `<a class="prow" href="${noteHref(p.id)}">${thumbHtml(p)}<span class="grow">
     <span class="t">${esc(titleOf(p))}</span>
     ${opt.snippet ? `<span class="s" data-snip>${esc(opt.snippet)}</span>` : p.summary ? `<span class="s">${esc(p.summary)}</span>` : ''}
-    <span class="m">${statusBadge(p)}${opt.noAcc ? '' : `<span>${esc(handleOf(p.account_id))}</span>·`}<span>${fmtD(p.post_date)}</span>${p.part_number && p.series_id ? `<span>· part ${p.part_number}</span>` : ''}${!(p.theme_ids || []).length ? '<span class="badge cl">menunggu tema</span>' : ''}${p.job ? `<span class="badge warn">${p.job === 'revisi' ? 'antre revisi' : 'antre ulang'}</span>` : ''}${risk.length && opt.risk !== false ? `<span class="tag">${risk.map(r => RISK_LABEL[r]).join(' · ')}</span>` : ''}</span></span></a>`;
+    <span class="m">${statusBadge(p)}${opt.noAcc ? '' : `<span>${esc(handleOf(p.account_id))}</span>·`}<span>${fmtD(p.post_date)}</span>${p.part_number && p.series_id ? `<span>· part ${p.part_number}</span>` : ''}${!(p.theme_ids || []).length && opt.tema !== false ? '<span class="badge cl">menunggu tema</span>' : ''}${p.job ? `<span class="badge warn">${p.job === 'revisi' ? 'antre revisi' : 'antre ulang'}</span>` : ''}${risk.length && opt.risk !== false ? `<span class="tag">${risk.map(r => RISK_LABEL[r]).join(' · ')}</span>` : ''}</span></span></a>`;
 }
 function filterPosts(q){
   const f = q.get('f'), acc = q.get('acc'), risk = q.get('risk'), copy = q.get('copy');
@@ -2504,7 +2712,7 @@ function revisiBanner(){
   const rev = S.posts.filter(p => p.check_status === 'revisi' && !p.job);
   let h = '';
   if(hasil.length) h += `<a class="note info mt12" style="display:flex;justify-content:space-between;text-decoration:none" href="#banding/${hasil[0].id}"><span>${hasil.length} hasil revisi siap dicek</span><b>Bandingkan ›</b></a>`;
-  if(rev.length) h += `<div class="note mt8" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>${rev.length} catatan Perlu Revisi belum dikirim ke mesin</span><button class="btn wout" style="min-height:36px;background:#fff" data-act="revise-all">Revisi semua</button></div>`;
+  if(rev.length) h += `<div class="note mt8" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>${rev.length} catatan Perlu Revisi belum dikirim ke laptop</span><button class="btn wout" style="min-height:36px;background:#fff" data-act="revise-all">Revisi semua</button></div>`;
   return h;
 }
 ACTIONS['revise-all'] = async () => {
@@ -2517,7 +2725,7 @@ ACTIONS['revise-all'] = async () => {
 };
 function kreatorList(){
   const accs = S.accounts.filter(a => postsOf(a.id).length || a.watched).sort((a, b) => postsOf(b.id).length - postsOf(a.id).length);
-  if(!accs.length) return `<div class="empty"><b>Rak masih kosong</b>Mulai dari menu Mulai › Sasaran baru.</div>`;
+  if(!accs.length) return `<div class="empty"><b>Rak masih kosong</b>Mulai dari menu Tambah.</div>`;
   const cur = ROUTE.parts[0] === 'k' ? ROUTE.parts[1] : null;
   return `<div class="card flush mt12">${accs.map(a => {
     const c = accCounts(a.id); const tot = c.n || 1; const ns = seriesOf(a.id).length;
@@ -2528,17 +2736,21 @@ function kreatorList(){
 }
 function temaList(){
   const tree = temas(); const un = untagged().length;
-  let h = un ? `<a class="row card mt12" style="border-radius:18px" href="#pustaka/tanpa"><span class="grow"><b style="font-weight:600">Belum bertema</b><br><span class="xs muted">menunggu Katalogis</span></span><span class="end">${un} ›</span></a>` : '';
-  if(!tree.length) return h + `<div class="empty"><b>Belum ada tema</b>Katalogis (Claude) membangun pohon tema lewat Ruang Claude.</div>`;
+  let h = un ? `<a class="row card mt12" style="border-radius:18px" href="#pustaka/tanpa"><span class="grow"><b style="font-weight:600">Belum bertema</b><br><span class="xs muted">menunggu diberi tema</span></span><span class="end">${un} ›</span></a>` : '';
+  if(!tree.length) return h + `<div class="empty"><b>Belum ada tema</b>Claude membangun pohon tema lewat Ruang Claude.</div>`;
   h += tree.map(t => { const subs = subsOf(t.id); const n = themeCount(t.id);
     return `<div class="card flush mt12"><a class="row" href="#pustaka/t/${t.id}" style="min-height:52px"><span class="grow"><b style="font:700 16px var(--f-title)">${esc(t.name)}</b><br><span class="xs muted">${subs.length} subtema</span></span><span class="end">${n} ›</span></a>
       ${subs.length ? `<div class="chips" style="padding:0 14px 14px">${subs.map(s => `<a class="chipbtn soft" href="#pustaka/t/${s.id}">${esc(s.name)} <span class="muted">${themeCount(s.id)}</span></a>`).join('')}</div>` : ''}</div>`; }).join('');
   return h;
 }
+function bacaSwitch(cur){
+  if(!isMobile()) return '';
+  return `<div class="page"><div class="pills mt12"><a href="#pustaka" ${cur === 'catatan' ? 'aria-current="page"' : ''}>Catatan</a><a href="#ebook" ${cur === 'ebook' ? 'aria-current="page"' : ''}>Ebook</a></div></div>`;
+}
 function pustakaTop(q){
   const tab = q.get('tab') === 'tema' ? 'tema' : 'kreator';
   const mk = (t, l) => { const n = new URLSearchParams(q); if(t === 'tema') n.set('tab', 'tema'); else n.delete('tab'); return `<a href="#pustaka?${n}" ${tab === t ? 'aria-current="page"' : ''}>${l}</a>`; };
-  return `<div class="hd"><h1>Pustaka</h1><button class="btn icon" data-act="pus-filter" aria-label="Filter">${icon('filter')}</button></div>
+  return `<div class="hd"><h1>${isMobile() ? 'Baca' : 'Pustaka'}</h1><button class="btn icon" data-act="pus-filter" aria-label="Filter">${icon('filter')}</button></div>${bacaSwitch('catatan')}
     <div class="page"><form class="search mt12" id="pSearch">${icon('search')}<input class="inp" type="search" id="pQ" placeholder="Cari isi catatan…" value="${esc(q.get('q') || '')}" aria-label="Cari isi catatan"></form>
     <div class="pills mt12">${mk('kreator', 'Kreator')}${mk('tema', 'Tema')}</div>${revisiBanner()}${tab === 'tema' ? temaList() : kreatorList()}</div>`;
 }
@@ -2656,7 +2868,7 @@ function temaPage(id, q){
     ${id === 'tanpa' ? `<div class="note plain mt8">Tema diberikan Claude (Katalogis). Buka <a href="#claude">Ruang Claude</a> lalu salin perintah <span class="mono">${esc(CMD.tema)}</span></div>` : ''}
     ${subs.length ? `<div class="chips mt12">${subs.map(s => `<a class="chipbtn soft" href="#pustaka/t/${s.id}">${esc(s.name)} <span class="muted">${themeCount(s.id)}</span></a>`).join('')}</div>` : ''}
     ${accs.length > 1 ? `<div class="chips mt12"><a class="chipbtn" href="${base}" aria-pressed="${!fa}">Semua kreator</a>${accs.map(a => `<a class="chipbtn" href="${base}?acc=${a}" aria-pressed="${fa === a}">${esc(handleOf(a))}</a>`).join('')}</div>` : ''}
-    ${cards.length ? `<div class="lbl mt16">Kartu konsep terkait</div><div class="chips mt8">${cards.map(c => `<a class="chipbtn soft" href="#ebook/kartu?c=${c.id}">${icon('card')} ${esc(c.title)}</a>`).join('')}</div>` : ''}</div>
+    ${cards.length ? `<div class="lbl mt16">Ide terkait</div><div class="chips mt8">${cards.map(c => `<a class="chipbtn soft" href="#ebook/kartu?c=${c.id}">${icon('card')} ${esc(c.title)}</a>`).join('')}</div>` : ''}</div>
     <div class="card flush mx mt12 plist">${ps.map(p => prow(p)).join('') || '<div class="row muted">Tidak ada catatan.</div>'}</div>`;
 }
 VIEWS.pustaka = r => {
@@ -2710,6 +2922,7 @@ ACTIONS['pus-filter'] = () => {
 async function fillNote(id, box, pane){
   const p = postById(id);
   if(!p){ box.innerHTML = '<div class="empty"><b>Catatan tidak ditemukan</b>Mungkin sudah dihapus.</div>'; return; }
+  try { localStorage.setItem('bambang-last-note', id); } catch(e){}
   const a = accById(p.account_id); const s = p.series_id ? serById(p.series_id) : null;
   const notes = p.revision_notes || [];
   const head = `<div class="page mt12" style="display:flex;gap:14px;align-items:flex-start">${thumbHtml(p, '', 'width:72px;height:90px;flex:none;')}
@@ -2718,7 +2931,7 @@ async function fillNote(id, box, pane){
       <div class="chips mt8">${statusBadge(p)}${(p.risk || []).map(r => `<span class="badge warn">${RISK_LABEL[r] || r}</span>`).join('')}${hasCopy(p) ? '<span class="badge acc">salinan video ada</span>' : ''}</div></div></div>
     <div class="page mt12"><div class="btns" style="flex-wrap:nowrap"><a class="btn pri grow" style="min-width:0" href="#cek/${p.id}">${icon('video')} Cek dengan video</a><a class="btn icon" href="${esc(p.original_url)}" target="_blank" rel="noopener" aria-label="Buka postingan asli" title="Buka asli">${icon('out')}</a><button class="btn icon" data-act="note-copy" data-id="${p.id}" aria-label="Salin catatan" title="Salin">${icon('copy')}</button><button class="btn icon" data-act="note-menu" data-id="${p.id}" aria-label="Menu lain" title="Lainnya">${icon('dots')}</button></div></div>
     ${p.is_revision_result && p.check_status === 'belum' ? `<a class="note info mx mt12" style="display:flex;justify-content:space-between;text-decoration:none" href="#banding/${p.id}"><span>${esc(p.version_note || 'Hasil revisi')}</span><b>Bandingkan ›</b></a>` : ''}
-    ${notes.length ? `<div class="note mx mt12"><b>Catatan revisi${p.job === 'revisi' ? ' (menunggu mesin)' : ''}:</b><ul style="margin:6px 0 0;padding-left:18px">${notes.map(n => `<li>${n.pos ? `<span class="mono">[${esc(n.pos)}]</span> ` : ''}${esc(n.text)}</li>`).join('')}</ul>${p.check_status === 'revisi' && !p.job ? '<button class="btn wout mt8" style="background:#fff" data-act="send-rev" data-id="' + p.id + '">Kirim revisi sekarang</button>' : ''}</div>` : ''}
+    ${notes.length ? `<div class="note mx mt12"><b>Catatan revisi${p.job === 'revisi' ? ' (menunggu laptop)' : ''}:</b><ul style="margin:6px 0 0;padding-left:18px">${notes.map(n => `<li>${n.pos ? `<span class="mono">[${esc(n.pos)}]</span> ` : ''}${esc(n.text)}</li>`).join('')}</ul>${p.check_status === 'revisi' && !p.job ? '<button class="btn wout mt8" style="background:#fff" data-act="send-rev" data-id="' + p.id + '">Kirim revisi sekarang</button>' : ''}</div>` : ''}
     <div class="page mt12 small muted">${(p.theme_ids || []).length ? [...p.theme_ids].map(t => `<a class="chipbtn soft" style="min-height:30px;margin:0 4px 4px 0" href="#pustaka/t/${t}">${esc(thPath(thById(t)))}</a>`).join('') : '<span class="badge cl">menunggu tema</span>'}${s ? ` <a class="chipbtn soft" style="min-height:30px" href="#pustaka/s/${s.id}">${icon('list')} ${esc(s.name)}${p.part_number ? ' · part ' + p.part_number : ''}</a>` : ''}</div>
     <div class="card mx mt12"><div class="md" id="noteMd">${MD.has(id) ? mdToHtml(splitFM(MD.get(id)).body, {ts:true}) : '<span class="spin"></span> Memuat isi…'}</div></div>
     <div class="page mt8 xs muted">Versi ${p.version || 1}${p.version_note ? ' · ' + esc(p.version_note) : ''} · prompt ${esc(p.prompt_version || '?')}${p.model ? ' · ' + esc(p.model) : ''}${p.tokens_in ? ` · ${num((p.tokens_in || 0) + (p.tokens_out || 0))} token` : ''} · diproses ${fmtDT(p.processed_at)} · <a href="#versi/${p.id}">riwayat versi</a></div>`;
@@ -3220,7 +3433,7 @@ function newSinceEdition(b){
 function ebookTabs(cur){
   const mk = (id, l, n) => `<a href="#ebook${id === 'buku' ? '' : '/' + id}" ${cur === id ? 'aria-current="page"' : ''}>${l}${n ? ` <span class="xs muted">${n}</span>` : ''}</a>`;
   const wait = S.requests.filter(r => r.status === 'menunggu' || r.status === 'dikerjakan').length;
-  return `<div class="hd"><h1>Ebook</h1></div><div class="page"><div class="pills mt12">${mk('buku', 'Buku', S.books.filter(b => b.status === 'aktif').length)}${mk('tulisan', 'Tulisan', wait || S.writings.length)}${mk('kartu', 'Kartu', S.cards.length)}</div></div>`;
+  return `<div class="hd"><h1>${isMobile() ? 'Baca' : 'Ebook'}</h1></div>${bacaSwitch('ebook')}<div class="page"><div class="pills mt12">${mk('buku', 'Buku', S.books.filter(b => b.status === 'aktif').length)}${mk('tulisan', 'Tulisan', wait || S.writings.length)}${mk('kartu', 'Ide', S.cards.length)}</div></div>`;
 }
 function cmdBox(cmd, note){
   return `<div class="card mt12" style="display:flex;flex-direction:column;gap:10px"><div class="small" style="line-height:1.5">${note}</div><div class="cmd">${esc(cmd)}</div>
@@ -3302,7 +3515,7 @@ function babView(id){
   const art = `<header class="page mt8"><span class="lbl">Bab ${i + 1}</span><h1 class="h1 mt8" style="line-height:1.1">${esc(c.title)}</h1><div class="small muted mt8">Edisi ${c.edition || b.edition || 0} · dari ${posts.size} catatan · ${accs.size} kreator</div></header>
     ${c.status === 'perlu_update' ? `<a class="note mx mt12" style="display:flex;justify-content:space-between;text-decoration:none" href="#ebook/buku/${b.id}"><span>Ada catatan baru untuk bab ini</span><b>Perlu diperbarui ›</b></a>` : ''}
     <article class="card mx mt12"><div class="md read" id="chMd">${CH_MD.has(id) ? mdToHtml(CH_MD.get(id), {src:true, fn:true}) : '<span class="spin"></span>'}</div></article>`;
-  const side = `<div class="page mt12"><div class="lbl">Kartu konsep di bab ini</div><div class="chips mt8">${cards.map(k => `<a class="chipbtn soft" href="#ebook/kartu?c=${k.id}">${esc(k.title)}</a>`).join('') || '<span class="xs muted">Belum ada.</span>'}</div></div>
+  const side = `<div class="page mt12"><div class="lbl">Ide di bab ini</div><div class="chips mt8">${cards.map(k => `<a class="chipbtn soft" href="#ebook/kartu?c=${k.id}">${esc(k.title)}</a>`).join('') || '<span class="xs muted">Belum ada.</span>'}</div></div>
     <div class="card flush mx mt12"><div class="cardhd"><span class="lbl">Sumber</span></div>${srcList(c.sources)}</div>`;
   const nav = `<div class="page mt12 btns">${chs[i - 1] ? `<a class="btn grow" href="#ebook/bab/${chs[i - 1].id}">‹ Bab ${i}</a>` : ''}${chs[i + 1] ? `<a class="btn grow" href="#ebook/bab/${chs[i + 1].id}">Bab ${i + 2} ›</a>` : ''}<button class="btn icon dark" data-act="ch-dl" data-id="${id}" aria-label="Unduh bab ini sebagai .md">${icon('down')}</button></div>`;
   const toc = `<a class="back" href="#ebook/buku/${b.id}">${icon('back')}Daftar isi</a><div class="page"><div class="h2">${esc(b.title)}</div></div><div class="card flush mx mt12 toc">${chs.map((x, k) => `<a class="row" href="#ebook/bab/${x.id}" ${x.id === id ? 'style="background:var(--acc-soft)"' : ''}><span class="no">${k + 1}</span><span class="grow small">${esc(x.title)}</span></a>`).join('')}</div>`;
@@ -3376,7 +3589,7 @@ function kartuList(q){
   let list = S.cards.filter(c => (!f || !used.has(c.id)) && (!s || lc(c.title + ' ' + (c.core || '')).includes(s)));
   const mk = (v, l) => `<a class="chipbtn" href="#ebook/kartu${v ? '?f=' + v : ''}" aria-pressed="${(f || '') === v}">${l}</a>`;
   let h = `<div class="page mt16"><div class="chips">${mk('', `Semua (${S.cards.length})`)}${mk('baru', `Belum dipakai di bab (${S.cards.filter(c => !used.has(c.id)).length})`)}</div></div>`;
-  if(!S.cards.length) return h + `<div class="empty"><b>Belum ada kartu konsep</b>Kartu konsep = satu ide yang digabung dari beberapa kreator. Dibuat Claude saat menyiapkan ebook.</div>`;
+  if(!S.cards.length) return h + `<div class="empty"><b>Belum ada ide</b>Ide = satu gagasan yang digabung dari beberapa kreator. Dibuat Claude saat menyiapkan ebook.</div>`;
   h += list.map(c => {
     const pids = S.cardPosts.filter(x => x.card_id === c.id).map(x => x.post_id);
     const accs = [...new Set(pids.map(postById).filter(Boolean).map(p => p.account_id))];
@@ -3453,7 +3666,7 @@ VIEWS.claude = r => {
   const t = claudeTasks();
   const sel = TASKS.find(x => x.id === sub) || TASKS.find(x => x.n(t) > 0) || TASKS[0];
   $('#view').innerHTML = `<div class="rc">
-    <div class="hd"><div style="display:flex;align-items:center;gap:14px"><button class="btn icon" data-act="back" data-to="#dashboard" aria-label="Kembali">${icon('back')}</button><h1>Ruang Claude</h1></div><span class="mono xs muted">#claude</span></div>
+    <div class="hd"><div style="display:flex;align-items:center;gap:14px"><button class="btn icon" data-act="back" data-to="${homeHash()}" aria-label="Kembali">${icon('back')}</button><h1>Ruang Claude</h1></div><span class="mono xs muted">#claude</span></div>
     <div class="page mt16"><div class="tasks">${TASKS.map(x => `<a class="task" href="#claude/${x.id}" aria-current="${x.id === sel.id}"><span style="display:flex;justify-content:space-between;align-items:center"><span class="badge cl">${x.skill}</span></span><span class="t">${x.title}</span><span class="n">${x.n(t)}</span><span class="xs muted">${x.unit}</span></a>`).join('')}</div></div>
     <div class="page mt16"><div class="rcard" style="padding:20px;display:flex;flex-direction:column;gap:12px">
       <div style="display:flex;align-items:center;gap:10px">${whoIcon('claude', 32)}<span style="font-weight:600;font-size:17px">${sel.skill}: ${sel.title.toLowerCase()}${sel.n(t) ? ` · ${sel.n(t)} ${sel.unit}` : ''}</span></div>
@@ -3495,7 +3708,7 @@ function antreanPage(r){
       <select class="inp" style="width:auto;min-height:36px" data-qst="${q.id}">${['antri', 'selesai', 'gagal', 'lewati'].map(s => `<option ${s === q.status ? 'selected' : ''}>${s}</option>`).join('')}</select>
       ${q.post_id ? `<a class="btn icon" href="#catatan/${q.post_id}" aria-label="Buka catatan">${icon('next')}</a>` : `<button class="btn icon" data-act="q-del" data-id="${q.id}" aria-label="Hapus dari antrean">${icon('trash')}</button>`}</div>`).join('') || '<div class="row muted">Tidak ada link.</div>'}</div>
     ${list.length > 400 ? `<p class="page xs muted">Menampilkan 400 dari ${list.length}.</p>` : ''}
-    <div class="page mt16"><div class="lbl">Tambah link manual</div><p class="xs muted">Untuk link yang terlewat. Lebih mudah lewat menu Mulai › Sasaran baru.</p><a class="btn" href="#mulai">Ke Sasaran baru</a></div>`;
+    <div class="page mt16"><div class="lbl">Tambah link manual</div><p class="xs muted">Untuk link yang terlewat. Lebih mudah lewat menu Tambah.</p><a class="btn" href="#tambah">Ke Tambah</a></div>`;
 }
 document.addEventListener('change', e => { const s = e.target.closest('[data-qst]'); if(s) dbUpdate('link_queue', s.dataset.qst, s.value === 'antri' ? {status:s.value, note:null} : {status:s.value}).then(ok => ok && toast('Status link diubah')); });
 ACTIONS['q-del'] = async b => { if(await confirmSheet('Hapus link dari antrean?', 'Catatan yang sudah tersimpan tidak ikut terhapus.', 'Hapus', true)){ await dbDelete('link_queue', b.dataset.id); render(true); } };
@@ -3552,7 +3765,7 @@ function logPage(r){
   }
   const all = [...S.activity, ...LOG_MORE.filter(x => !S.activity.some(y => y.id === x.id))];
   const list = all.filter(a => (!who || a.actor === who) && (!lv || a.level === lv));
-  h += `<div class="page mt8"><div class="chips">${mk('who', '', 'Semua')}${mk('who', 'mesin', 'Mesin')}${mk('who', 'claude', 'Claude')}${mk('who', 'kamu', 'Kamu')}</div><div class="chips mt8">${mk('lv', '', 'Semua level')}${mk('lv', 'error', 'Gagal')}${mk('lv', 'warn', 'Peringatan')}${mk('lv', 'ok', 'Berhasil')}</div></div>
+  h += `<div class="page mt8"><div class="chips">${mk('who', '', 'Semua')}${mk('who', 'mesin', 'Laptop')}${mk('who', 'claude', 'Claude')}${mk('who', 'kamu', 'Kamu')}</div><div class="chips mt8">${mk('lv', '', 'Semua level')}${mk('lv', 'error', 'Gagal')}${mk('lv', 'warn', 'Peringatan')}${mk('lv', 'ok', 'Berhasil')}</div></div>
     <div class="rcard mx mt12 feed" style="padding:6px 0">${feedHtml(list) || '<div class="it"><span class="grow muted">Tidak ada.</span></div>'}</div>
     <div class="page mt12"><button class="btn" data-act="log-more">Muat lebih lama</button></div>`;
   return h;
@@ -3720,6 +3933,10 @@ document.addEventListener('visibilitychange', async () => {
   softRender();   // tidak menghapus isian yang sedang diketik (muncul tombol "Muat data baru")
 });
 
+/* PWA: service worker supaya BAMBANG bisa dipasang di layar utama dan cepat terbuka. Data tetap selalu diambil langsung dari Supabase. */
+if('serviceWorker' in navigator && /^https:|^http:\/\/localhost/.test(location.origin)){
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
 </script>
 </body>
 </html>
