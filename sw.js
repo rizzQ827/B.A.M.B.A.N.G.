@@ -1,7 +1,7 @@
-/* BAMBANG service worker v0.8.0
+/* BAMBANG service worker v0.8.1
    Tugasnya kecil: menyimpan "kerangka" aplikasi supaya BAMBANG bisa dipasang di layar utama HP dan cepat terbuka.
    Data (catatan, antrean, status laptop) TIDAK disimpan di sini: selalu diambil langsung dari Supabase. */
-const CACHE = 'bambang-shell-v0.8.0';
+const CACHE = 'bambang-shell-v0.8.1';
 const SHELL = ['index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 const CDN = ['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
