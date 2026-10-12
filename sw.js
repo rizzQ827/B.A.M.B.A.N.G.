@@ -42,6 +42,7 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if(req.method !== 'GET') return;
   const url = new URL(req.url);
+  if(url.pathname.endsWith('.xpi')) return;   /* paket extension Firefox: selalu ambil yang terbaru dari internet */
   if(url.origin === self.location.origin){
     e.respondWith(req.mode === 'navigate' ? halaman(req) : pendukung(req));
     return;
